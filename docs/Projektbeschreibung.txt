@@ -1,0 +1,89 @@
+# Rolle
+Du bist ein Experte für Next.js, Typescript, PrismaORM, Better Auth und UI-Design mit ShadCN.
+
+# Projektüberblick
+
+Projektname: Garagenverwaltung
+
+Kurzbeschreibung: Interaktive Web-App auf Basis von Next.js 16 (mit TypeScript), PostgreSQL (via Prisma ORM) als Datenbank, Better-Auth für Authentifizierung/Autorisierung und ShadCN für die Benutzeroberfläche. Die App dient der Verwaltung von Garagen, die in einer Garagenanlage stehen. Die Garagenanlage wird von einem Verein betrieben, dessen Mitglieder ebenfalls über die App verwaltet werden sollen. Die Garagenanlage kann aus mehreren Bauabschnitten mit jeweils mehreren Trakten bestehen, in denen jeweils mehrere Garagen in einer Reihe gebaut sind. Jede Garage kann einem Mitglied des Vereins zugeordnet werden, das entweder die Garagen selbst nutzt oder die Nutzung einer anderen Person (Garagennutzer) gestattet hat oder vom Verein direkt an ein Nicht-Mitglied vermietet werden.
+
+# Technische Umsetzung
+## Vorgaben
+- Code-Basis: Next.js 16 (App Router; /src nicht verwenden; /app verwenden) mit TypeScript. Priorisiere Server-Komponenten. Hosting nicht bei Vercel (keine Vercel-spezifische Implementierung)
+- Authentifizierung/Autorisierung/Benutzerverwaltung: Better-Auth mit RBAC und Dynamic Access Control
+- Better Auth: Organization Plugin mit Teams, Admin-Plugin, mit Authentifizierung mit E-Mail/Passwort beginnen
+- Datenbank: PostgreSQL über Prisma -Next ORM (Datenbank-URL in der .env-Datei). Bevorzuge englische Tabellen- und Feldnamen.
+- UI mit Komponenten von ShadCN (mit Base UI)
+- Validierung der Benutzereingaben mit zod (clientseitig und serverseitig)
+- vollständige REST-API für alle Programmfunktionen
+- bevorzuge Preact Signals (React) vor useState oder useMemo
+- hochgeladene Dokumente oder Bilder als BLOB in die Datenbank schreiben
+
+## Implementierung / Umsetzung
+- Erstelle zunächst einen mehrstufigen Plan zur Umsetzung. Schreibe für den Plan in eine Datei innerhalb des Projektordners.
+- Die Planstufen sollten aufeinander aufbauen
+- Nutze vorhandene MCP-Server oder Skills bei der Code-Generierung.
+- Bevorzuge in der Datenbank relationale Tabellen anstatt JSON oder Arrays in den Datenfeldern
+- vollständige Benutzerverwaltung (Anlegen, Bearbeiten, Deaktivieren/Aktivieren, Löschen, Rollen und Rechte zuweisen (Dynamic Access control), Passwort zurücksetzen)
+
+# App-Beschreibung und Funktionalitäten
+## Betreiber/Hauptnutzer der App
+Betreiber der Garagenanlage ist ein Verein. Der Verein kann auch mehrere Garagenanlagen betreiben. Die Daten aller betriebener Anlagen müssen getrennt zu verwalten sein. Jedem Datensatz soll daher die ID des Betreibers und der Anlage beigefügt werden. Bei der Benutzung der App muss zwischen mehreren Anlagen umgeschaltet werden können.
+Der Betreiber weist in seinen Rechnungen Umsatzsteuer (19 %) aus.
+
+## Begriffe
+Garage: Gebäude zum Einstellen eines Kraftfahrzeugs oder Unterstellen von Gegenständen (kleines Lager).
+Einzelgarage: Garage mit einer Trennwand zur Nachbargarage auf der linken  oder rechten Seite und einer Außenwand.
+Doppelgarage: Zwei nebeneinander liegende Garagen, die keine gemeinsame Trennwand haben.
+Garagenanlage: Grundstück, auf dem mehrere Garagen errichtet wurden. Die Garagenanlage kann in Trakte aufgeteilt sein. Die Garagenanlage ist die oberste Verwaltungseinheit und oberste Strukturebene.
+Trakt: Ein Trakt ist eine Reihe mehrerer unmittelbar aneinander gebauter Garagen.
+Bauabschnitt: Mehrere Trakte können zu einem Bauabschnitt zusammengefaßt werden.
+
+## Benutzerstruktur und Berechtigungen
+- Berechtigungen nach Rollen (RBAC). Administrator mit allen Rechten. Anlegen von Rollen und Zuweisung der Benutzer zu diesen Rollen durch den Administrator.
+
+## Übersicht Projektmodule
+- Vereinsverwaltung mit Mitgliederverwaltung
+- Garagenverwaltung
+
+## Modul 'Vereinsverwaltung'
+### Grundfunktionen
+- Stammdaten des Vereins, insbesondere
+-- Anschrift
+-- Vorstand (vertretungsberechtigte Personen, alle Vorstandsmitglieder)
+-- Bankverbindung
+-- Kontaktinformationen
+- Verwaltung von Mitgliedern. Verwaltung von Stammdaten, insbesondere
+-- Nutzungszeiträumen (Beginn und Ende der Mitgliedschaft)
+-- Anschriften
+-- Kontaktinformationen (z. B. Telefonnummern, E-Mail-Adressen)
+- Zuordnung von Mitgliedern zu einzelnen Garagen. Ein Mitglied kann mehrere Garagen besitzen.
+
+### Erweiterte Funktionen
+- Beitragsverwaltung/Beitragskonto/Forderungskonto: Sollstellung von Mitgliedsbeiträgen, Erfassung von Zahlungseingängen, Verwaltung von Mahngebühren und anderen Kosten (z.B. Stromabrechnungen).
+- Rechnungserstellung: Erstellen von Beitragsrechnungen (Aufnahmebeitrag und jährlicher Mitgliedsbeitrag)
+- Korrespondenz: Historie der Korrespondenz mit dem Mitglied (E-Mails und Briefpost)
+- E-Mail-Integration: direktes Versenden von E-Mails über die App über einen SMTP-Server. Verwendung von E-Mail-Vorlagen einschließlich Verwaltung der Vorlagen in der App.
+- Berichtsfunktionen: Mitgliederliste, Offene Forderungen, Mitgliederakte, Stammdatenblatt
+- Erstellen von Teilnehmerlisten für Arbeitseinsätze. Teilnehmer erhalten einen Teil des Mitgliedsbeitrages erstattet. Ausgabe der Teilnehmerliste. Berechnung des für alle Teilnehmer erforderlichen Rückzahlungsbetrages einschließlich optimaler Stückelung der erforderlichen Banknoten.
+- Export aller Berichte und Ansichten als PDF
+- einfaches Dokumentenmanagement (datenbankbasiert)
+
+## Modul 'Garagenverwaltung'
+### Grundfunktionen
+- Definieren von Strukturen für die Lage/Zuordnung der Garage (z.B. Garagenanlage → Bauabschnitt → Trakt → Garage). Mindestens Garagenanlage und Garage müssen enthalten sein. Zwischenschritte sind optional, müssen aber auswertbar sein. Eine Garage muss entweder einer Garagenanlage, einem Bauabschnitt oder einem Trakt zugeordnet werden.
+- Nutzerhistorie (in welchen Zeiträumen wurde die Garage von welchem Mitglied genutzt; auch ausgeschiedene Mitglieder).
+- Eigenschaften der Garage: Zuordnung zu den Strukturelementen (z.B. Bauabschnitt, Trakt), Garagennummer, Ausstattungsmerkmale (benutzerdefiniert; auf alle Garagen der Garagenanlage anwendbar; relationale Tabellen in der Datenbank), Doppel- oder Einzelgarage, Zählernummer falls Stromzähler vorhanden.
+- Erfassung von Verbrauchsdaten: Zählerstände des Stromzählers mit Datum erfassen; Stromverbrauch seit letzter Abrechnung mit einem Preis pro kWh abrechnen; Einzelrechnung erstellen; Rechnungen für alle noch nicht abgerechneten Garagen erstellen; Liste offener Abrechnungen erstellen; Erfassen von Zahlungseingängen
+
+### Erweiterte Funktionen
+- Mieterverwaltung: Garagen, die vom Verein an Nicht-Vereinsmitglieder vermietet werden. Erfasst werden müssen zu den Garagen die Stamm- und Kontaktdaten des Mieters, die regelmäßige Sollstellung der Miete, die Verwaltung von Zahlungseingängen. Die Durchführung der Zählerstandserfassung (Strom) und die Abrechnung des Verbrauchs erfolgen wie gegenüber den Garagennutzern.
+- Zählerstandserfassung: Foto des Stromzählers (mit Zählerstand und Zählernummer) → Auslesen beider Werte aus dem Bild → Speichern in die Datenbank für die spätere Abrechnung
+- Zählerstandsmeldung: Der Nutzer der Garage kann den Zählerstand durch Eingabe der Zählernummer, des Zählerstandes und des Datums melden oder ein Foto hochladen, aus dem dann die Zählernummer und der Zählerstand ausgelesen wird. Die gemeldeten Daten werden gespeichert und nach manueller Bestätigung durch einen Verantwortlichen fest mit der zur Zählernummer gehörenden Garage verknüpft. Diese Werte sind Grundlage der Verbrauchsabrechnung für Strom.
+- Zustandserfassung Garage: Erfassung von Schäden an einer Garage einschließlich Fotodokumentation; Schadensbericht für eine oder alle Garagen, Bauabschnitte oder Trakte; Erfassung von Maßnahmen zur Schadensbeseitigung
+- Zustandserfassung Garagenanlage: Erfassung eines Schadens außerhalb von Garagen (z. B. auf den Zufahrtswegen, Toren, Außenanlage) einschließlich Fotodokumentation; Schadensbericht für einen Schaden oder alle Schäden; Möglichkeit der Benachrichtigung des Verantwortlichen für die Schadensbeseitigung
+- digitale Karte der Garagenanlage: beim Klicken auf eine Garage wird die Detailansicht der Garage geöffnet. SVG als Basis und Layer über Openstreetmap-Karte.
+
+## Ansichten
+- Mitgliederbezogene Ansicht: Beim Auswählen eines Mitglieds werden alle Daten zum Mitglied und den von ihm genutzten Garagen übersichtlich strukturiert angezeigt.
+- Garagenbezogene Ansicht: Beim Auswählen einer Garage werden alle Daten zu der Garage und den mit ihr verknüpften Mitgliedern (auch historische) übersichtlich strukturiert angezeigt.
