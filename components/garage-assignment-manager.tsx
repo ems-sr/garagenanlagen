@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import { createGarageAssignment, endGarageAssignment } from '@/app/(app)/_actions/garage-assignments';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
@@ -51,17 +52,12 @@ export function GarageAssignmentManager({
     error.value = undefined;
     isSubmitting.value = true;
 
-    const response = await fetch('/api/garage-assignments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'member', garageId: garageId.value, clubMemberId: memberId }),
-    });
+    const result = await createGarageAssignment({ type: 'member', garageId: garageId.value, clubMemberId: memberId });
 
     isSubmitting.value = false;
 
-    if (!response.ok) {
-      const { error: apiError } = await response.json();
-      toast.add({ title: 'Zuordnung fehlgeschlagen', description: apiError?.message, type: 'error' });
+    if (!result.success) {
+      toast.add({ title: 'Zuordnung fehlgeschlagen', description: result.error.message, type: 'error' });
       return;
     }
 
@@ -72,14 +68,9 @@ export function GarageAssignmentManager({
   }
 
   async function handleEnd(assignmentId: string) {
-    const response = await fetch(`/api/garage-assignments/${assignmentId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ validTo: new Date().toISOString() }),
-    });
-    if (!response.ok) {
-      const { error: apiError } = await response.json();
-      toast.add({ title: 'Speichern fehlgeschlagen', description: apiError?.message, type: 'error' });
+    const result = await endGarageAssignment(assignmentId, { validTo: new Date() });
+    if (!result.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: result.error.message, type: 'error' });
       return;
     }
     toast.add({ title: 'Zuordnung beendet', type: 'success' });

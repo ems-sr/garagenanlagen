@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import { updateClubProfile } from '@/app/(app)/_actions/club-profile';
 import { updateClubProfileSchema } from '@/lib/validation/club-profile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,17 +57,12 @@ export function ClubProfileForm({
     errors.value = {};
     isSubmitting.value = true;
 
-    const response = await fetch('/api/club-profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result.data),
-    });
+    const actionResult = await updateClubProfile(result.data);
 
     isSubmitting.value = false;
 
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Speichern fehlgeschlagen', description: error?.message, type: 'error' });
+    if (!actionResult.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: actionResult.error.message, type: 'error' });
       return;
     }
 

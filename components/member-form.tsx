@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import { createMember, updateMember } from '@/app/(app)/_actions/members';
 import { createClubMemberSchema } from '@/lib/validation/club-member';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,23 +63,17 @@ export function MemberForm({
     errors.value = {};
     isSubmitting.value = true;
 
-    const response = await fetch(memberId ? `/api/members/${memberId}` : '/api/members', {
-      method: memberId ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result.data),
-    });
+    const actionResult = memberId ? await updateMember(memberId, result.data) : await createMember(result.data);
 
     isSubmitting.value = false;
 
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Speichern fehlgeschlagen', description: error?.message, type: 'error' });
+    if (!actionResult.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: actionResult.error.message, type: 'error' });
       return;
     }
 
-    const member = await response.json();
     toast.add({ title: memberId ? 'Mitglied aktualisiert' : 'Mitglied angelegt', type: 'success' });
-    router.push(`/mitglieder/${member.id}`);
+    router.push(`/mitglieder/${actionResult.data.id}`);
     router.refresh();
   }
 

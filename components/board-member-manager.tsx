@@ -3,6 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import {
+  createBoardMember as createBoardMemberAction,
+  updateBoardMember as updateBoardMemberAction,
+  deleteBoardMember as deleteBoardMemberAction,
+} from '@/app/(app)/_actions/board-members';
 import { createBoardMemberSchema } from '@/lib/validation/board-member';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -157,19 +162,14 @@ export function BoardMemberManager({ initialItems, canEdit }: { initialItems: Bo
   const router = useRouter();
 
   async function createBoardMember(values: FormValues): Promise<boolean> {
-    const response = await fetch('/api/board-members', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fullName: values.fullName,
-        role: values.role,
-        email: values.email || undefined,
-        phone: values.phone || undefined,
-      }),
+    const result = await createBoardMemberAction({
+      fullName: values.fullName,
+      role: values.role,
+      email: values.email || undefined,
+      phone: values.phone || undefined,
     });
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Anlegen fehlgeschlagen', description: error?.message, type: 'error' });
+    if (!result.success) {
+      toast.add({ title: 'Anlegen fehlgeschlagen', description: result.error.message, type: 'error' });
       return false;
     }
     toast.add({ title: 'Vorstandsmitglied angelegt', type: 'success' });
@@ -178,19 +178,14 @@ export function BoardMemberManager({ initialItems, canEdit }: { initialItems: Bo
   }
 
   async function updateBoardMember(id: string, values: FormValues): Promise<boolean> {
-    const response = await fetch(`/api/board-members/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fullName: values.fullName,
-        role: values.role,
-        email: values.email || undefined,
-        phone: values.phone || undefined,
-      }),
+    const result = await updateBoardMemberAction(id, {
+      fullName: values.fullName,
+      role: values.role,
+      email: values.email || undefined,
+      phone: values.phone || undefined,
     });
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Speichern fehlgeschlagen', description: error?.message, type: 'error' });
+    if (!result.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: result.error.message, type: 'error' });
       return false;
     }
     toast.add({ title: 'Vorstandsmitglied aktualisiert', type: 'success' });
@@ -199,10 +194,9 @@ export function BoardMemberManager({ initialItems, canEdit }: { initialItems: Bo
   }
 
   async function deleteBoardMember(id: string) {
-    const response = await fetch(`/api/board-members/${id}`, { method: 'DELETE' });
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Löschen fehlgeschlagen', description: error?.message, type: 'error' });
+    const result = await deleteBoardMemberAction(id);
+    if (!result.success) {
+      toast.add({ title: 'Löschen fehlgeschlagen', description: result.error.message, type: 'error' });
       return;
     }
     toast.add({ title: 'Vorstandsmitglied gelöscht', type: 'success' });

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import { createMembershipPeriod, endMembershipPeriod } from '@/app/(app)/_actions/membership-periods';
 import { createMembershipPeriodSchema } from '@/lib/validation/membership-period';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,17 +43,12 @@ export function MembershipPeriodManager({ memberId, initialItems }: { memberId: 
     errors.value = {};
     isSubmitting.value = true;
 
-    const response = await fetch(`/api/members/${memberId}/membership-periods`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result.data),
-    });
+    const actionResult = await createMembershipPeriod(memberId, result.data);
 
     isSubmitting.value = false;
 
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Anlegen fehlgeschlagen', description: error?.message, type: 'error' });
+    if (!actionResult.success) {
+      toast.add({ title: 'Anlegen fehlgeschlagen', description: actionResult.error.message, type: 'error' });
       return;
     }
 
@@ -64,14 +60,9 @@ export function MembershipPeriodManager({ memberId, initialItems }: { memberId: 
   }
 
   async function handleEnd(periodId: string) {
-    const response = await fetch(`/api/members/${memberId}/membership-periods/${periodId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endDate: new Date().toISOString() }),
-    });
-    if (!response.ok) {
-      const { error } = await response.json();
-      toast.add({ title: 'Speichern fehlgeschlagen', description: error?.message, type: 'error' });
+    const result = await endMembershipPeriod(memberId, periodId, { endDate: new Date() });
+    if (!result.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: result.error.message, type: 'error' });
       return;
     }
     toast.add({ title: 'Mitgliedschaftszeitraum beendet', type: 'success' });
