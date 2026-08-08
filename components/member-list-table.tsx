@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusIcon } from '@phosphor-icons/react';
+import { PlusIcon, EyeIcon, PencilSimpleIcon } from '@phosphor-icons/react';
 
 type MemberRow = {
   id: string;
@@ -49,12 +49,13 @@ export function MemberListTable({ items }: { items: MemberRow[] }) {
             <TableHead>Name</TableHead>
             <TableHead>Ort</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filtered.length === 0 && (
             <TableRow>
-              <TableCell colSpan={3} className="text-center text-muted-foreground">
+              <TableCell colSpan={4} className="text-center text-muted-foreground">
                 Keine Mitglieder gefunden.
               </TableCell>
             </TableRow>
@@ -62,13 +63,27 @@ export function MemberListTable({ items }: { items: MemberRow[] }) {
           {filtered.map((item) => (
             <TableRow key={item.id}>
               <TableCell>
-                <Link href={`/mitglieder/${item.id}`} className="underline underline-offset-4">
-                  {item.firstName} {item.lastName}
-                </Link>
+                {item.firstName} {item.lastName}
               </TableCell>
               <TableCell>{item.city ?? '–'}</TableCell>
               <TableCell>
                 <Badge variant={item.active ? 'default' : 'secondary'}>{item.active ? 'Aktiv' : 'Inaktiv'}</Badge>
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  <Link href={`/mitglieder/${item.id}`}>
+                    <Button size="icon-sm" variant="ghost">
+                      <EyeIcon />
+                      <span className="sr-only">Ansehen</span>
+                    </Button>
+                  </Link>
+                  <Link href={`/mitglieder/${item.id}/bearbeiten`}>
+                    <Button size="icon-sm" variant="ghost">
+                      <PencilSimpleIcon />
+                      <span className="sr-only">Bearbeiten</span>
+                    </Button>
+                  </Link>
+                </div>
               </TableCell>
             </TableRow>
           ))}
