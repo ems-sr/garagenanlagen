@@ -21,3 +21,14 @@ export async function requirePermission(
 
   return null;
 }
+
+// Boolean variant for Server Components (pages, layouts) that need to decide
+// what to render rather than reject a request — e.g. hiding a nav entry the
+// user can't act on.
+export async function hasPermission(organizationId: string, permissions: Record<string, string[]>): Promise<boolean> {
+  const result = await auth.api.hasPermission({
+    headers: await headers(),
+    body: { organizationId, permissions },
+  });
+  return result.success;
+}
