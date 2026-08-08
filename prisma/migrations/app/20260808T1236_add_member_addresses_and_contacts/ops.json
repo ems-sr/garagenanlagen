@@ -1,0 +1,404 @@
+[
+  {
+    "id": "table.memberAddress",
+    "label": "Create table \"memberAddress\"",
+    "summary": "Creates table \"memberAddress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "memberAddress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"memberAddress\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberAddress\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"memberAddress\"",
+        "sql": "CREATE TABLE \"public\".\"memberAddress\" (\n  \"city\" text,\n  \"clubMemberId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"postalCode\" text,\n  \"street\" text,\n  \"type\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"memberAddress\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberAddress\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.memberContact",
+    "label": "Create table \"memberContact\"",
+    "summary": "Creates table \"memberContact\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "memberContact"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"memberContact\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberContact\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"memberContact\"",
+        "sql": "CREATE TABLE \"public\".\"memberContact\" (\n  \"clubMemberId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"type\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"value\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"memberContact\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberContact\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.memberAddress.memberAddress_type_check",
+    "label": "Add check constraint \"memberAddress_type_check\" on \"memberAddress\".\"type\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "memberAddress_type_check",
+        "table": "memberAddress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"memberAddress_type_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberAddress_type_check",
+          "public",
+          "\"public\".\"memberAddress\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"memberAddress_type_check\"",
+        "sql": "ALTER TABLE \"public\".\"memberAddress\" ADD CONSTRAINT \"memberAddress_type_check\" CHECK (\"type\" IN ('home', 'billing', 'other'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"memberAddress_type_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberAddress_type_check",
+          "public",
+          "\"public\".\"memberAddress\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.memberContact.memberContact_type_check",
+    "label": "Add check constraint \"memberContact_type_check\" on \"memberContact\".\"type\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "memberContact_type_check",
+        "table": "memberContact"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"memberContact_type_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberContact_type_check",
+          "public",
+          "\"public\".\"memberContact\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"memberContact_type_check\"",
+        "sql": "ALTER TABLE \"public\".\"memberContact\" ADD CONSTRAINT \"memberContact_type_check\" CHECK (\"type\" IN ('email', 'phone', 'mobile', 'fax', 'other'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"memberContact_type_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberContact_type_check",
+          "public",
+          "\"public\".\"memberContact\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.memberAddress.memberAddress_clubMemberId_idx_363aef22",
+    "label": "Create index \"memberAddress_clubMemberId_idx_363aef22\" on \"memberAddress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "memberAddress_clubMemberId_idx_363aef22",
+        "table": "memberAddress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"memberAddress_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberAddress_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"memberAddress_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"memberAddress_clubMemberId_idx_363aef22\" ON \"public\".\"memberAddress\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"memberAddress_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberAddress_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.memberAddress.memberAddress_organizationId_idx_2e17ef41",
+    "label": "Create index \"memberAddress_organizationId_idx_2e17ef41\" on \"memberAddress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "memberAddress_organizationId_idx_2e17ef41",
+        "table": "memberAddress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"memberAddress_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberAddress_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"memberAddress_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"memberAddress_organizationId_idx_2e17ef41\" ON \"public\".\"memberAddress\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"memberAddress_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberAddress_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.memberContact.memberContact_clubMemberId_idx_363aef22",
+    "label": "Create index \"memberContact_clubMemberId_idx_363aef22\" on \"memberContact\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "memberContact_clubMemberId_idx_363aef22",
+        "table": "memberContact"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"memberContact_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberContact_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"memberContact_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"memberContact_clubMemberId_idx_363aef22\" ON \"public\".\"memberContact\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"memberContact_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberContact_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.memberContact.memberContact_organizationId_idx_2e17ef41",
+    "label": "Create index \"memberContact_organizationId_idx_2e17ef41\" on \"memberContact\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "memberContact_organizationId_idx_2e17ef41",
+        "table": "memberContact"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"memberContact_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberContact_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"memberContact_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"memberContact_organizationId_idx_2e17ef41\" ON \"public\".\"memberContact\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"memberContact_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"memberContact_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.memberAddress.memberAddress_clubMemberId_fkey",
+    "label": "Add foreign key \"memberAddress_clubMemberId_fkey\" on \"memberAddress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "memberAddress_clubMemberId_fkey",
+        "table": "memberAddress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"memberAddress_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberAddress_clubMemberId_fkey",
+          "public",
+          "\"public\".\"memberAddress\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"memberAddress_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"memberAddress\"\nADD CONSTRAINT \"memberAddress_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"memberAddress_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberAddress_clubMemberId_fkey",
+          "public",
+          "\"public\".\"memberAddress\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.memberContact.memberContact_clubMemberId_fkey",
+    "label": "Add foreign key \"memberContact_clubMemberId_fkey\" on \"memberContact\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "memberContact_clubMemberId_fkey",
+        "table": "memberContact"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"memberContact_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberContact_clubMemberId_fkey",
+          "public",
+          "\"public\".\"memberContact\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"memberContact_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"memberContact\"\nADD CONSTRAINT \"memberContact_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"memberContact_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "memberContact_clubMemberId_fkey",
+          "public",
+          "\"public\".\"memberContact\""
+        ]
+      }
+    ]
+  }
+]

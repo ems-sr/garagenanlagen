@@ -30,7 +30,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'04d6949cb878c10a013bed5f27b5e6db4003f3d3e4c9e114152062dc6563dcb3'>;
+  StorageHashBase<'3c7389bab2fda5ed014503098af7dbe3efc2dab537500a210ed028cdb19f1f61'>;
 export type ExecutionHash =
   ExecutionHashBase<'914ad2dad1aa36c91e3cc0f98773a95c262d17c4a908c0a0a24b99c71851666d'>;
 export type ProfileHash =
@@ -255,7 +255,6 @@ export type FieldOutputTypes = {
       readonly clubMemberId: CodecTypes['pg/text@1']['output'];
       readonly type: 'home' | 'billing' | 'other';
       readonly street: CodecTypes['pg/text@1']['output'] | null;
-      readonly houseNumber: CodecTypes['pg/text@1']['output'] | null;
       readonly postalCode: CodecTypes['pg/text@1']['output'] | null;
       readonly city: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz@1']['output'];
@@ -405,7 +404,6 @@ export type FieldInputTypes = {
       readonly clubMemberId: CodecTypes['pg/text@1']['input'];
       readonly type: 'home' | 'billing' | 'other';
       readonly street: CodecTypes['pg/text@1']['input'] | null;
-      readonly houseNumber: CodecTypes['pg/text@1']['input'] | null;
       readonly postalCode: CodecTypes['pg/text@1']['input'] | null;
       readonly city: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz@1']['input'];
@@ -553,7 +551,6 @@ export type StorageColumnTypes = {
       readonly city: CodecTypes['pg/text@1']['output'] | null;
       readonly clubMemberId: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz@1']['output'];
-      readonly houseNumber: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly organizationId: CodecTypes['pg/text@1']['output'];
       readonly postalCode: CodecTypes['pg/text@1']['output'] | null;
@@ -703,7 +700,6 @@ export type StorageColumnInputTypes = {
       readonly city: CodecTypes['pg/text@1']['input'] | null;
       readonly clubMemberId: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz@1']['input'];
-      readonly houseNumber: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly organizationId: CodecTypes['pg/text@1']['input'];
       readonly postalCode: CodecTypes['pg/text@1']['input'] | null;
@@ -1532,11 +1528,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                 };
                 readonly street: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly houseNumber: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
@@ -2539,10 +2530,6 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly houseNumber: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly postalCode: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -2582,7 +2569,6 @@ type ContractBase = Omit<
                 readonly clubMemberId: { readonly column: 'clubMemberId' };
                 readonly type: { readonly column: 'type' };
                 readonly street: { readonly column: 'street' };
-                readonly houseNumber: { readonly column: 'houseNumber' };
                 readonly postalCode: { readonly column: 'postalCode' };
                 readonly city: { readonly column: 'city' };
                 readonly createdAt: { readonly column: 'createdAt' };

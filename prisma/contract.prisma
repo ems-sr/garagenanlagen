@@ -178,6 +178,57 @@ model ClubMember {
   @@index([organizationId])
 }
 
+enum AddressType {
+  @@type("pg/text@1")
+  home    = "home"
+  billing = "billing"
+  other   = "other"
+}
+
+// A member can have any number of addresses beyond the primary one on
+// ClubMember itself (e.g. a billing address, a holiday address).
+model MemberAddress {
+  id             String      @id @default(uuid())
+  organizationId String
+  clubMemberId   String
+  clubMember     ClubMember  @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
+  type           AddressType
+  street         String?
+  houseNumber    String?
+  postalCode     String?
+  city           String?
+  createdAt      DateTime    @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([clubMemberId])
+}
+
+enum ContactType {
+  @@type("pg/text@1")
+  email  = "email"
+  phone  = "phone"
+  mobile = "mobile"
+  fax    = "fax"
+  other  = "other"
+}
+
+// A member can have any number of contact entries beyond the primary
+// email/phone on ClubMember itself (e.g. a second phone, a fax number).
+model MemberContact {
+  id             String      @id @default(uuid())
+  organizationId String
+  clubMemberId   String
+  clubMember     ClubMember  @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
+  type           ContactType
+  value          String
+  createdAt      DateTime    @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([clubMemberId])
+}
+
 model MembershipPeriod {
   id             String     @id @default(uuid())
   organizationId String

@@ -1,12 +1,13 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { db } from '@/prisma/db';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MembershipPeriodManager } from '@/components/membership-period-manager';
 import { GarageAssignmentManager } from '@/components/garage-assignment-manager';
+import { MemberAddressManager } from '@/components/member-address-manager';
+import { MemberContactManager } from '@/components/member-contact-manager';
+import { MemberNameEditor } from '@/components/member-name-editor';
 
 export default async function MitgliedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,13 +18,16 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
   const member = await db.orm.public.ClubMember.where({ id, organizationId }).first();
   if (!member) notFound();
 
-  const [periods, assignments, activeAssignmentsOrgWide, garages, facilities] = await Promise.all([
-    db.orm.public.MembershipPeriod.where({ clubMemberId: id, organizationId }).all(),
-    db.orm.public.GarageAssignment.where({ clubMemberId: id, organizationId, type: 'member' }).all(),
-    db.orm.public.GarageAssignment.where({ organizationId }).where((a) => a.validTo.isNull()).all(),
-    db.orm.public.Garage.where({ organizationId }).all(),
-    db.orm.public.Facility.where({ organizationId }).all(),
-  ]);
+  const [periods, assignments, activeAssignmentsOrgWide, garages, facilities, addresses, contacts] =
+    await Promise.all([
+      db.orm.public.MembershipPeriod.where({ clubMemberId: id, organizationId }).all(),
+      db.orm.public.GarageAssignment.where({ clubMemberId: id, organizationId, type: 'member' }).all(),
+      db.orm.public.GarageAssignment.where({ organizationId }).where((a) => a.validTo.isNull()).all(),
+      db.orm.public.Garage.where({ organizationId }).all(),
+      db.orm.public.Facility.where({ organizationId }).all(),
+      db.orm.public.MemberAddress.where({ clubMemberId: id, organizationId }).all(),
+      db.orm.public.MemberContact.where({ clubMemberId: id, organizationId }).all(),
+    ]);
 
   const facilityNameById = new Map(facilities.map((facility) => [facility.id, facility.name]));
   const garageById = new Map(garages.map((garage) => [garage.id, garage]));
@@ -50,30 +54,11 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
             </CardTitle>
             <CardDescription>Stammdaten des Mitglieds.</CardDescription>
           </div>
-          <Link href={`/mitglieder/${member.id}/bearbeiten`}>
-            <Button size="sm" variant="outline">
-              Bearbeiten
-            </Button>
-          </Link>
+          <MemberNameEditor
+            memberId={member.id}
+            initialValues={{ firstName: member.firstName, lastName: member.lastName }}
+          />
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <div className="text-muted-foreground">Anschrift</div>
-            <div>
-              {member.street ?? '–'}
-              <br />
-              {member.postalCode} {member.city}
-            </div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">Kontakt</div>
-            <div>
-              {member.email ?? '–'}
-              <br />
-              {member.phone ?? '–'}
-            </div>
-          </div>
-        </CardContent>
       </Card>
 
       <Card>
@@ -87,6 +72,43 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
               id: period.id,
               startDate: period.startDate.toISOString(),
               endDate: period.endDate ? period.endDate.toISOString() : null,
+            }))}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Adressen</CardTitle>
+          <CardDescription>Weitere Adressen des Mitglieds.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MemberAddressManager
+            memberId={member.id}
+            initialItems={addresses.map((address) => ({
+              id: address.id,
+              type: address.type,
+              street: address.street,
+              houseNumber: address.houseNumber,
+              postalCode: address.postalCode,
+              city: address.city,
+            }))}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Kontakte</CardTitle>
+          <CardDescription>Weitere Kontaktmöglichkeiten des Mitglieds.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MemberContactManager
+            memberId={member.id}
+            initialItems={contacts.map((contact) => ({
+              id: contact.id,
+              type: contact.type,
+              value: contact.value,
             }))}
           />
         </CardContent>

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "column.public.memberAddress.houseNumber",
+    "label": "Add column \"houseNumber\" to \"memberAddress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "houseNumber",
+        "table": "memberAddress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"houseNumber\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "memberAddress",
+          "houseNumber"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"houseNumber\"",
+        "sql": "ALTER TABLE \"public\".\"memberAddress\" ADD COLUMN \"houseNumber\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"houseNumber\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "memberAddress",
+          "houseNumber"
+        ]
+      }
+    ]
+  }
+]

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusIcon, EyeIcon, PencilSimpleIcon } from '@phosphor-icons/react';
+import { PlusIcon, EyeIcon } from '@phosphor-icons/react';
 
 type MemberRow = {
   id: string;
@@ -75,12 +75,6 @@ export function MemberListTable({ items }: { items: MemberRow[] }) {
                     <Button size="icon-sm" variant="ghost">
                       <EyeIcon />
                       <span className="sr-only">Ansehen</span>
-                    </Button>
-                  </Link>
-                  <Link href={`/mitglieder/${item.id}/bearbeiten`}>
-                    <Button size="icon-sm" variant="ghost">
-                      <PencilSimpleIcon />
-                      <span className="sr-only">Bearbeiten</span>
                     </Button>
                   </Link>
                 </div>
