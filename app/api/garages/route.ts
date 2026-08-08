@@ -4,6 +4,7 @@ import { getRequestContext } from '@/lib/api/context';
 import { requirePermission } from '@/lib/api/permissions';
 import { jsonError, zodError } from '@/lib/api/responses';
 import { createGarageSchema } from '@/lib/validation/garage';
+import { linkNeighbor } from '@/lib/garage-neighbor';
 
 const UNIQUE_VIOLATION = '23505';
 
@@ -58,17 +59,40 @@ export async function POST(request: NextRequest) {
     if (!block) return jsonError(400, 'INVALID_BLOCK', 'Trakt gehört nicht zur angegebenen Garagenanlage.');
   }
 
+  if (data.neighborGarageId) {
+    const neighbor = await db.orm.public.Garage.where({ id: data.neighborGarageId, organizationId }).first();
+    if (!neighbor || neighbor.facilityId !== data.facilityId) {
+      return jsonError(400, 'INVALID_NEIGHBOR', 'Nachbargarage gehört nicht zur angegebenen Garagenanlage.');
+    }
+    if (neighbor.type !== 'double') {
+      return jsonError(400, 'INVALID_NEIGHBOR', 'Nachbargarage ist keine Doppelgarage.');
+    }
+  }
+
   try {
-    const garage = await db.orm.public.Garage.create({ ...data, organizationId });
+    const garage = await db.transaction(async (tx) => {
+      const created = await tx.orm.public.Garage.create({ ...data, organizationId });
+      if (data.neighborGarageId) {
+        await linkNeighbor(tx, organizationId, created.id, data.neighborGarageId);
+      }
+      return created;
+    });
     return NextResponse.json(garage, { status: 201 });
   } catch (error) {
-    if (isUniqueViolation(error)) {
+    const constraint = uniqueViolationConstraint(error);
+    if (constraint === 'garage_neighborGarageId_key') {
+      return jsonError(409, 'DUPLICATE_NEIGHBOR', 'Diese Garage ist bereits die Nachbargarage einer anderen Garage.');
+    }
+    if (constraint) {
       return jsonError(409, 'DUPLICATE_NUMBER', 'Garagennummer ist in dieser Garagenanlage bereits vergeben.');
     }
     throw error;
   }
 }
 
-function isUniqueViolation(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'sqlState' in error && error.sqlState === UNIQUE_VIOLATION;
+function uniqueViolationConstraint(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null || !('sqlState' in error) || error.sqlState !== UNIQUE_VIOLATION) {
+    return undefined;
+  }
+  return 'constraint' in error && typeof error.constraint === 'string' ? error.constraint : undefined;
 }

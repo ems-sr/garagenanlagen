@@ -1,0 +1,128 @@
+[
+  {
+    "id": "column.public.garage.neighborGarageId",
+    "label": "Add column \"neighborGarageId\" to \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "neighborGarageId",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"neighborGarageId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "garage",
+          "neighborGarageId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"neighborGarageId\"",
+        "sql": "ALTER TABLE \"public\".\"garage\" ADD COLUMN \"neighborGarageId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"neighborGarageId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "garage",
+          "neighborGarageId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.garage.garage_neighborGarageId_key",
+    "label": "Add unique constraint on \"garage\" (neighborGarageId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "garage_neighborGarageId_key",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garage_neighborGarageId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_neighborGarageId_key",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"garage_neighborGarageId_key\"",
+        "sql": "ALTER TABLE \"public\".\"garage\" ADD CONSTRAINT \"garage_neighborGarageId_key\" UNIQUE (\"neighborGarageId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garage_neighborGarageId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_neighborGarageId_key",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garage.garage_neighborGarageId_fkey",
+    "label": "Add foreign key \"garage_neighborGarageId_fkey\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garage_neighborGarageId_fkey",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garage_neighborGarageId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_neighborGarageId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garage_neighborGarageId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garage\"\nADD CONSTRAINT \"garage_neighborGarageId_fkey\"\nFOREIGN KEY (\"neighborGarageId\")\nREFERENCES \"public\".\"garage\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garage_neighborGarageId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_neighborGarageId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  }
+]

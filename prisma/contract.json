@@ -822,6 +822,13 @@
                   "kind": "scalar"
                 }
               },
+              "neighborGarageId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "number": {
                 "nullable": false,
                 "type": {
@@ -902,6 +909,21 @@
                   "model": "Facility",
                   "namespace": "public"
                 }
+              },
+              "neighborGarage": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "neighborGarageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Garage",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -923,6 +945,9 @@
                 },
                 "meterNumber": {
                   "column": "meterNumber"
+                },
+                "neighborGarageId": {
+                  "column": "neighborGarageId"
                 },
                 "number": {
                   "column": "number"
@@ -2247,6 +2272,11 @@
                   "nativeType": "text",
                   "nullable": true
                 },
+                "neighborGarageId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "number": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -2322,6 +2352,22 @@
                     "namespaceId": "public",
                     "tableName": "block"
                   }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "neighborGarageId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garage"
+                  }
                 }
               ],
               "indexes": [
@@ -2364,6 +2410,11 @@
                 ]
               },
               "uniques": [
+                {
+                  "columns": [
+                    "neighborGarageId"
+                  ]
+                },
                 {
                   "columns": [
                     "facilityId",
@@ -3082,7 +3133,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "04d6949cb878c10a013bed5f27b5e6db4003f3d3e4c9e114152062dc6563dcb3"
+    "storageHash": "ac017d4dd14d9274a96fb7347e6e00a3d65dfdedac8474fbe84d19f275c9c580"
   },
   "execution": {
     "executionHash": "914ad2dad1aa36c91e3cc0f98773a95c262d17c4a908c0a0a24b99c71851666d",

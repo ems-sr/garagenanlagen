@@ -10,6 +10,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/mitglieder', label: 'Mitglieder', permission: { resource: 'member', actions: ['read'] } },
+  { href: '/garagenanlagen', label: 'Garagenanlagen', permission: { resource: 'garage', actions: ['read'] } },
   { href: '/verein', label: 'Verein', permission: { resource: 'club', actions: ['read'] } },
   { href: '/organizations', label: 'Verein wechseln' },
 ];

@@ -133,6 +133,14 @@ model Block {
 // filterable by Facility regardless of which structural level it actually
 // hangs off. App-level rule (zod, not the contract): at most one of
 // constructionSectionId/blockId may be set.
+//
+// neighborGarageId is nullable because it's a self-reference: a Doppelgarage
+// (double garage) is paired with the one other Garage it shares no partition
+// wall with, but that partner may not be created yet when this row is first
+// entered. @unique keeps the pairing one-to-one (a garage can be named as
+// someone's neighbor at most once); the app layer (zod + server actions)
+// restricts it to type=double and forbids self-reference, since Prisma Next
+// has no declarative validation.
 model Garage {
   id                    String               @id @default(uuid())
   organizationId        String
@@ -145,6 +153,8 @@ model Garage {
   number                String
   type                  GarageType
   meterNumber           String?
+  neighborGarageId      String?              @unique
+  neighborGarage        Garage?              @relation("GarageNeighbor", fields: [neighborGarageId], references: [id])
   createdAt             DateTime             @default(now())
   updatedAt             temporal.updatedAt()
 

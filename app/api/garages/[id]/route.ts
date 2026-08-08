@@ -4,6 +4,7 @@ import { getRequestContext } from '@/lib/api/context';
 import { requirePermission } from '@/lib/api/permissions';
 import { jsonError, zodError } from '@/lib/api/responses';
 import { updateGarageSchema } from '@/lib/validation/garage';
+import { linkNeighbor } from '@/lib/garage-neighbor';
 
 type RouteParams = { params: Promise<{ id: string }> };
 const UNIQUE_VIOLATION = '23505';
@@ -61,11 +62,47 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (!block) return jsonError(400, 'INVALID_BLOCK', 'Trakt gehört nicht zur angegebenen Garagenanlage.');
   }
 
+  if (data.neighborGarageId) {
+    if (data.neighborGarageId === id) {
+      return jsonError(400, 'INVALID_NEIGHBOR', 'Eine Garage kann nicht ihre eigene Nachbargarage sein.');
+    }
+    const neighbor = await db.orm.public.Garage.where({ id: data.neighborGarageId, organizationId }).first();
+    if (!neighbor || neighbor.facilityId !== facilityId) {
+      return jsonError(400, 'INVALID_NEIGHBOR', 'Nachbargarage gehört nicht zur angegebenen Garagenanlage.');
+    }
+    if (neighbor.type !== 'double') {
+      return jsonError(400, 'INVALID_NEIGHBOR', 'Nachbargarage ist keine Doppelgarage.');
+    }
+  }
+
   try {
-    const garage = await db.orm.public.Garage.where({ id, organizationId }).update(data);
+    const garage = await db.transaction(async (tx) => {
+      const updated = await tx.orm.public.Garage.where({ id, organizationId }).update(data);
+
+      if (data.neighborGarageId !== undefined && data.neighborGarageId !== existing.neighborGarageId) {
+        // This garage's previous partner (if any) would otherwise keep
+        // pointing back at a garage that no longer points at it — true both
+        // when re-pairing to someone else and when explicitly clearing to
+        // null.
+        if (existing.neighborGarageId) {
+          await tx.orm.public.Garage.where({ id: existing.neighborGarageId, organizationId }).update({
+            neighborGarageId: null,
+          });
+        }
+        if (data.neighborGarageId) {
+          await linkNeighbor(tx, organizationId, id, data.neighborGarageId);
+        }
+      }
+
+      return updated;
+    });
     return NextResponse.json(garage);
   } catch (error) {
-    if (isUniqueViolation(error)) {
+    const constraint = uniqueViolationConstraint(error);
+    if (constraint === 'garage_neighborGarageId_key') {
+      return jsonError(409, 'DUPLICATE_NEIGHBOR', 'Diese Garage ist bereits die Nachbargarage einer anderen Garage.');
+    }
+    if (constraint) {
       return jsonError(409, 'DUPLICATE_NUMBER', 'Garagennummer ist in dieser Garagenanlage bereits vergeben.');
     }
     throw error;
@@ -88,6 +125,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   return new NextResponse(null, { status: 204 });
 }
 
-function isUniqueViolation(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'sqlState' in error && error.sqlState === UNIQUE_VIOLATION;
+function uniqueViolationConstraint(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null || !('sqlState' in error) || error.sqlState !== UNIQUE_VIOLATION) {
+    return undefined;
+  }
+  return 'constraint' in error && typeof error.constraint === 'string' ? error.constraint : undefined;
 }
