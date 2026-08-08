@@ -152,6 +152,7 @@ model Garage {
   blockId               String?
   block                 Block?               @relation(fields: [blockId], references: [id])
   number                String
+  shortName             String?
   type                  GarageType
   meterNumber           String?
   neighborGarageId      String?              @unique

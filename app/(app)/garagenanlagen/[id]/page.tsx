@@ -108,6 +108,7 @@ export default async function GaragenanlageDetailPage({ params }: { params: Prom
               initialItems={garages.map((garage) => ({
                 id: garage.id,
                 number: garage.number,
+                shortName: garage.shortName,
                 type: garage.type,
                 meterNumber: garage.meterNumber,
                 constructionSectionId: garage.constructionSectionId,

@@ -96,6 +96,7 @@ async function main() {
     facilityId: facilityA.id,
     blockId: blockUnderSection.id,
     number: 'A-1',
+    shortName: 'A1',
     type: 'single',
     meterNumber: 'Z-1001',
   });
@@ -104,6 +105,7 @@ async function main() {
     facilityId: facilityA.id,
     blockId: blockDirect.id,
     number: 'B-1',
+    shortName: 'B1',
     type: 'double',
     meterNumber: 'Z-1002',
   });

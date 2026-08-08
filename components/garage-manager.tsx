@@ -39,6 +39,7 @@ import { PlusIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 type Garage = {
   id: string;
   number: string;
+  shortName: string | null;
   type: 'single' | 'double';
   meterNumber: string | null;
   constructionSectionId: string | null;
@@ -54,6 +55,7 @@ type NeighborOption = { id: string; number: string };
 
 type FormValues = {
   number: string;
+  shortName: string;
   type: 'single' | 'double';
   meterNumber: string;
   constructionSectionId: string | undefined;
@@ -64,6 +66,7 @@ type FormValues = {
 function emptyForm(): FormValues {
   return {
     number: '',
+    shortName: '',
     type: 'single',
     meterNumber: '',
     constructionSectionId: undefined,
@@ -102,6 +105,7 @@ function GarageFormDialog({
   function toPayload(v: FormValues) {
     return {
       number: v.number,
+      shortName: v.shortName === '' ? undefined : v.shortName,
       type: v.type,
       meterNumber: v.meterNumber === '' ? undefined : v.meterNumber,
       constructionSectionId: v.blockId ? undefined : v.constructionSectionId,
@@ -170,6 +174,15 @@ function GarageFormDialog({
                 aria-invalid={!!errors.value.number}
               />
               {errors.value.number && <FieldError errors={[{ message: errors.value.number }]} />}
+            </Field>
+            <Field data-invalid={!!errors.value.shortName}>
+              <FieldLabel htmlFor="garageShortName">Kurzbezeichnung</FieldLabel>
+              <Input
+                id="garageShortName"
+                value={values.value.shortName}
+                onChange={(e) => (values.value = { ...values.value, shortName: e.target.value })}
+              />
+              {errors.value.shortName && <FieldError errors={[{ message: errors.value.shortName }]} />}
             </Field>
             <Field>
               <FieldLabel htmlFor="garageType">Typ</FieldLabel>
@@ -368,6 +381,7 @@ export function GarageManager({
     const result = await createGarageAction({
       facilityId,
       number: values.number,
+      shortName: values.shortName || undefined,
       type: values.type,
       meterNumber: values.meterNumber || undefined,
       constructionSectionId: values.blockId ? undefined : values.constructionSectionId,
@@ -386,6 +400,7 @@ export function GarageManager({
   async function updateGarage(id: string, values: FormValues): Promise<boolean> {
     const result = await updateGarageAction(id, {
       number: values.number,
+      shortName: values.shortName || undefined,
       type: values.type,
       meterNumber: values.meterNumber || undefined,
       constructionSectionId: values.blockId ? undefined : values.constructionSectionId,
@@ -435,6 +450,7 @@ export function GarageManager({
         <TableHeader>
           <TableRow>
             <TableHead>Nummer</TableHead>
+            <TableHead>Kurzbezeichnung</TableHead>
             <TableHead>Typ</TableHead>
             <TableHead>Zählernummer</TableHead>
             <TableHead>Bauabschnitt</TableHead>
@@ -446,7 +462,7 @@ export function GarageManager({
         <TableBody>
           {initialItems.length === 0 && (
             <TableRow>
-              <TableCell colSpan={canEdit ? 7 : 6} className="text-center text-muted-foreground">
+              <TableCell colSpan={canEdit ? 8 : 7} className="text-center text-muted-foreground">
                 Noch keine Garagen erfasst.
               </TableCell>
             </TableRow>
@@ -454,6 +470,7 @@ export function GarageManager({
           {initialItems.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.number}</TableCell>
+              <TableCell>{item.shortName ?? '–'}</TableCell>
               <TableCell>{typeLabels[item.type]}</TableCell>
               <TableCell>{item.meterNumber ?? '–'}</TableCell>
               <TableCell>{sectionLabel(item)}</TableCell>
@@ -478,6 +495,7 @@ export function GarageManager({
                       title="Garage bearbeiten"
                       initialValues={{
                         number: item.number,
+                        shortName: item.shortName ?? '',
                         type: item.type,
                         meterNumber: item.meterNumber ?? '',
                         constructionSectionId:

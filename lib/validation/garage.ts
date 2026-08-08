@@ -6,6 +6,7 @@ export const createGarageSchema = z
     constructionSectionId: z.string().optional(),
     blockId: z.string().optional(),
     number: z.string().min(1, 'Garagennummer erforderlich'),
+    shortName: z.string().optional(),
     type: z.enum(['single', 'double'], 'Ungültiger Garagentyp'),
     meterNumber: z.string().optional(),
     // null = explicitly clear the pairing (propagated to the other side —
@@ -27,6 +28,7 @@ export const updateGarageSchema = z
     constructionSectionId: z.string().optional(),
     blockId: z.string().optional(),
     number: z.string().min(1, 'Garagennummer erforderlich').optional(),
+    shortName: z.string().optional(),
     type: z.enum(['single', 'double'], 'Ungültiger Garagentyp').optional(),
     meterNumber: z.string().optional(),
     // null = explicitly clear the pairing (propagated to the other side —
