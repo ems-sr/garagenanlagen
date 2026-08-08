@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { db } from '@/prisma/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MembershipPeriodManager } from '@/components/membership-period-manager';
 import { GarageAssignmentManager } from '@/components/garage-assignment-manager';
 import { MemberAddressManager } from '@/components/member-address-manager';
@@ -45,97 +46,115 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
     }));
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader className="flex-row items-start justify-between">
-          <div>
-            <CardTitle>
-              {member.firstName} {member.lastName}
-            </CardTitle>
-            <CardDescription>Stammdaten des Mitglieds.</CardDescription>
-          </div>
-          <MemberNameEditor
-            memberId={member.id}
-            initialValues={{ firstName: member.firstName, lastName: member.lastName }}
-          />
-        </CardHeader>
-      </Card>
+    <Tabs defaultValue="stammdaten">
+      <TabsList>
+        <TabsTrigger value="stammdaten">Stammdaten</TabsTrigger>
+        <TabsTrigger value="mitgliedschaftszeitraeume">Mitgliedschaftszeiträume</TabsTrigger>
+        <TabsTrigger value="adressen">Adressen</TabsTrigger>
+        <TabsTrigger value="kontakte">Kontakte</TabsTrigger>
+        <TabsTrigger value="garagen">Garagen</TabsTrigger>
+      </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Mitgliedschaftszeiträume</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <MembershipPeriodManager
-            memberId={member.id}
-            initialItems={periods.map((period) => ({
-              id: period.id,
-              startDate: period.startDate.toISOString(),
-              endDate: period.endDate ? period.endDate.toISOString() : null,
-            }))}
-          />
-        </CardContent>
-      </Card>
+      <TabsContent value="stammdaten">
+        <Card>
+          <CardHeader className="flex-row items-start justify-between">
+            <div>
+              <CardTitle>
+                {member.firstName} {member.lastName}
+              </CardTitle>
+              <CardDescription>Stammdaten des Mitglieds.</CardDescription>
+            </div>
+            <MemberNameEditor
+              memberId={member.id}
+              initialValues={{ firstName: member.firstName, lastName: member.lastName }}
+            />
+          </CardHeader>
+        </Card>
+      </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Adressen</CardTitle>
-          <CardDescription>Weitere Adressen des Mitglieds.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <MemberAddressManager
-            memberId={member.id}
-            initialItems={addresses.map((address) => ({
-              id: address.id,
-              type: address.type,
-              street: address.street,
-              houseNumber: address.houseNumber,
-              postalCode: address.postalCode,
-              city: address.city,
-            }))}
-          />
-        </CardContent>
-      </Card>
+      <TabsContent value="mitgliedschaftszeitraeume">
+        <Card>
+          <CardHeader>
+            <CardTitle>Mitgliedschaftszeiträume</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MembershipPeriodManager
+              memberId={member.id}
+              initialItems={periods.map((period) => ({
+                id: period.id,
+                startDate: period.startDate.toISOString(),
+                endDate: period.endDate ? period.endDate.toISOString() : null,
+              }))}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Kontakte</CardTitle>
-          <CardDescription>Weitere Kontaktmöglichkeiten des Mitglieds.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <MemberContactManager
-            memberId={member.id}
-            initialItems={contacts.map((contact) => ({
-              id: contact.id,
-              type: contact.type,
-              value: contact.value,
-            }))}
-          />
-        </CardContent>
-      </Card>
+      <TabsContent value="adressen">
+        <Card>
+          <CardHeader>
+            <CardTitle>Adressen</CardTitle>
+            <CardDescription>Weitere Adressen des Mitglieds.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MemberAddressManager
+              memberId={member.id}
+              initialItems={addresses.map((address) => ({
+                id: address.id,
+                type: address.type,
+                street: address.street,
+                houseNumber: address.houseNumber,
+                postalCode: address.postalCode,
+                city: address.city,
+              }))}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Garagen</CardTitle>
-          <CardDescription>Dem Mitglied zugeordnete Garagen.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <GarageAssignmentManager
-            memberId={member.id}
-            initialItems={assignments.map((assignment) => {
-              const garage = garageById.get(assignment.garageId);
-              return {
-                id: assignment.id,
-                garageNumber: garage?.number ?? '',
-                facilityName: garage ? (facilityNameById.get(garage.facilityId) ?? '') : '',
-                validFrom: assignment.validFrom.toISOString(),
-                validTo: assignment.validTo ? assignment.validTo.toISOString() : null,
-              };
-            })}
-            availableGarages={availableGarages}
-          />
-        </CardContent>
-      </Card>
-    </div>
+      <TabsContent value="kontakte">
+        <Card>
+          <CardHeader>
+            <CardTitle>Kontakte</CardTitle>
+            <CardDescription>Weitere Kontaktmöglichkeiten des Mitglieds.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MemberContactManager
+              memberId={member.id}
+              initialItems={contacts.map((contact) => ({
+                id: contact.id,
+                type: contact.type,
+                value: contact.value,
+              }))}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="garagen">
+        <Card>
+          <CardHeader>
+            <CardTitle>Garagen</CardTitle>
+            <CardDescription>Dem Mitglied zugeordnete Garagen.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <GarageAssignmentManager
+              memberId={member.id}
+              initialItems={assignments.map((assignment) => {
+                const garage = garageById.get(assignment.garageId);
+                return {
+                  id: assignment.id,
+                  garageNumber: garage?.number ?? '',
+                  facilityName: garage ? (facilityNameById.get(garage.facilityId) ?? '') : '',
+                  validFrom: assignment.validFrom.toISOString(),
+                  validTo: assignment.validTo ? assignment.validTo.toISOString() : null,
+                };
+              })}
+              availableGarages={availableGarages}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 }

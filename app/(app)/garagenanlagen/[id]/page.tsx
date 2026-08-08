@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { db } from '@/prisma/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FacilityProfileEditor } from '@/components/facility-profile-editor';
 import { ConstructionSectionManager } from '@/components/construction-section-manager';
 import { BlockManager } from '@/components/block-manager';
@@ -34,76 +35,91 @@ export default async function GaragenanlageDetailPage({ params }: { params: Prom
   }));
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardHeader className="flex-row items-start justify-between">
-          <div>
-            <CardTitle>{facility.name}</CardTitle>
-            <CardDescription>Stammdaten der Garagenanlage.</CardDescription>
-          </div>
-          {canEdit && (
-            <FacilityProfileEditor
+    <Tabs defaultValue="stammdaten">
+      <TabsList>
+        <TabsTrigger value="stammdaten">Stammdaten</TabsTrigger>
+        <TabsTrigger value="bauabschnitte">Bauabschnitte</TabsTrigger>
+        <TabsTrigger value="trakte">Trakte</TabsTrigger>
+        <TabsTrigger value="garagen">Garagen</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="stammdaten">
+        <Card>
+          <CardHeader className="flex-row items-start justify-between">
+            <div>
+              <CardTitle>{facility.name}</CardTitle>
+              <CardDescription>Stammdaten der Garagenanlage.</CardDescription>
+            </div>
+            {canEdit && (
+              <FacilityProfileEditor
+                facilityId={facility.id}
+                initialValues={{
+                  name: facility.name,
+                  street: facility.street ?? '',
+                  postalCode: facility.postalCode ?? '',
+                  city: facility.city ?? '',
+                }}
+              />
+            )}
+          </CardHeader>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="bauabschnitte">
+        <Card>
+          <CardHeader>
+            <CardTitle>Bauabschnitte</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ConstructionSectionManager facilityId={facility.id} initialItems={sectionOptions} canEdit={canEdit} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="trakte">
+        <Card>
+          <CardHeader>
+            <CardTitle>Trakte</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BlockManager
               facilityId={facility.id}
-              initialValues={{
-                name: facility.name,
-                street: facility.street ?? '',
-                postalCode: facility.postalCode ?? '',
-                city: facility.city ?? '',
-              }}
+              initialItems={blocks.map((block) => ({
+                id: block.id,
+                name: block.name,
+                constructionSectionId: block.constructionSectionId,
+              }))}
+              constructionSections={sectionOptions}
+              canEdit={canEdit}
             />
-          )}
-        </CardHeader>
-      </Card>
+          </CardContent>
+        </Card>
+      </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Bauabschnitte</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ConstructionSectionManager facilityId={facility.id} initialItems={sectionOptions} canEdit={canEdit} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Trakte</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BlockManager
-            facilityId={facility.id}
-            initialItems={blocks.map((block) => ({
-              id: block.id,
-              name: block.name,
-              constructionSectionId: block.constructionSectionId,
-            }))}
-            constructionSections={sectionOptions}
-            canEdit={canEdit}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Garagen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <GarageManager
-            facilityId={facility.id}
-            initialItems={garages.map((garage) => ({
-              id: garage.id,
-              number: garage.number,
-              type: garage.type,
-              meterNumber: garage.meterNumber,
-              constructionSectionId: garage.constructionSectionId,
-              blockId: garage.blockId,
-              neighborGarageId: garage.neighborGarageId,
-            }))}
-            constructionSections={sectionOptions}
-            blocks={blockOptions}
-            canEdit={canEdit}
-          />
-        </CardContent>
-      </Card>
-    </div>
+      <TabsContent value="garagen">
+        <Card>
+          <CardHeader>
+            <CardTitle>Garagen</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <GarageManager
+              facilityId={facility.id}
+              initialItems={garages.map((garage) => ({
+                id: garage.id,
+                number: garage.number,
+                type: garage.type,
+                meterNumber: garage.meterNumber,
+                constructionSectionId: garage.constructionSectionId,
+                blockId: garage.blockId,
+                neighborGarageId: garage.neighborGarageId,
+              }))}
+              constructionSections={sectionOptions}
+              blocks={blockOptions}
+              canEdit={canEdit}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 }

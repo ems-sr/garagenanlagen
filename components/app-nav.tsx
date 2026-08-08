@@ -2,29 +2,52 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import {
+  SquaresFourIcon,
+  UsersIcon,
+  GarageIcon,
+  BuildingsIcon,
+  ArrowsLeftRightIcon,
+  type Icon,
+} from '@phosphor-icons/react';
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import type { NavItem } from '@/lib/nav';
+
+const NAV_ICONS: Record<string, Icon> = {
+  '/dashboard': SquaresFourIcon,
+  '/mitglieder': UsersIcon,
+  '/garagenanlagen': GarageIcon,
+  '/verein': BuildingsIcon,
+  '/organizations': ArrowsLeftRightIcon,
+};
 
 export function AppNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-1">
-      {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              'rounded-md px-3 py-1.5 text-sm transition-colors',
-              active ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
+    <SidebarGroup>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const ItemIcon = NAV_ICONS[item.href] ?? SquaresFourIcon;
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton render={<Link href={item.href} />} isActive={active} tooltip={item.label}>
+                  <ItemIcon />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }

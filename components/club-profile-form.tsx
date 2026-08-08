@@ -8,28 +8,31 @@ import { updateOrganizationName } from '@/app/(app)/_actions/organization';
 import { updateClubProfileSchema } from '@/lib/validation/club-profile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/components/ui/field';
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { toast } from '@/components/ui/toast';
 
-type ClubProfileValues = {
+type StammdatenValues = {
   name: string;
   street: string;
   postalCode: string;
   city: string;
-  bankIban: string;
-  bankBic: string;
-  bankName: string;
-  accountHolder: string;
   contactEmail: string;
   contactPhone: string;
 };
 
-export function ClubProfileForm({
-  initialProfile,
+type BankValues = {
+  bankIban: string;
+  bankBic: string;
+  bankName: string;
+  accountHolder: string;
+};
+
+export function ClubStammdatenForm({
+  initialValues,
   canEdit,
   canEditName,
 }: {
-  initialProfile: ClubProfileValues;
+  initialValues: StammdatenValues;
   canEdit: boolean;
   canEditName: boolean;
 }) {
@@ -37,11 +40,11 @@ export function ClubProfileForm({
   // components must subscribe themselves to re-render on `.value` reads.
   useSignals();
   const router = useRouter();
-  const values = useSignal<ClubProfileValues>(initialProfile);
+  const values = useSignal<StammdatenValues>(initialValues);
   const errors = useSignal<Record<string, string>>({});
   const isSubmitting = useSignal(false);
 
-  function setField<K extends keyof ClubProfileValues>(key: K, value: ClubProfileValues[K]) {
+  function setField<K extends keyof StammdatenValues>(key: K, value: StammdatenValues[K]) {
     values.value = { ...values.value, [key]: value };
   }
 
@@ -128,9 +131,81 @@ export function ClubProfileForm({
             onChange={(e) => setField('city', e.target.value)}
           />
         </Field>
+        <Field data-invalid={!!errors.value.contactEmail}>
+          <FieldLabel htmlFor="contactEmail">E-Mail</FieldLabel>
+          <Input
+            id="contactEmail"
+            type="email"
+            disabled={!canEdit}
+            value={values.value.contactEmail}
+            onChange={(e) => setField('contactEmail', e.target.value)}
+            aria-invalid={!!errors.value.contactEmail}
+          />
+          {errors.value.contactEmail && <FieldError errors={[{ message: errors.value.contactEmail }]} />}
+        </Field>
+        <Field data-invalid={!!errors.value.contactPhone}>
+          <FieldLabel htmlFor="contactPhone">Telefon</FieldLabel>
+          <Input
+            id="contactPhone"
+            disabled={!canEdit}
+            value={values.value.contactPhone}
+            onChange={(e) => setField('contactPhone', e.target.value)}
+          />
+        </Field>
 
-        <FieldSeparator>Bankverbindung</FieldSeparator>
+        {(canEdit || canEditName) && (
+          <Button type="submit" disabled={isSubmitting.value}>
+            Speichern
+          </Button>
+        )}
+      </FieldGroup>
+    </form>
+  );
+}
 
+export function ClubBankForm({ initialValues, canEdit }: { initialValues: BankValues; canEdit: boolean }) {
+  useSignals();
+  const router = useRouter();
+  const values = useSignal<BankValues>(initialValues);
+  const errors = useSignal<Record<string, string>>({});
+  const isSubmitting = useSignal(false);
+
+  function setField<K extends keyof BankValues>(key: K, value: BankValues[K]) {
+    values.value = { ...values.value, [key]: value };
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    const payload = Object.fromEntries(
+      Object.entries(values.value).map(([key, value]) => [key, value === '' ? undefined : value]),
+    );
+    const result = updateClubProfileSchema.safeParse(payload);
+    if (!result.success) {
+      errors.value = Object.fromEntries(
+        Object.entries(result.error.flatten().fieldErrors).map(([key, messages]) => [key, messages?.[0] ?? '']),
+      );
+      return;
+    }
+    errors.value = {};
+    isSubmitting.value = true;
+
+    const profileResult = await updateClubProfile(result.data);
+
+    isSubmitting.value = false;
+
+    if (!profileResult.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: profileResult.error.message, type: 'error' });
+      return;
+    }
+
+    toast.add({ title: 'Bankverbindung gespeichert', type: 'success' });
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <FieldGroup>
         <Field data-invalid={!!errors.value.accountHolder}>
           <FieldLabel htmlFor="accountHolder">Kontoinhaber</FieldLabel>
           <Input
@@ -168,31 +243,7 @@ export function ClubProfileForm({
           />
         </Field>
 
-        <FieldSeparator>Kontakt</FieldSeparator>
-
-        <Field data-invalid={!!errors.value.contactEmail}>
-          <FieldLabel htmlFor="contactEmail">E-Mail</FieldLabel>
-          <Input
-            id="contactEmail"
-            type="email"
-            disabled={!canEdit}
-            value={values.value.contactEmail}
-            onChange={(e) => setField('contactEmail', e.target.value)}
-            aria-invalid={!!errors.value.contactEmail}
-          />
-          {errors.value.contactEmail && <FieldError errors={[{ message: errors.value.contactEmail }]} />}
-        </Field>
-        <Field data-invalid={!!errors.value.contactPhone}>
-          <FieldLabel htmlFor="contactPhone">Telefon</FieldLabel>
-          <Input
-            id="contactPhone"
-            disabled={!canEdit}
-            value={values.value.contactPhone}
-            onChange={(e) => setField('contactPhone', e.target.value)}
-          />
-        </Field>
-
-        {(canEdit || canEditName) && (
+        {canEdit && (
           <Button type="submit" disabled={isSubmitting.value}>
             Speichern
           </Button>
