@@ -11,7 +11,7 @@ import {
 import { createMemberAddressSchema } from '@/lib/validation/member-address';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -141,9 +141,17 @@ function AddressFormDialog({
               {errors.value.type && <FieldError errors={[{ message: errors.value.type }]} />}
             </Field>
             <Field orientation="responsive" data-invalid={!!errors.value.street || !!errors.value.houseNumber}>
-              <FieldLabel htmlFor="addressStreet">Straße</FieldLabel>
-              <Input id="addressStreet" value={values.value.street} onChange={(e) => setField('street', e.target.value)} />
-              {errors.value.street && <FieldError errors={[{ message: errors.value.street }]} />}
+              <FieldLabel htmlFor="addressStreet" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                Straße
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="addressStreet"
+                  value={values.value.street}
+                  onChange={(e) => setField('street', e.target.value)}
+                />
+                {errors.value.street && <FieldError errors={[{ message: errors.value.street }]} />}
+              </FieldContent>
             </Field>
             <Field data-invalid={!!errors.value.houseNumber}>
               <FieldLabel htmlFor="addressHouseNumber">Hausnummer</FieldLabel>
@@ -155,12 +163,16 @@ function AddressFormDialog({
               {errors.value.houseNumber && <FieldError errors={[{ message: errors.value.houseNumber }]} />}
             </Field>
             <Field orientation="responsive" data-invalid={!!errors.value.postalCode}>
-              <FieldLabel htmlFor="addressPostalCode">PLZ</FieldLabel>
-              <Input
-                id="addressPostalCode"
-                value={values.value.postalCode}
-                onChange={(e) => setField('postalCode', e.target.value)}
-              />
+              <FieldLabel htmlFor="addressPostalCode" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                PLZ
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="addressPostalCode"
+                  value={values.value.postalCode}
+                  onChange={(e) => setField('postalCode', e.target.value)}
+                />
+              </FieldContent>
             </Field>
             <Field data-invalid={!!errors.value.city}>
               <FieldLabel htmlFor="addressCity">Ort</FieldLabel>

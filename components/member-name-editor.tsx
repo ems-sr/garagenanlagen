@@ -7,7 +7,7 @@ import { updateMember } from '@/app/(app)/_actions/members';
 import { createClubMemberSchema } from '@/lib/validation/club-member';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import {
   Dialog,
   DialogContent,
@@ -83,24 +83,32 @@ export function MemberNameEditor({ memberId, initialValues }: { memberId: string
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field orientation="responsive" data-invalid={!!errors.value.firstName}>
-              <FieldLabel htmlFor="editFirstName">Vorname</FieldLabel>
-              <Input
-                id="editFirstName"
-                value={values.value.firstName}
-                onChange={(e) => setField('firstName', e.target.value)}
-                aria-invalid={!!errors.value.firstName}
-              />
-              {errors.value.firstName && <FieldError errors={[{ message: errors.value.firstName }]} />}
+              <FieldLabel htmlFor="editFirstName" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                Vorname
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="editFirstName"
+                  value={values.value.firstName}
+                  onChange={(e) => setField('firstName', e.target.value)}
+                  aria-invalid={!!errors.value.firstName}
+                />
+                {errors.value.firstName && <FieldError errors={[{ message: errors.value.firstName }]} />}
+              </FieldContent>
             </Field>
             <Field orientation="responsive" data-invalid={!!errors.value.lastName}>
-              <FieldLabel htmlFor="editLastName">Nachname</FieldLabel>
-              <Input
-                id="editLastName"
-                value={values.value.lastName}
-                onChange={(e) => setField('lastName', e.target.value)}
-                aria-invalid={!!errors.value.lastName}
-              />
-              {errors.value.lastName && <FieldError errors={[{ message: errors.value.lastName }]} />}
+              <FieldLabel htmlFor="editLastName" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                Nachname
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="editLastName"
+                  value={values.value.lastName}
+                  onChange={(e) => setField('lastName', e.target.value)}
+                  aria-invalid={!!errors.value.lastName}
+                />
+                {errors.value.lastName && <FieldError errors={[{ message: errors.value.lastName }]} />}
+              </FieldContent>
             </Field>
           </FieldGroup>
           <DialogFooter className="mt-6">

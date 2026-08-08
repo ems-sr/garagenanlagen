@@ -56,6 +56,7 @@ export default async function GaragenanlageDetailPage({ params }: { params: Prom
                 initialValues={{
                   name: facility.name,
                   street: facility.street ?? '',
+                  houseNumber: facility.houseNumber ?? '',
                   postalCode: facility.postalCode ?? '',
                   city: facility.city ?? '',
                 }}

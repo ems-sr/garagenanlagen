@@ -69,6 +69,7 @@ model Facility {
   organizationId String
   name           String
   street         String?
+  houseNumber    String?
   postalCode     String?
   city           String?
   createdAt      DateTime @default(now())

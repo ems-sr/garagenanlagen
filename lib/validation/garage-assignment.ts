@@ -13,16 +13,19 @@ export const createGarageAssignmentSchema = z.discriminatedUnion('type', [
     type: z.literal('member'),
     garageId: z.string().min(1, 'Garage erforderlich'),
     clubMemberId: z.string().min(1, 'Mitglied erforderlich'),
+    validFrom: z.coerce.date('Ungültiges Startdatum').optional(),
   }),
   z.object({
     type: z.literal('user'),
     garageId: z.string().min(1, 'Garage erforderlich'),
     garageUserId: z.string().min(1, 'Nutzer erforderlich'),
+    validFrom: z.coerce.date('Ungültiges Startdatum').optional(),
   }),
   z.object({
     type: z.literal('tenant'),
     garageId: z.string().min(1, 'Garage erforderlich'),
     tenantId: z.string().min(1, 'Mieter erforderlich'),
+    validFrom: z.coerce.date('Ungültiges Startdatum').optional(),
   }),
 ]);
 

@@ -7,7 +7,7 @@ import { updateFacility } from '@/app/(app)/_actions/facilities';
 import { createFacilitySchema } from '@/lib/validation/facility';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
 import { toast } from '@/components/ui/toast';
 import { PencilSimpleIcon } from '@phosphor-icons/react';
 
-type FormValues = { name: string; street: string; postalCode: string; city: string };
+type FormValues = { name: string; street: string; houseNumber: string; postalCode: string; city: string };
 
 export function FacilityProfileEditor({ facilityId, initialValues }: { facilityId: string; initialValues: FormValues }) {
   useSignals();
@@ -39,6 +39,7 @@ export function FacilityProfileEditor({ facilityId, initialValues }: { facilityI
     const payload = {
       name: values.value.name,
       street: values.value.street || undefined,
+      houseNumber: values.value.houseNumber || undefined,
       postalCode: values.value.postalCode || undefined,
       city: values.value.city || undefined,
     };
@@ -99,20 +100,48 @@ export function FacilityProfileEditor({ facilityId, initialValues }: { facilityI
               {errors.value.name && <FieldError errors={[{ message: errors.value.name }]} />}
             </Field>
             <Field orientation="responsive">
-              <FieldLabel htmlFor="editStreet">Straße</FieldLabel>
-              <Input id="editStreet" value={values.value.street} onChange={(e) => setField('street', e.target.value)} />
+              <FieldLabel htmlFor="editStreet" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                Straße
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="editStreet"
+                  value={values.value.street}
+                  onChange={(e) => setField('street', e.target.value)}
+                />
+              </FieldContent>
             </Field>
             <Field orientation="responsive">
-              <FieldLabel htmlFor="editPostalCode">PLZ</FieldLabel>
-              <Input
-                id="editPostalCode"
-                value={values.value.postalCode}
-                onChange={(e) => setField('postalCode', e.target.value)}
-              />
+              <FieldLabel htmlFor="editHouseNumber" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                Hausnummer
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="editHouseNumber"
+                  value={values.value.houseNumber}
+                  onChange={(e) => setField('houseNumber', e.target.value)}
+                />
+              </FieldContent>
             </Field>
             <Field orientation="responsive">
-              <FieldLabel htmlFor="editCity">Ort</FieldLabel>
-              <Input id="editCity" value={values.value.city} onChange={(e) => setField('city', e.target.value)} />
+              <FieldLabel htmlFor="editPostalCode" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                PLZ
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="editPostalCode"
+                  value={values.value.postalCode}
+                  onChange={(e) => setField('postalCode', e.target.value)}
+                />
+              </FieldContent>
+            </Field>
+            <Field orientation="responsive">
+              <FieldLabel htmlFor="editCity" className="@md/field-group:w-28! @md/field-group:flex-none!">
+                Ort
+              </FieldLabel>
+              <FieldContent>
+                <Input id="editCity" value={values.value.city} onChange={(e) => setField('city', e.target.value)} />
+              </FieldContent>
             </Field>
           </FieldGroup>
           <DialogFooter className="mt-6">

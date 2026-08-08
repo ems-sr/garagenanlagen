@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createFacilitySchema = z.object({
   name: z.string().min(1, 'Name erforderlich'),
   street: z.string().optional(),
+  houseNumber: z.string().optional(),
   postalCode: z.string().optional(),
   city: z.string().optional(),
 });

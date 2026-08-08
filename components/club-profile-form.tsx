@@ -8,7 +8,7 @@ import { updateOrganizationName } from '@/app/(app)/_actions/organization';
 import { updateClubProfileSchema } from '@/lib/validation/club-profile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { toast } from '@/components/ui/toast';
 
 type StammdatenValues = {
@@ -114,13 +114,17 @@ export function ClubStammdatenForm({
           {errors.value.street && <FieldError errors={[{ message: errors.value.street }]} />}
         </Field>
         <Field orientation="responsive" data-invalid={!!errors.value.postalCode}>
-          <FieldLabel htmlFor="postalCode">PLZ</FieldLabel>
-          <Input
-            id="postalCode"
-            disabled={!canEdit}
-            value={values.value.postalCode}
-            onChange={(e) => setField('postalCode', e.target.value)}
-          />
+          <FieldLabel htmlFor="postalCode" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            PLZ
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              id="postalCode"
+              disabled={!canEdit}
+              value={values.value.postalCode}
+              onChange={(e) => setField('postalCode', e.target.value)}
+            />
+          </FieldContent>
         </Field>
         <Field data-invalid={!!errors.value.city}>
           <FieldLabel htmlFor="city">Ort</FieldLabel>

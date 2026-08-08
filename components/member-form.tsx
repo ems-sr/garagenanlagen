@@ -7,7 +7,7 @@ import { createMember } from '@/app/(app)/_actions/members';
 import { createClubMemberSchema } from '@/lib/validation/club-member';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { toast } from '@/components/ui/toast';
 
 type MemberValues = {
@@ -62,24 +62,32 @@ export function MemberForm() {
     <form onSubmit={handleSubmit}>
       <FieldGroup>
         <Field orientation="responsive" data-invalid={!!errors.value.firstName}>
-          <FieldLabel htmlFor="firstName">Vorname</FieldLabel>
-          <Input
-            id="firstName"
-            value={values.value.firstName}
-            onChange={(e) => setField('firstName', e.target.value)}
-            aria-invalid={!!errors.value.firstName}
-          />
-          {errors.value.firstName && <FieldError errors={[{ message: errors.value.firstName }]} />}
+          <FieldLabel htmlFor="firstName" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            Vorname
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              id="firstName"
+              value={values.value.firstName}
+              onChange={(e) => setField('firstName', e.target.value)}
+              aria-invalid={!!errors.value.firstName}
+            />
+            {errors.value.firstName && <FieldError errors={[{ message: errors.value.firstName }]} />}
+          </FieldContent>
         </Field>
         <Field orientation="responsive" data-invalid={!!errors.value.lastName}>
-          <FieldLabel htmlFor="lastName">Nachname</FieldLabel>
-          <Input
-            id="lastName"
-            value={values.value.lastName}
-            onChange={(e) => setField('lastName', e.target.value)}
-            aria-invalid={!!errors.value.lastName}
-          />
-          {errors.value.lastName && <FieldError errors={[{ message: errors.value.lastName }]} />}
+          <FieldLabel htmlFor="lastName" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            Nachname
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              id="lastName"
+              value={values.value.lastName}
+              onChange={(e) => setField('lastName', e.target.value)}
+              aria-invalid={!!errors.value.lastName}
+            />
+            {errors.value.lastName && <FieldError errors={[{ message: errors.value.lastName }]} />}
+          </FieldContent>
         </Field>
         <Button type="submit" disabled={isSubmitting.value}>
           Speichern

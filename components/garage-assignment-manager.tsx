@@ -7,6 +7,7 @@ import { createGarageAssignment, endGarageAssignment } from '@/app/(app)/_action
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/toast';
@@ -27,6 +28,10 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString('de-DE');
 }
 
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function GarageAssignmentManager({
   memberId,
   initialItems,
@@ -39,9 +44,12 @@ export function GarageAssignmentManager({
   useSignals();
   const router = useRouter();
   const open = useSignal(false);
-  const garageId = useSignal<string | undefined>(undefined);
+  const garageId = useSignal<string>('');
+  const validFrom = useSignal<string>(today());
   const error = useSignal<string | undefined>(undefined);
   const isSubmitting = useSignal(false);
+
+  const garageLabelById = new Map(availableGarages.map((garage) => [garage.id, `${garage.facilityName} – ${garage.number}`]));
 
   async function handleAssign(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +60,12 @@ export function GarageAssignmentManager({
     error.value = undefined;
     isSubmitting.value = true;
 
-    const result = await createGarageAssignment({ type: 'member', garageId: garageId.value, clubMemberId: memberId });
+    const result = await createGarageAssignment({
+      type: 'member',
+      garageId: garageId.value,
+      clubMemberId: memberId,
+      validFrom: validFrom.value ? new Date(validFrom.value) : undefined,
+    });
 
     isSubmitting.value = false;
 
@@ -63,7 +76,8 @@ export function GarageAssignmentManager({
 
     toast.add({ title: 'Garage zugeordnet', type: 'success' });
     open.value = false;
-    garageId.value = undefined;
+    garageId.value = '';
+    validFrom.value = today();
     router.refresh();
   }
 
@@ -97,9 +111,11 @@ export function GarageAssignmentManager({
               <FieldGroup>
                 <Field data-invalid={!!error.value}>
                   <FieldLabel htmlFor="garageId">Garage</FieldLabel>
-                  <Select value={garageId.value} onValueChange={(value) => (garageId.value = value ?? undefined)}>
+                  <Select value={garageId.value} onValueChange={(value) => (garageId.value = value ?? '')}>
                     <SelectTrigger id="garageId">
-                      <SelectValue placeholder="Garage wählen" />
+                      <SelectValue placeholder="Garage wählen">
+                        {(value: string | null) => (value ? (garageLabelById.get(value) ?? value) : 'Garage wählen')}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
@@ -112,6 +128,15 @@ export function GarageAssignmentManager({
                     </SelectContent>
                   </Select>
                   {error.value && <FieldError errors={[{ message: error.value }]} />}
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="validFrom">Gültig ab</FieldLabel>
+                  <Input
+                    id="validFrom"
+                    type="date"
+                    value={validFrom.value}
+                    onChange={(e) => (validFrom.value = e.target.value)}
+                  />
                 </Field>
               </FieldGroup>
               <DialogFooter className="mt-6">

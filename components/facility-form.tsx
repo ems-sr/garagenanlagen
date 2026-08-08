@@ -7,12 +7,13 @@ import { createFacility } from '@/app/(app)/_actions/facilities';
 import { createFacilitySchema } from '@/lib/validation/facility';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { toast } from '@/components/ui/toast';
 
 type FacilityValues = {
   name: string;
   street: string;
+  houseNumber: string;
   postalCode: string;
   city: string;
 };
@@ -20,6 +21,7 @@ type FacilityValues = {
 const emptyValues: FacilityValues = {
   name: '',
   street: '',
+  houseNumber: '',
   postalCode: '',
   city: '',
 };
@@ -41,6 +43,7 @@ export function FacilityForm() {
     const payload = {
       name: values.value.name,
       street: values.value.street || undefined,
+      houseNumber: values.value.houseNumber || undefined,
       postalCode: values.value.postalCode || undefined,
       city: values.value.city || undefined,
     };
@@ -82,20 +85,44 @@ export function FacilityForm() {
           {errors.value.name && <FieldError errors={[{ message: errors.value.name }]} />}
         </Field>
         <Field orientation="responsive">
-          <FieldLabel htmlFor="street">Straße</FieldLabel>
-          <Input id="street" value={values.value.street} onChange={(e) => setField('street', e.target.value)} />
+          <FieldLabel htmlFor="street" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            Straße
+          </FieldLabel>
+          <FieldContent>
+            <Input id="street" value={values.value.street} onChange={(e) => setField('street', e.target.value)} />
+          </FieldContent>
         </Field>
         <Field orientation="responsive">
-          <FieldLabel htmlFor="postalCode">PLZ</FieldLabel>
-          <Input
-            id="postalCode"
-            value={values.value.postalCode}
-            onChange={(e) => setField('postalCode', e.target.value)}
-          />
+          <FieldLabel htmlFor="houseNumber" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            Hausnummer
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              id="houseNumber"
+              value={values.value.houseNumber}
+              onChange={(e) => setField('houseNumber', e.target.value)}
+            />
+          </FieldContent>
         </Field>
         <Field orientation="responsive">
-          <FieldLabel htmlFor="city">Ort</FieldLabel>
-          <Input id="city" value={values.value.city} onChange={(e) => setField('city', e.target.value)} />
+          <FieldLabel htmlFor="postalCode" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            PLZ
+          </FieldLabel>
+          <FieldContent>
+            <Input
+              id="postalCode"
+              value={values.value.postalCode}
+              onChange={(e) => setField('postalCode', e.target.value)}
+            />
+          </FieldContent>
+        </Field>
+        <Field orientation="responsive">
+          <FieldLabel htmlFor="city" className="@md/field-group:w-28! @md/field-group:flex-none!">
+            Ort
+          </FieldLabel>
+          <FieldContent>
+            <Input id="city" value={values.value.city} onChange={(e) => setField('city', e.target.value)} />
+          </FieldContent>
         </Field>
         <Button type="submit" disabled={isSubmitting.value}>
           Speichern

@@ -60,14 +60,16 @@ async function main() {
   const facilityA = await db.orm.public.Facility.create({
     organizationId,
     name: 'Garagenanlage Nord',
-    street: 'Nordring 1',
+    street: 'Nordring',
+    houseNumber: '1',
     postalCode: '12345',
     city: 'Musterstadt',
   });
   const facilityB = await db.orm.public.Facility.create({
     organizationId,
     name: 'Garagenanlage Süd',
-    street: 'Südweg 2',
+    street: 'Südweg',
+    houseNumber: '2',
     postalCode: '12345',
     city: 'Musterstadt',
   });

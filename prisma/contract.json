@@ -703,6 +703,13 @@
                   "kind": "scalar"
                 }
               },
+              "houseNumber": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -754,6 +761,9 @@
                 },
                 "createdAt": {
                   "column": "createdAt"
+                },
+                "houseNumber": {
+                  "column": "houseNumber"
                 },
                 "id": {
                   "column": "id"
@@ -2175,6 +2185,11 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "houseNumber": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -3133,7 +3148,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "ac017d4dd14d9274a96fb7347e6e00a3d65dfdedac8474fbe84d19f275c9c580"
+    "storageHash": "0b3c7eb8de830652a325c493f8bbabfc77db69a5927842a13c4fb12f01b9e4e7"
   },
   "execution": {
     "executionHash": "914ad2dad1aa36c91e3cc0f98773a95c262d17c4a908c0a0a24b99c71851666d",
