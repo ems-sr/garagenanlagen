@@ -26,6 +26,10 @@ const statement = {
   member: ['create', 'read', 'update', 'delete'],
   garage: ['create', 'read', 'update', 'delete'],
   invoice: ['create', 'read', 'update', 'delete'],
+  // Vereins-Stammdaten (Anschrift, Bankverbindung, Kontakt, Vorstand) — kept
+  // separate from `member` (Mitgliederverwaltung) so the two can be granted
+  // independently.
+  club: ['read', 'update'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -35,6 +39,7 @@ const owner = ac.newRole({
   member: ['create', 'read', 'update', 'delete'],
   garage: ['create', 'read', 'update', 'delete'],
   invoice: ['create', 'read', 'update', 'delete'],
+  club: ['read', 'update'],
 });
 
 const orgAdmin = ac.newRole({
@@ -42,6 +47,7 @@ const orgAdmin = ac.newRole({
   member: ['create', 'read', 'update', 'delete'],
   garage: ['create', 'read', 'update', 'delete'],
   invoice: ['create', 'read', 'update', 'delete'],
+  club: ['read', 'update'],
 });
 
 const orgMember = ac.newRole({
@@ -49,14 +55,18 @@ const orgMember = ac.newRole({
   member: ['read'],
   garage: ['read'],
   invoice: ['read'],
+  club: ['read'],
 });
 
 // Seed custom role proving the "Vorstand"/"Werkstatt-Team"-style functional
 // role pattern from the Projektbeschreibung — full role catalogue is Stage 3+.
+// This is the role Stage 3's Vereins-Stammdaten screen expects to be able to
+// edit club/Vorstand data.
 const vorstand = ac.newRole({
   member: ['read', 'update'],
   garage: ['read'],
   invoice: ['read'],
+  club: ['read', 'update'],
 });
 
 export const auth = betterAuth({

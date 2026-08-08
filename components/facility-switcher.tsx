@@ -19,11 +19,15 @@ export function FacilitySwitcher({
   // so components must subscribe themselves to re-render on `.value` reads.
   useSignals();
   const router = useRouter();
-  const selected = useSignal<string | undefined>(selectedFacilityId);
+  // Always a defined string ('' meaning "none selected") so the Select's
+  // value prop never switches between undefined and defined across
+  // renders — Base UI (like React) decides controlled-vs-uncontrolled from
+  // the first render and warns on a later transition.
+  const selected = useSignal<string>(selectedFacilityId ?? '');
 
   if (facilities.length === 0) {
     return (
-      <Select disabled>
+      <Select value="" disabled>
         <SelectTrigger className="w-56">
           <SelectValue placeholder="Keine Garagenanlage" />
         </SelectTrigger>
@@ -42,7 +46,7 @@ export function FacilitySwitcher({
     <Select
       value={selected.value}
       onValueChange={async (value) => {
-        selected.value = value ?? undefined;
+        selected.value = value ?? '';
         if (value) {
           await selectFacility(value);
           router.refresh();

@@ -1,0 +1,332 @@
+[
+  {
+    "id": "table.boardMember",
+    "label": "Create table \"boardMember\"",
+    "summary": "Creates table \"boardMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "boardMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"boardMember\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"boardMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"boardMember\"",
+        "sql": "CREATE TABLE \"public\".\"boardMember\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"fullName\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"phone\" text,\n  \"role\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"boardMember\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"boardMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.clubProfile.accountHolder",
+    "label": "Add column \"accountHolder\" to \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "accountHolder",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"accountHolder\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "accountHolder"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"accountHolder\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD COLUMN \"accountHolder\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"accountHolder\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "accountHolder"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.clubProfile.bankBic",
+    "label": "Add column \"bankBic\" to \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "bankBic",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"bankBic\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "bankBic"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"bankBic\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD COLUMN \"bankBic\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"bankBic\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "bankBic"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.clubProfile.bankName",
+    "label": "Add column \"bankName\" to \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "bankName",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"bankName\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "bankName"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"bankName\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD COLUMN \"bankName\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"bankName\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "bankName"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.clubProfile.city",
+    "label": "Add column \"city\" to \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "city",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"city\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "city"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"city\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD COLUMN \"city\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"city\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "city"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.clubProfile.postalCode",
+    "label": "Add column \"postalCode\" to \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "postalCode",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"postalCode\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "postalCode"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"postalCode\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD COLUMN \"postalCode\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"postalCode\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "postalCode"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.clubProfile.street",
+    "label": "Add column \"street\" to \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "street",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"street\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "street"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"street\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD COLUMN \"street\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"street\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "clubProfile",
+          "street"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.boardMember.boardMember_organizationId_idx_2e17ef41",
+    "label": "Create index \"boardMember_organizationId_idx_2e17ef41\" on \"boardMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "boardMember_organizationId_idx_2e17ef41",
+        "table": "boardMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"boardMember_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"boardMember_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"boardMember_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"boardMember_organizationId_idx_2e17ef41\" ON \"public\".\"boardMember\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"boardMember_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"boardMember_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  }
+]

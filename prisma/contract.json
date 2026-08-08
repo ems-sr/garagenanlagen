@@ -8,6 +8,10 @@
       "model": "Block",
       "namespace": "public"
     },
+    "boardMember": {
+      "model": "BoardMember",
+      "namespace": "public"
+    },
     "clubMember": {
       "model": "ClubMember",
       "namespace": "public"
@@ -193,6 +197,97 @@
               "table": "block"
             }
           },
+          "BoardMember": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "email": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fullName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "phone": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "fullName": {
+                  "column": "fullName"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "phone": {
+                  "column": "phone"
+                },
+                "role": {
+                  "column": "role"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "boardMember"
+            }
+          },
           "ClubMember": {
             "fields": {
               "city": {
@@ -316,7 +411,35 @@
           },
           "ClubProfile": {
             "fields": {
+              "accountHolder": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bankBic": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "bankIban": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bankName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "city": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
@@ -358,6 +481,20 @@
                   "kind": "scalar"
                 }
               },
+              "postalCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "street": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "updatedAt": {
                 "nullable": false,
                 "type": {
@@ -369,8 +506,20 @@
             "relations": {},
             "storage": {
               "fields": {
+                "accountHolder": {
+                  "column": "accountHolder"
+                },
+                "bankBic": {
+                  "column": "bankBic"
+                },
                 "bankIban": {
                   "column": "bankIban"
+                },
+                "bankName": {
+                  "column": "bankName"
+                },
+                "city": {
+                  "column": "city"
                 },
                 "contactEmail": {
                   "column": "contactEmail"
@@ -386,6 +535,12 @@
                 },
                 "organizationId": {
                   "column": "organizationId"
+                },
+                "postalCode": {
+                  "column": "postalCode"
+                },
+                "street": {
+                  "column": "street"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -1381,6 +1536,71 @@
               },
               "uniques": []
             },
+            "boardMember": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "fullName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "phone": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "role": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "boardMember_organizationId_idx_2e17ef41",
+                  "prefix": "boardMember_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "clubMember": {
               "columns": {
                 "city": {
@@ -1463,7 +1683,27 @@
             },
             "clubProfile": {
               "columns": {
+                "accountHolder": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "bankBic": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "bankIban": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "bankName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "city": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": true
@@ -1496,6 +1736,16 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "postalCode": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "street": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz@1",
@@ -2305,10 +2555,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "07a53e811fcd1a1a7150108e8c8ebfcb5f996587d86697e9930d7d269dbfbab0"
+    "storageHash": "f142c1f23dfa2b008df9cf70db3538255c9845d831b1abee40994b8434b07173"
   },
   "execution": {
-    "executionHash": "d87b60b3024e4bf4557148b4bed5364a978ca4781eea8a034c5faca622478d62",
+    "executionHash": "ba9b22a294e1cc911a46f874d94c80ac7333ec0fc6985f6b662eb91315062cce",
     "mutations": {
       "defaults": [
         {
@@ -2335,6 +2585,32 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "block"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "boardMember"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "boardMember"
           }
         },
         {

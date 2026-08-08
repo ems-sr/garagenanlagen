@@ -24,18 +24,42 @@
 // initial inconsistency and added the structural hierarchy + membership
 // models below. See docs/IMPLEMENTATION_PLAN.md for the full roadmap.
 
-// Stage 1 stub — full board-member/bank-details/contact relational sub-model
-// (e.g. a separate board-member child table) is Stage 3 scope.
+// Vereins-Stammdaten: one row per organization, upserted (never multiple
+// rows per org). Board members (Vorstand) are a separate child table below
+// (`BoardMember`) rather than a JSON/array column, per the roadmap's
+// "prefer relational tables" mandate.
 model ClubProfile {
   id             String   @id @default(uuid())
   // References Better Auth's `organization.id` (not a Prisma-level FK — see
   // note above).
   organizationId String   @unique
+  street         String?
+  postalCode     String?
+  city           String?
   bankIban       String?
+  bankBic        String?
+  bankName       String?
+  accountHolder  String?
   contactEmail   String?
   contactPhone   String?
   createdAt      DateTime @default(now())
   updatedAt      temporal.updatedAt()
+}
+
+// Standalone person records (Vorstand/vertretungsberechtigte Personen) — not
+// FK'd to ClubMember. Bylaws typically require board members to also be club
+// members, but that overlap isn't enforced at the schema level.
+model BoardMember {
+  id             String   @id @default(uuid())
+  organizationId String
+  fullName       String
+  role           String
+  email          String?
+  phone          String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
 }
 
 model Facility {

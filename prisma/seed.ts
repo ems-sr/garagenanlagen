@@ -29,11 +29,32 @@ async function main() {
   await db.orm.public.ClubProfile.upsert({
     create: {
       organizationId,
+      street: 'Vereinsweg 1',
+      postalCode: '12345',
+      city: 'Musterstadt',
       bankIban: 'DE02120300000000202051',
+      bankBic: 'BYLADEM1001',
+      bankName: 'Musterbank',
+      accountHolder: 'Garagenverein Musterstadt e.V.',
       contactEmail: 'verein@example.com',
       contactPhone: '+49 30 1234567',
     },
     update: {},
+  });
+
+  await db.orm.public.BoardMember.create({
+    organizationId,
+    fullName: 'Erika Vorsitz',
+    role: 'Vorsitzende',
+    email: 'erika.vorsitz@example.com',
+    phone: '+49 30 2222221',
+  });
+  await db.orm.public.BoardMember.create({
+    organizationId,
+    fullName: 'Klaus Kasse',
+    role: 'Kassierer',
+    email: 'klaus.kasse@example.com',
+    phone: '+49 30 2222222',
   });
 
   const facilityA = await db.orm.public.Facility.create({

@@ -76,4 +76,51 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
       shared `isForeignKeyViolation` helper), `Cascade`-FK deletes actually
       cascade, and the facility-switcher renders real facility names and
       persists the cookie.
-- [ ] Stage 3–15 — not started
+- [x] Stage 3 — done: `ClubProfile` expanded from its Stage 1 stub with
+      Anschrift (`street`/`postalCode`/`city`) and full Bankverbindung
+      (`bankIban`/`bankBic`/`bankName`/`accountHolder`) fields; new
+      `BoardMember` model added as standalone person records (fullName,
+      role, email, phone) — not FK'd to `ClubMember`, per user decision,
+      since board membership isn't enforced against club membership at the
+      schema level. New `club: ['read', 'update']` Better Auth AC statement
+      (separate from `member`, so Vereins-Stammdaten and Mitgliederverwaltung
+      permissions can be granted independently), wired into `owner`,
+      `admin`, `member`, and the seeded `vorstand` role. REST API added:
+      `app/api/club-profile` (GET/PATCH, upserts the one-row-per-org
+      profile) and `app/api/board-members` (+`[id]`, full CRUD) — same
+      `getRequestContext`/`requirePermission`/zod/German-error-message
+      pattern as Stage 2. No new routes needed for Mitgliederverwaltung or
+      Mitglied↔Garage assignment; Stage 2's `app/api/members/**` and
+      `app/api/garage-assignments/**` are reused as-is by the new UI.
+      First real UI screens shipped (Stage 1/2 had only a dashboard stub
+      and the facility-switcher): `/verein` (Stammdaten form + Vorstand
+      table with add/edit/delete dialogs, RBAC-gated via a server-side
+      `hasPermission` check passed down as `canEdit`), `/mitglieder` (list
+      with client-side search + active/inactive badge derived from
+      `MembershipPeriod`), `/mitglieder/neu` and
+      `/mitglieder/[id]/bearbeiten` (create/edit forms), and
+      `/mitglieder/[id]` (detail: profile, membership-period history with
+      add/end, and garage assignments with an assign-garage dialog +
+      end-assignment button). Added shadcn `table`/`dialog`/`alert-dialog`/
+      `textarea`/`badge`/`tabs` components (no `form` component exists for
+      this project's Base UI style — forms use the existing `Field`/
+      `FieldGroup` primitives, matching the sign-in/sign-up page pattern).
+      Migration applied via the formal `migration plan`/`migrate` path, not
+      `db update` — the `db` ref had gone stale after Stage 2 (pointed at
+      the Stage 1 baseline hash instead of the graph tip), which made a
+      first `migration plan` attempt misfire as a full destructive
+      recreate; realigned the ref to the graph tip
+      (`prisma-next ref set db <hash>`) before re-planning, which produced
+      the correct 8-operation additive-only migration. Verified end-to-end
+      via `pnpm run lint`, `tsc --noEmit`, and a full `pnpm dev` run
+      driven with `curl` against a throwaway org/user/member/garage (RBAC
+      CRUD across `club-profile`/`board-members`/`members`/
+      `membership-periods`/`facilities`/`garages`/`garage-assignments`, and
+      all five new pages rendering 200 with correct data) — caught and
+      fixed one bug in the process: the member-detail Server Component
+      imported a Phosphor icon directly, which crashed RSC rendering
+      (`createContext is not a function`) because the icon package expects
+      a Client Component boundary; fixed by dropping the icon from the
+      server-rendered button. All test data cleaned up from the dev
+      database afterward.
+- [ ] Stage 4–15 — not started
