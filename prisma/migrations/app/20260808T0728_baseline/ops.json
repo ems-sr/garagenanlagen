@@ -1,0 +1,178 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.garagenanlage",
+    "label": "Create table \"garagenanlage\"",
+    "summary": "Creates table \"garagenanlage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garagenanlage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garagenanlage\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garagenanlage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garagenanlage\"",
+        "sql": "CREATE TABLE \"public\".\"garagenanlage\" (\n  \"city\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"postalCode\" text,\n  \"street\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garagenanlage\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garagenanlage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.vereinProfile",
+    "label": "Create table \"vereinProfile\"",
+    "summary": "Creates table \"vereinProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "vereinProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"vereinProfile\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vereinProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"vereinProfile\"",
+        "sql": "CREATE TABLE \"public\".\"vereinProfile\" (\n  \"bankIban\" text,\n  \"contactEmail\" text,\n  \"contactPhone\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"vereinProfile\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vereinProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.vereinProfile.vereinProfile_organizationId_key",
+    "label": "Add unique constraint on \"vereinProfile\" (organizationId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "vereinProfile_organizationId_key",
+        "table": "vereinProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"vereinProfile_organizationId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vereinProfile_organizationId_key",
+          "public",
+          "\"public\".\"vereinProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"vereinProfile_organizationId_key\"",
+        "sql": "ALTER TABLE \"public\".\"vereinProfile\" ADD CONSTRAINT \"vereinProfile_organizationId_key\" UNIQUE (\"organizationId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"vereinProfile_organizationId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "vereinProfile_organizationId_key",
+          "public",
+          "\"public\".\"vereinProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garagenanlage.garagenanlage_organizationId_idx_2e17ef41",
+    "label": "Create index \"garagenanlage_organizationId_idx_2e17ef41\" on \"garagenanlage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garagenanlage_organizationId_idx_2e17ef41",
+        "table": "garagenanlage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garagenanlage_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garagenanlage_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garagenanlage_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garagenanlage_organizationId_idx_2e17ef41\" ON \"public\".\"garagenanlage\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garagenanlage_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garagenanlage_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  }
+]

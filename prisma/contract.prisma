@@ -17,12 +17,16 @@
 // columns (`organizationId`, `userId`, ...), not Prisma-level relations.
 // Application code joins across the boundary manually where needed.
 //
-// Bauabschnitt, Trakt, Garage, and Mitglied are Stage 2 scope — not modeled
-// yet. See docs/IMPLEMENTATION_PLAN.md for the full multi-stage roadmap.
+// All table/field names are English per the architectural-decisions section
+// of docs/IMPLEMENTATION_PLAN.md — German domain vocabulary belongs in UI
+// copy, not schema identifiers. Stage 2 renamed the Stage 1 stubs
+// (VereinProfile -> ClubProfile, Garagenanlage -> Facility) to correct an
+// initial inconsistency and added the structural hierarchy + membership
+// models below. See docs/IMPLEMENTATION_PLAN.md for the full roadmap.
 
-// Stage 1 stub — full Vorstand/Bankverbindung/Kontakt relational sub-model
+// Stage 1 stub — full board-member/bank-details/contact relational sub-model
 // (e.g. a separate board-member child table) is Stage 3 scope.
-model VereinProfile {
+model ClubProfile {
   id             String   @id @default(uuid())
   // References Better Auth's `organization.id` (not a Prisma-level FK — see
   // note above).
@@ -34,9 +38,7 @@ model VereinProfile {
   updatedAt      temporal.updatedAt()
 }
 
-// Stage 1 stub — Bauabschnitt, Trakt, Garage, Mitglied arrive in Stage 2.
-// This model only proves the organizationId-per-Anlage + multi-Anlage-per-Verein shape.
-model Garagenanlage {
+model Facility {
   id             String   @id @default(uuid())
   // References Better Auth's `organization.id` (not a Prisma-level FK — see
   // note above).
@@ -49,4 +51,186 @@ model Garagenanlage {
   updatedAt      temporal.updatedAt()
 
   @@index([organizationId])
+}
+
+enum GarageType {
+  @@type("pg/text@1")
+  single = "single"
+  double = "double"
+}
+
+// GarageAssignment.type has no "owner" value: a garage isn't legally owned by
+// a Member, it's administratively assigned to one. `member` is the base
+// assignment; `user` is an independent second row recording that the
+// assigned member handed actual day-to-day use to someone else (only valid
+// alongside an active `member` row on the same garage); `tenant` is a direct
+// club-to-non-member rental that bypasses the member layer entirely (mutually
+// exclusive with `member`/`user` rows on the same garage). These cross-row
+// rules are enforced in the API route handlers (DB lookups), not here —
+// Prisma Next has no declarative validation.
+enum GarageAssignmentType {
+  @@type("pg/text@1")
+  member = "member"
+  user   = "user"
+  tenant = "tenant"
+}
+
+model ConstructionSection {
+  id             String   @id @default(uuid())
+  organizationId String
+  facilityId     String
+  facility       Facility @relation(fields: [facilityId], references: [id])
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([facilityId])
+}
+
+model Block {
+  id                    String               @id @default(uuid())
+  organizationId        String
+  facilityId            String
+  facility              Facility             @relation(fields: [facilityId], references: [id])
+  constructionSectionId String?
+  constructionSection   ConstructionSection? @relation(fields: [constructionSectionId], references: [id])
+  name                  String
+  createdAt             DateTime             @default(now())
+  updatedAt             temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([facilityId])
+  @@index([constructionSectionId])
+}
+
+// facilityId is always required and denormalized, even when
+// constructionSectionId/blockId is also set, so a Garage is always
+// filterable by Facility regardless of which structural level it actually
+// hangs off. App-level rule (zod, not the contract): at most one of
+// constructionSectionId/blockId may be set.
+model Garage {
+  id                    String               @id @default(uuid())
+  organizationId        String
+  facilityId            String
+  facility              Facility             @relation(fields: [facilityId], references: [id])
+  constructionSectionId String?
+  constructionSection   ConstructionSection? @relation(fields: [constructionSectionId], references: [id])
+  blockId               String?
+  block                 Block?               @relation(fields: [blockId], references: [id])
+  number                String
+  type                  GarageType
+  meterNumber           String?
+  createdAt             DateTime             @default(now())
+  updatedAt             temporal.updatedAt()
+
+  @@unique([facilityId, number])
+  @@index([organizationId])
+  @@index([facilityId])
+  @@index([constructionSectionId])
+  @@index([blockId])
+}
+
+// Named ClubMember, not Member: Better Auth already owns a lowercase
+// "member" table (its organization-membership junction table), and Prisma
+// Next lowercases model names to table names, so a model literally named
+// `Member` collides with it at the DB level (confirmed via a failed
+// migration.SCHEMA_VERIFY_FAILED during Stage 2 authoring). This is a
+// Vereinsmitglied business record, unrelated to Better Auth's org-membership
+// concept.
+model ClubMember {
+  id             String   @id @default(uuid())
+  organizationId String
+  firstName      String
+  lastName       String
+  street         String?
+  postalCode     String?
+  city           String?
+  email          String?
+  phone          String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+model MembershipPeriod {
+  id             String     @id @default(uuid())
+  organizationId String
+  clubMemberId   String
+  clubMember     ClubMember @relation(fields: [clubMemberId], references: [id], onDelete: Cascade)
+  startDate      DateTime
+  endDate        DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([clubMemberId])
+}
+
+// Non-member party permitted by a ClubMember to actually use their assigned
+// garage. Kept as a separate table from Tenant even though currently
+// identical in shape, because Stage 10 extends Tenant specifically with
+// invoicing fields.
+model GarageUser {
+  id             String   @id @default(uuid())
+  organizationId String
+  firstName      String
+  lastName       String
+  street         String?
+  postalCode     String?
+  city           String?
+  email          String?
+  phone          String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+// Non-member party renting a garage directly from the club, with no
+// ClubMember assignment in between. See Stage 10 for invoicing-specific
+// extensions.
+model Tenant {
+  id             String   @id @default(uuid())
+  organizationId String
+  firstName      String
+  lastName       String
+  street         String?
+  postalCode     String?
+  city           String?
+  email          String?
+  phone          String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+// Multiple simultaneous rows per garage are allowed (e.g. one `member` row +
+// one `user` row); old rows aren't deleted, just get validTo set, so this
+// table doubles as natural history. A dedicated usage-history log/report is
+// Stage 9 scope, not Stage 2.
+model GarageAssignment {
+  id             String               @id @default(uuid())
+  organizationId String
+  garageId       String
+  garage         Garage               @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  type           GarageAssignmentType
+  clubMemberId   String?
+  clubMember     ClubMember?          @relation(fields: [clubMemberId], references: [id])
+  garageUserId   String?
+  garageUser     GarageUser?          @relation(fields: [garageUserId], references: [id])
+  tenantId       String?
+  tenant         Tenant?              @relation(fields: [tenantId], references: [id])
+  validFrom      DateTime             @default(now())
+  validTo        DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([garageId])
+  @@index([clubMemberId])
+  @@index([garageUserId])
+  @@index([tenantId])
 }

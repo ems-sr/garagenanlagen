@@ -42,4 +42,38 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
       against custom `garage`/`invoice` statements, domain CRUD via
       `db.orm.public.Garagenanlage` — note the namespaced accessor is
       required here even though the contract has a single namespace).
-- [ ] Stage 2–15 — not started
+- [x] Stage 2 — done: renamed Stage 1's German model names to English
+      (`VereinProfile` → `ClubProfile`, `Garagenanlage` → `Facility`) per the
+      architectural-decisions section, since Stage 2 introduced enough new
+      models that a permanent German/English split would have set a bad
+      precedent; added the structural hierarchy (`ConstructionSection`,
+      `Block`, `Garage` with a flexible, denormalized-to-facility parent),
+      membership core (`ClubMember` — not `Member`, since Better Auth already
+      owns a lowercase `member` table and Prisma Next lowercases model names
+      to table names, a collision only caught via a failed migration during
+      authoring — plus `MembershipPeriod`), the two non-member party types
+      (`GarageUser`, `Tenant`), and `GarageAssignment` (`member`/`user`/
+      `tenant` — no "owner" type: a garage is administratively assigned to a
+      club member, not legally owned; `user` records a member handing actual
+      use to someone else as an independent second row, `tenant` bypasses the
+      member layer entirely for direct club-to-non-member rentals, and the
+      two are mutually exclusive per garage, enforced via DB-lookup business
+      rules in the route handlers). Full REST CRUD + zod validation
+      (German user-facing messages) for all of the above under `app/api/`,
+      gated by Stage 1's existing `garage`/`member` `ac` statements (no new
+      statements added). Backend-only per user decision — no new UI screens
+      (Stage 3 adds Mitgliederverwaltung UI) — except wiring the existing
+      Anlage-switcher stub to real `Facility` data via a `selected-facility`
+      cookie (`components/facility-switcher.tsx`, renamed from
+      `anlage-switcher.tsx`), since that was a hard prerequisite the stub's
+      own comment already called out. `prisma/seed.ts` authored (was
+      referenced by `package.json` but didn't exist). Verified end-to-end via
+      curl against `pnpm dev`: flexible-parent rule on `Garage`, the
+      discriminated-union + cross-type business rules on
+      `GarageAssignment` (400/409 on every violation), duplicate
+      `(facilityId, number)` → 409, unauthenticated → 401, `Restrict`-FK
+      deletes → clean 409 (not a raw 500 — fixed during verification via a
+      shared `isForeignKeyViolation` helper), `Cascade`-FK deletes actually
+      cascade, and the facility-switcher renders real facility names and
+      persists the cookie.
+- [ ] Stage 3–15 — not started

@@ -1,0 +1,1876 @@
+[
+  {
+    "id": "dropTable.garagenanlage",
+    "label": "Drop table \"garagenanlage\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garagenanlage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garagenanlage\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garagenanlage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"garagenanlage\"",
+        "sql": "DROP TABLE \"public\".\"garagenanlage\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garagenanlage\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garagenanlage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.vereinProfile",
+    "label": "Drop table \"vereinProfile\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "vereinProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"vereinProfile\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vereinProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"vereinProfile\"",
+        "sql": "DROP TABLE \"public\".\"vereinProfile\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"vereinProfile\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"vereinProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.block",
+    "label": "Create table \"block\"",
+    "summary": "Creates table \"block\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "block"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"block\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"block\"",
+        "sql": "CREATE TABLE \"public\".\"block\" (\n  \"constructionSectionId\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"facilityId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"block\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.clubMember",
+    "label": "Create table \"clubMember\"",
+    "summary": "Creates table \"clubMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "clubMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"clubMember\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"clubMember\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"clubMember\"",
+        "sql": "CREATE TABLE \"public\".\"clubMember\" (\n  \"city\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"firstName\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"lastName\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"phone\" text,\n  \"postalCode\" text,\n  \"street\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"clubMember\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"clubMember\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.clubProfile",
+    "label": "Create table \"clubProfile\"",
+    "summary": "Creates table \"clubProfile\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"clubProfile\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"clubProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"clubProfile\"",
+        "sql": "CREATE TABLE \"public\".\"clubProfile\" (\n  \"bankIban\" text,\n  \"contactEmail\" text,\n  \"contactPhone\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"clubProfile\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"clubProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.constructionSection",
+    "label": "Create table \"constructionSection\"",
+    "summary": "Creates table \"constructionSection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "constructionSection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"constructionSection\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"constructionSection\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"constructionSection\"",
+        "sql": "CREATE TABLE \"public\".\"constructionSection\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"facilityId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"constructionSection\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"constructionSection\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.facility",
+    "label": "Create table \"facility\"",
+    "summary": "Creates table \"facility\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "facility"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"facility\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"facility\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"facility\"",
+        "sql": "CREATE TABLE \"public\".\"facility\" (\n  \"city\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"postalCode\" text,\n  \"street\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"facility\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"facility\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.garage",
+    "label": "Create table \"garage\"",
+    "summary": "Creates table \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garage\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garage\"",
+        "sql": "CREATE TABLE \"public\".\"garage\" (\n  \"blockId\" text,\n  \"constructionSectionId\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"facilityId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"meterNumber\" text,\n  \"number\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"type\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garage\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.garageAssignment",
+    "label": "Create table \"garageAssignment\"",
+    "summary": "Creates table \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garageAssignment\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garageAssignment\"",
+        "sql": "CREATE TABLE \"public\".\"garageAssignment\" (\n  \"clubMemberId\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"garageId\" text NOT NULL,\n  \"garageUserId\" text,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"tenantId\" text,\n  \"type\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"validFrom\" timestamptz DEFAULT (now()) NOT NULL,\n  \"validTo\" timestamptz,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garageAssignment\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.garageUser",
+    "label": "Create table \"garageUser\"",
+    "summary": "Creates table \"garageUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garageUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garageUser\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUser\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garageUser\"",
+        "sql": "CREATE TABLE \"public\".\"garageUser\" (\n  \"city\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"firstName\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"lastName\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"phone\" text,\n  \"postalCode\" text,\n  \"street\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garageUser\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUser\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.membershipPeriod",
+    "label": "Create table \"membershipPeriod\"",
+    "summary": "Creates table \"membershipPeriod\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "membershipPeriod"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"membershipPeriod\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"membershipPeriod\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"membershipPeriod\"",
+        "sql": "CREATE TABLE \"public\".\"membershipPeriod\" (\n  \"clubMemberId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"endDate\" timestamptz,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"startDate\" timestamptz NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"membershipPeriod\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"membershipPeriod\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.tenant",
+    "label": "Create table \"tenant\"",
+    "summary": "Creates table \"tenant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "tenant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"tenant\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tenant\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"tenant\"",
+        "sql": "CREATE TABLE \"public\".\"tenant\" (\n  \"city\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"firstName\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"lastName\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"phone\" text,\n  \"postalCode\" text,\n  \"street\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"tenant\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tenant\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.clubProfile.clubProfile_organizationId_key",
+    "label": "Add unique constraint on \"clubProfile\" (organizationId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "clubProfile_organizationId_key",
+        "table": "clubProfile"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"clubProfile_organizationId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "clubProfile_organizationId_key",
+          "public",
+          "\"public\".\"clubProfile\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"clubProfile_organizationId_key\"",
+        "sql": "ALTER TABLE \"public\".\"clubProfile\" ADD CONSTRAINT \"clubProfile_organizationId_key\" UNIQUE (\"organizationId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"clubProfile_organizationId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "clubProfile_organizationId_key",
+          "public",
+          "\"public\".\"clubProfile\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.garage.garage_facilityId_number_key",
+    "label": "Add unique constraint on \"garage\" (facilityId, number)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "garage_facilityId_number_key",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garage_facilityId_number_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_facilityId_number_key",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"garage_facilityId_number_key\"",
+        "sql": "ALTER TABLE \"public\".\"garage\" ADD CONSTRAINT \"garage_facilityId_number_key\" UNIQUE (\"facilityId\", \"number\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garage_facilityId_number_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_facilityId_number_key",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.garage.garage_type_check",
+    "label": "Add check constraint \"garage_type_check\" on \"garage\".\"type\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "garage_type_check",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garage_type_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_type_check",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"garage_type_check\"",
+        "sql": "ALTER TABLE \"public\".\"garage\" ADD CONSTRAINT \"garage_type_check\" CHECK (\"type\" IN ('single', 'double'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garage_type_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_type_check",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.garageAssignment.garageAssignment_type_check",
+    "label": "Add check constraint \"garageAssignment_type_check\" on \"garageAssignment\".\"type\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "garageAssignment_type_check",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garageAssignment_type_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_type_check",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"garageAssignment_type_check\"",
+        "sql": "ALTER TABLE \"public\".\"garageAssignment\" ADD CONSTRAINT \"garageAssignment_type_check\" CHECK (\"type\" IN ('member', 'user', 'tenant'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garageAssignment_type_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_type_check",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.block.block_constructionSectionId_idx_2e092d97",
+    "label": "Create index \"block_constructionSectionId_idx_2e092d97\" on \"block\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "block_constructionSectionId_idx_2e092d97",
+        "table": "block"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"block_constructionSectionId_idx_2e092d97\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block_constructionSectionId_idx_2e092d97\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"block_constructionSectionId_idx_2e092d97\"",
+        "sql": "CREATE INDEX \"block_constructionSectionId_idx_2e092d97\" ON \"public\".\"block\" (\"constructionSectionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"block_constructionSectionId_idx_2e092d97\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block_constructionSectionId_idx_2e092d97\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.block.block_facilityId_idx_3710d8c1",
+    "label": "Create index \"block_facilityId_idx_3710d8c1\" on \"block\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "block_facilityId_idx_3710d8c1",
+        "table": "block"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"block_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"block_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"block_facilityId_idx_3710d8c1\" ON \"public\".\"block\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"block_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.block.block_organizationId_idx_2e17ef41",
+    "label": "Create index \"block_organizationId_idx_2e17ef41\" on \"block\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "block_organizationId_idx_2e17ef41",
+        "table": "block"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"block_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"block_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"block_organizationId_idx_2e17ef41\" ON \"public\".\"block\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"block_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"block_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.clubMember.clubMember_organizationId_idx_2e17ef41",
+    "label": "Create index \"clubMember_organizationId_idx_2e17ef41\" on \"clubMember\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "clubMember_organizationId_idx_2e17ef41",
+        "table": "clubMember"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"clubMember_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"clubMember_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"clubMember_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"clubMember_organizationId_idx_2e17ef41\" ON \"public\".\"clubMember\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"clubMember_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"clubMember_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.constructionSection.constructionSection_facilityId_idx_3710d8c1",
+    "label": "Create index \"constructionSection_facilityId_idx_3710d8c1\" on \"constructionSection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "constructionSection_facilityId_idx_3710d8c1",
+        "table": "constructionSection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"constructionSection_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"constructionSection_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"constructionSection_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"constructionSection_facilityId_idx_3710d8c1\" ON \"public\".\"constructionSection\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"constructionSection_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"constructionSection_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.constructionSection.constructionSection_organizationId_idx_2e17ef41",
+    "label": "Create index \"constructionSection_organizationId_idx_2e17ef41\" on \"constructionSection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "constructionSection_organizationId_idx_2e17ef41",
+        "table": "constructionSection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"constructionSection_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"constructionSection_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"constructionSection_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"constructionSection_organizationId_idx_2e17ef41\" ON \"public\".\"constructionSection\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"constructionSection_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"constructionSection_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.facility.facility_organizationId_idx_2e17ef41",
+    "label": "Create index \"facility_organizationId_idx_2e17ef41\" on \"facility\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "facility_organizationId_idx_2e17ef41",
+        "table": "facility"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"facility_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"facility_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"facility_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"facility_organizationId_idx_2e17ef41\" ON \"public\".\"facility\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"facility_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"facility_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garage.garage_blockId_idx_5a8da344",
+    "label": "Create index \"garage_blockId_idx_5a8da344\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garage_blockId_idx_5a8da344",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garage_blockId_idx_5a8da344\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_blockId_idx_5a8da344\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garage_blockId_idx_5a8da344\"",
+        "sql": "CREATE INDEX \"garage_blockId_idx_5a8da344\" ON \"public\".\"garage\" (\"blockId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garage_blockId_idx_5a8da344\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_blockId_idx_5a8da344\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garage.garage_constructionSectionId_idx_2e092d97",
+    "label": "Create index \"garage_constructionSectionId_idx_2e092d97\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garage_constructionSectionId_idx_2e092d97",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garage_constructionSectionId_idx_2e092d97\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_constructionSectionId_idx_2e092d97\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garage_constructionSectionId_idx_2e092d97\"",
+        "sql": "CREATE INDEX \"garage_constructionSectionId_idx_2e092d97\" ON \"public\".\"garage\" (\"constructionSectionId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garage_constructionSectionId_idx_2e092d97\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_constructionSectionId_idx_2e092d97\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garage.garage_facilityId_idx_3710d8c1",
+    "label": "Create index \"garage_facilityId_idx_3710d8c1\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garage_facilityId_idx_3710d8c1",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garage_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garage_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"garage_facilityId_idx_3710d8c1\" ON \"public\".\"garage\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garage_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garage.garage_organizationId_idx_2e17ef41",
+    "label": "Create index \"garage_organizationId_idx_2e17ef41\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garage_organizationId_idx_2e17ef41",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garage_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garage_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garage_organizationId_idx_2e17ef41\" ON \"public\".\"garage\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garage_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garage_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAssignment.garageAssignment_clubMemberId_idx_363aef22",
+    "label": "Create index \"garageAssignment_clubMemberId_idx_363aef22\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAssignment_clubMemberId_idx_363aef22",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAssignment_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAssignment_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"garageAssignment_clubMemberId_idx_363aef22\" ON \"public\".\"garageAssignment\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAssignment_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAssignment.garageAssignment_garageId_idx_3676c979",
+    "label": "Create index \"garageAssignment_garageId_idx_3676c979\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAssignment_garageId_idx_3676c979",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAssignment_garageId_idx_3676c979\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_garageId_idx_3676c979\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAssignment_garageId_idx_3676c979\"",
+        "sql": "CREATE INDEX \"garageAssignment_garageId_idx_3676c979\" ON \"public\".\"garageAssignment\" (\"garageId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAssignment_garageId_idx_3676c979\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_garageId_idx_3676c979\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAssignment.garageAssignment_garageUserId_idx_670c732a",
+    "label": "Create index \"garageAssignment_garageUserId_idx_670c732a\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAssignment_garageUserId_idx_670c732a",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAssignment_garageUserId_idx_670c732a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_garageUserId_idx_670c732a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAssignment_garageUserId_idx_670c732a\"",
+        "sql": "CREATE INDEX \"garageAssignment_garageUserId_idx_670c732a\" ON \"public\".\"garageAssignment\" (\"garageUserId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAssignment_garageUserId_idx_670c732a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_garageUserId_idx_670c732a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAssignment.garageAssignment_organizationId_idx_2e17ef41",
+    "label": "Create index \"garageAssignment_organizationId_idx_2e17ef41\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAssignment_organizationId_idx_2e17ef41",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAssignment_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAssignment_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garageAssignment_organizationId_idx_2e17ef41\" ON \"public\".\"garageAssignment\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAssignment_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAssignment.garageAssignment_tenantId_idx_c93ed4f1",
+    "label": "Create index \"garageAssignment_tenantId_idx_c93ed4f1\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAssignment_tenantId_idx_c93ed4f1",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAssignment_tenantId_idx_c93ed4f1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_tenantId_idx_c93ed4f1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAssignment_tenantId_idx_c93ed4f1\"",
+        "sql": "CREATE INDEX \"garageAssignment_tenantId_idx_c93ed4f1\" ON \"public\".\"garageAssignment\" (\"tenantId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAssignment_tenantId_idx_c93ed4f1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAssignment_tenantId_idx_c93ed4f1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageUser.garageUser_organizationId_idx_2e17ef41",
+    "label": "Create index \"garageUser_organizationId_idx_2e17ef41\" on \"garageUser\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageUser_organizationId_idx_2e17ef41",
+        "table": "garageUser"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageUser_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUser_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageUser_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garageUser_organizationId_idx_2e17ef41\" ON \"public\".\"garageUser\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageUser_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUser_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.membershipPeriod.membershipPeriod_clubMemberId_idx_363aef22",
+    "label": "Create index \"membershipPeriod_clubMemberId_idx_363aef22\" on \"membershipPeriod\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "membershipPeriod_clubMemberId_idx_363aef22",
+        "table": "membershipPeriod"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"membershipPeriod_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"membershipPeriod_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"membershipPeriod_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"membershipPeriod_clubMemberId_idx_363aef22\" ON \"public\".\"membershipPeriod\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"membershipPeriod_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"membershipPeriod_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.membershipPeriod.membershipPeriod_organizationId_idx_2e17ef41",
+    "label": "Create index \"membershipPeriod_organizationId_idx_2e17ef41\" on \"membershipPeriod\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "membershipPeriod_organizationId_idx_2e17ef41",
+        "table": "membershipPeriod"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"membershipPeriod_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"membershipPeriod_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"membershipPeriod_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"membershipPeriod_organizationId_idx_2e17ef41\" ON \"public\".\"membershipPeriod\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"membershipPeriod_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"membershipPeriod_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.tenant.tenant_organizationId_idx_2e17ef41",
+    "label": "Create index \"tenant_organizationId_idx_2e17ef41\" on \"tenant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "tenant_organizationId_idx_2e17ef41",
+        "table": "tenant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"tenant_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tenant_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"tenant_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"tenant_organizationId_idx_2e17ef41\" ON \"public\".\"tenant\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"tenant_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tenant_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.block.block_facilityId_fkey",
+    "label": "Add foreign key \"block_facilityId_fkey\" on \"block\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "block_facilityId_fkey",
+        "table": "block"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"block_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "block_facilityId_fkey",
+          "public",
+          "\"public\".\"block\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"block_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"block\"\nADD CONSTRAINT \"block_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"block_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "block_facilityId_fkey",
+          "public",
+          "\"public\".\"block\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.block.block_constructionSectionId_fkey",
+    "label": "Add foreign key \"block_constructionSectionId_fkey\" on \"block\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "block_constructionSectionId_fkey",
+        "table": "block"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"block_constructionSectionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "block_constructionSectionId_fkey",
+          "public",
+          "\"public\".\"block\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"block_constructionSectionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"block\"\nADD CONSTRAINT \"block_constructionSectionId_fkey\"\nFOREIGN KEY (\"constructionSectionId\")\nREFERENCES \"public\".\"constructionSection\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"block_constructionSectionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "block_constructionSectionId_fkey",
+          "public",
+          "\"public\".\"block\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.constructionSection.constructionSection_facilityId_fkey",
+    "label": "Add foreign key \"constructionSection_facilityId_fkey\" on \"constructionSection\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "constructionSection_facilityId_fkey",
+        "table": "constructionSection"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"constructionSection_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "constructionSection_facilityId_fkey",
+          "public",
+          "\"public\".\"constructionSection\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"constructionSection_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"constructionSection\"\nADD CONSTRAINT \"constructionSection_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"constructionSection_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "constructionSection_facilityId_fkey",
+          "public",
+          "\"public\".\"constructionSection\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garage.garage_facilityId_fkey",
+    "label": "Add foreign key \"garage_facilityId_fkey\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garage_facilityId_fkey",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garage_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_facilityId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garage_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garage\"\nADD CONSTRAINT \"garage_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garage_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_facilityId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garage.garage_constructionSectionId_fkey",
+    "label": "Add foreign key \"garage_constructionSectionId_fkey\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garage_constructionSectionId_fkey",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garage_constructionSectionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_constructionSectionId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garage_constructionSectionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garage\"\nADD CONSTRAINT \"garage_constructionSectionId_fkey\"\nFOREIGN KEY (\"constructionSectionId\")\nREFERENCES \"public\".\"constructionSection\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garage_constructionSectionId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_constructionSectionId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garage.garage_blockId_fkey",
+    "label": "Add foreign key \"garage_blockId_fkey\" on \"garage\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garage_blockId_fkey",
+        "table": "garage"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garage_blockId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_blockId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garage_blockId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garage\"\nADD CONSTRAINT \"garage_blockId_fkey\"\nFOREIGN KEY (\"blockId\")\nREFERENCES \"public\".\"block\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garage_blockId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garage_blockId_fkey",
+          "public",
+          "\"public\".\"garage\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageAssignment.garageAssignment_garageId_fkey",
+    "label": "Add foreign key \"garageAssignment_garageId_fkey\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageAssignment_garageId_fkey",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageAssignment_garageId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_garageId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageAssignment_garageId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageAssignment\"\nADD CONSTRAINT \"garageAssignment_garageId_fkey\"\nFOREIGN KEY (\"garageId\")\nREFERENCES \"public\".\"garage\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageAssignment_garageId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_garageId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageAssignment.garageAssignment_clubMemberId_fkey",
+    "label": "Add foreign key \"garageAssignment_clubMemberId_fkey\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageAssignment_clubMemberId_fkey",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageAssignment_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_clubMemberId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageAssignment_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageAssignment\"\nADD CONSTRAINT \"garageAssignment_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageAssignment_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_clubMemberId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageAssignment.garageAssignment_garageUserId_fkey",
+    "label": "Add foreign key \"garageAssignment_garageUserId_fkey\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageAssignment_garageUserId_fkey",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageAssignment_garageUserId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_garageUserId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageAssignment_garageUserId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageAssignment\"\nADD CONSTRAINT \"garageAssignment_garageUserId_fkey\"\nFOREIGN KEY (\"garageUserId\")\nREFERENCES \"public\".\"garageUser\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageAssignment_garageUserId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_garageUserId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageAssignment.garageAssignment_tenantId_fkey",
+    "label": "Add foreign key \"garageAssignment_tenantId_fkey\" on \"garageAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageAssignment_tenantId_fkey",
+        "table": "garageAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageAssignment_tenantId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_tenantId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageAssignment_tenantId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageAssignment\"\nADD CONSTRAINT \"garageAssignment_tenantId_fkey\"\nFOREIGN KEY (\"tenantId\")\nREFERENCES \"public\".\"tenant\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageAssignment_tenantId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAssignment_tenantId_fkey",
+          "public",
+          "\"public\".\"garageAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.membershipPeriod.membershipPeriod_clubMemberId_fkey",
+    "label": "Add foreign key \"membershipPeriod_clubMemberId_fkey\" on \"membershipPeriod\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "membershipPeriod_clubMemberId_fkey",
+        "table": "membershipPeriod"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"membershipPeriod_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "membershipPeriod_clubMemberId_fkey",
+          "public",
+          "\"public\".\"membershipPeriod\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"membershipPeriod_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"membershipPeriod\"\nADD CONSTRAINT \"membershipPeriod_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"membershipPeriod_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "membershipPeriod_clubMemberId_fkey",
+          "public",
+          "\"public\".\"membershipPeriod\""
+        ]
+      }
+    ]
+  }
+]

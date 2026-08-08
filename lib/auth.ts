@@ -18,6 +18,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 // Stage 1 first-cut Dynamic Access Control statements: extend Better Auth's
 // organization defaults with a couple of domain resources to prove the
 // pattern. The full resource/action matrix across all modules is Stage 14.
+// Note: the `member` statement key here is an AC permission resource,
+// distinct from the Stage 2 `Member` Prisma Next model (a Vereinsmitglied
+// business record) — same word, different namespace, no actual collision.
 const statement = {
   ...defaultStatements,
   member: ['create', 'read', 'update', 'delete'],
