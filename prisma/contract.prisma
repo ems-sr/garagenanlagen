@@ -1,1 +1,52 @@
-// use prisma-next
+// Garagenverwaltung — data contract.
+//
+// Better Auth's own tables (user, session, account, verification,
+// organization, member, invitation, team, teamMember, organizationRole) are
+// NOT modeled here. Better Auth owns their DDL entirely via its own
+// `pnpm exec better-auth migrate` (connecting to Postgres directly via a
+// `pg.Pool`, see lib/auth.ts) — Better Auth's `prismaAdapter` expects a
+// classic `@prisma/client`-style delegate API (`db[model].findFirst(...)`,
+// `.create(...)`, etc.), which Prisma Next's fluent
+// `db.orm.<Model>.where().all()` builder does not provide, so Prisma Next
+// isn't in the loop for those tables at all. A `@@control(external)`
+// declaration was tried so domain models could get real `@relation` FKs into
+// them, but Prisma Next's `db verify`/`db init` still structurally diffs
+// external models' indexes/uniques/defaults against the DB, and those don't
+// match Better Auth's own auto-generated index names — so instead, domain
+// models below reference Better Auth's tables with plain indexed string
+// columns (`organizationId`, `userId`, ...), not Prisma-level relations.
+// Application code joins across the boundary manually where needed.
+//
+// Bauabschnitt, Trakt, Garage, and Mitglied are Stage 2 scope — not modeled
+// yet. See docs/IMPLEMENTATION_PLAN.md for the full multi-stage roadmap.
+
+// Stage 1 stub — full Vorstand/Bankverbindung/Kontakt relational sub-model
+// (e.g. a separate board-member child table) is Stage 3 scope.
+model VereinProfile {
+  id             String   @id @default(uuid())
+  // References Better Auth's `organization.id` (not a Prisma-level FK — see
+  // note above).
+  organizationId String   @unique
+  bankIban       String?
+  contactEmail   String?
+  contactPhone   String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+}
+
+// Stage 1 stub — Bauabschnitt, Trakt, Garage, Mitglied arrive in Stage 2.
+// This model only proves the organizationId-per-Anlage + multi-Anlage-per-Verein shape.
+model Garagenanlage {
+  id             String   @id @default(uuid())
+  // References Better Auth's `organization.id` (not a Prisma-level FK — see
+  // note above).
+  organizationId String
+  name           String
+  street         String?
+  postalCode     String?
+  city           String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}

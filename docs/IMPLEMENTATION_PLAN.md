@@ -30,5 +30,16 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
 
 ## Status
 
-- [x] Stage 1 — in progress (see current session)
+- [x] Stage 1 — done: Better Auth (email/password, organization+teams, admin,
+      first-cut dynamic access control) wired against Postgres directly via
+      `pg.Pool` (not the Prisma Next contract — its `db.orm` client isn't
+      shape-compatible with Better Auth's `prismaAdapter`); `VereinProfile`
+      and `Garagenanlage` domain models added to `prisma/contract.prisma`
+      with plain indexed `organizationId` columns (no cross-system Prisma
+      relation); protected `(app)` route group with sign-in/sign-up,
+      dashboard, org-switch, and an Anlage-switcher stub. Verified end-to-end
+      (sign-up, session, middleware redirect, org creation, `hasPermission`
+      against custom `garage`/`invoice` statements, domain CRUD via
+      `db.orm.public.Garagenanlage` — note the namespaced accessor is
+      required here even though the contract has a single namespace).
 - [ ] Stage 2–15 — not started
