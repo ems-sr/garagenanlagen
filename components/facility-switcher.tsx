@@ -54,7 +54,9 @@ export function FacilitySwitcher({
       }}
     >
       <SelectTrigger className="w-56">
-        <SelectValue placeholder="Garagenanlage wählen" />
+        <SelectValue placeholder="Garagenanlage wählen">
+          {(value: string) => facilities.find((facility) => facility.id === value)?.name}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>

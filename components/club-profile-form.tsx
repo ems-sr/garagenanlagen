@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
 import { updateClubProfile } from '@/app/(app)/_actions/club-profile';
+import { updateOrganizationName } from '@/app/(app)/_actions/organization';
 import { updateClubProfileSchema } from '@/lib/validation/club-profile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,7 @@ import { Field, FieldError, FieldGroup, FieldLabel, FieldSeparator } from '@/com
 import { toast } from '@/components/ui/toast';
 
 type ClubProfileValues = {
+  name: string;
   street: string;
   postalCode: string;
   city: string;
@@ -25,9 +27,11 @@ type ClubProfileValues = {
 export function ClubProfileForm({
   initialProfile,
   canEdit,
+  canEditName,
 }: {
   initialProfile: ClubProfileValues;
   canEdit: boolean;
+  canEditName: boolean;
 }) {
   // Manual opt-in tracking: no signals babel/swc transform is configured, so
   // components must subscribe themselves to re-render on `.value` reads.
@@ -44,8 +48,9 @@ export function ClubProfileForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    const { name, ...profileValues } = values.value;
     const payload = Object.fromEntries(
-      Object.entries(values.value).map(([key, value]) => [key, value === '' ? undefined : value]),
+      Object.entries(profileValues).map(([key, value]) => [key, value === '' ? undefined : value]),
     );
     const result = updateClubProfileSchema.safeParse(payload);
     if (!result.success) {
@@ -54,15 +59,26 @@ export function ClubProfileForm({
       );
       return;
     }
+    if (canEditName && !name.trim()) {
+      errors.value = { name: 'Vereinsname erforderlich' };
+      return;
+    }
     errors.value = {};
     isSubmitting.value = true;
 
-    const actionResult = await updateClubProfile(result.data);
+    const [nameResult, profileResult] = await Promise.all([
+      canEditName ? updateOrganizationName(name) : Promise.resolve({ success: true as const, data: { name } }),
+      updateClubProfile(result.data),
+    ]);
 
     isSubmitting.value = false;
 
-    if (!actionResult.success) {
-      toast.add({ title: 'Speichern fehlgeschlagen', description: actionResult.error.message, type: 'error' });
+    if (!nameResult.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: nameResult.error.message, type: 'error' });
+      return;
+    }
+    if (!profileResult.success) {
+      toast.add({ title: 'Speichern fehlgeschlagen', description: profileResult.error.message, type: 'error' });
       return;
     }
 
@@ -73,6 +89,17 @@ export function ClubProfileForm({
   return (
     <form onSubmit={handleSubmit}>
       <FieldGroup>
+        <Field data-invalid={!!errors.value.name}>
+          <FieldLabel htmlFor="name">Vereinsname</FieldLabel>
+          <Input
+            id="name"
+            disabled={!canEditName}
+            value={values.value.name}
+            onChange={(e) => setField('name', e.target.value)}
+            aria-invalid={!!errors.value.name}
+          />
+          {errors.value.name && <FieldError errors={[{ message: errors.value.name }]} />}
+        </Field>
         <Field data-invalid={!!errors.value.street}>
           <FieldLabel htmlFor="street">Straße</FieldLabel>
           <Input
@@ -165,7 +192,7 @@ export function ClubProfileForm({
           />
         </Field>
 
-        {canEdit && (
+        {(canEdit || canEditName) && (
           <Button type="submit" disabled={isSubmitting.value}>
             Speichern
           </Button>

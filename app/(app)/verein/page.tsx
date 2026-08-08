@@ -4,7 +4,6 @@ import { db } from '@/prisma/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClubProfileForm } from '@/components/club-profile-form';
 import { BoardMemberManager } from '@/components/board-member-manager';
-import { OrganizationNameForm } from '@/components/organization-name-form';
 
 export default async function VereinPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -37,22 +36,13 @@ export default async function VereinPage() {
     <div className="flex flex-col gap-4">
       <Card>
         <CardHeader>
-          <CardTitle>Verein</CardTitle>
-          <CardDescription>Name des Vereins.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <OrganizationNameForm initialName={organization?.name ?? ''} canEdit={canEditName} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Vereins-Stammdaten</CardTitle>
-          <CardDescription>Anschrift, Bankverbindung und Kontaktinformationen des Vereins.</CardDescription>
+          <CardDescription>Name, Anschrift, Bankverbindung und Kontaktinformationen des Vereins.</CardDescription>
         </CardHeader>
         <CardContent>
           <ClubProfileForm
             initialProfile={{
+              name: organization?.name ?? '',
               street: profile?.street ?? '',
               postalCode: profile?.postalCode ?? '',
               city: profile?.city ?? '',
@@ -64,6 +54,7 @@ export default async function VereinPage() {
               contactPhone: profile?.contactPhone ?? '',
             }}
             canEdit={canEdit}
+            canEditName={canEditName}
           />
         </CardContent>
       </Card>
