@@ -9,8 +9,18 @@ import { ConstructionSectionManager } from '@/components/construction-section-ma
 import { BlockManager } from '@/components/block-manager';
 import { GarageManager } from '@/components/garage-manager';
 
-export default async function GaragenanlageDetailPage({ params }: { params: Promise<{ id: string }> }) {
+const TABS = ['stammdaten', 'bauabschnitte', 'trakte', 'garagen'] as const;
+
+export default async function GaragenanlageDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const { id } = await params;
+  const { tab } = await searchParams;
+  const initialTab = (TABS as readonly string[]).includes(tab ?? '') ? (tab as (typeof TABS)[number]) : 'stammdaten';
   const session = await auth.api.getSession({ headers: await headers() });
   const organizationId = session?.session.activeOrganizationId;
   if (!organizationId) notFound();
@@ -35,7 +45,7 @@ export default async function GaragenanlageDetailPage({ params }: { params: Prom
   }));
 
   return (
-    <Tabs defaultValue="stammdaten">
+    <Tabs defaultValue={initialTab}>
       <TabsList>
         <TabsTrigger value="stammdaten">Stammdaten</TabsTrigger>
         <TabsTrigger value="bauabschnitte">Bauabschnitte</TabsTrigger>
