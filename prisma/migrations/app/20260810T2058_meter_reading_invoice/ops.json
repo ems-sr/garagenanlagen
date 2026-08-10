@@ -1,0 +1,125 @@
+[
+  {
+    "id": "column.public.meterReading.invoiceId",
+    "label": "Add column \"invoiceId\" to \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "invoiceId",
+        "table": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"invoiceId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "meterReading",
+          "invoiceId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"invoiceId\"",
+        "sql": "ALTER TABLE \"public\".\"meterReading\" ADD COLUMN \"invoiceId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"invoiceId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "meterReading",
+          "invoiceId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.meterReading.meterReading_invoiceId_idx_d5c4f70e",
+    "label": "Create index \"meterReading_invoiceId_idx_d5c4f70e\" on \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "meterReading_invoiceId_idx_d5c4f70e",
+        "table": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"meterReading_invoiceId_idx_d5c4f70e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading_invoiceId_idx_d5c4f70e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"meterReading_invoiceId_idx_d5c4f70e\"",
+        "sql": "CREATE INDEX \"meterReading_invoiceId_idx_d5c4f70e\" ON \"public\".\"meterReading\" (\"invoiceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"meterReading_invoiceId_idx_d5c4f70e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading_invoiceId_idx_d5c4f70e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.meterReading.meterReading_invoiceId_fkey",
+    "label": "Add foreign key \"meterReading_invoiceId_fkey\" on \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "meterReading_invoiceId_fkey",
+        "table": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"meterReading_invoiceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterReading_invoiceId_fkey",
+          "public",
+          "\"public\".\"meterReading\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"meterReading_invoiceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"meterReading\"\nADD CONSTRAINT \"meterReading_invoiceId_fkey\"\nFOREIGN KEY (\"invoiceId\")\nREFERENCES \"public\".\"invoice\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"meterReading_invoiceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterReading_invoiceId_fkey",
+          "public",
+          "\"public\".\"meterReading\""
+        ]
+      }
+    ]
+  }
+]

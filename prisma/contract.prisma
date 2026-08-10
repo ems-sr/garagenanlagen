@@ -321,3 +321,228 @@ model GarageAssignment {
   @@index([garageUserId])
   @@index([tenantId])
 }
+
+// Effective-dated price per facility, mirroring MembershipPeriod's
+// validFrom/validTo pattern — prices change over time, but each Invoice
+// snapshots the price that applied when it was generated, so past invoices
+// stay correct even after a later price change. Stored in cents (Int), not
+// Decimal, for exact monetary arithmetic — per architectural decision, all
+// money fields in this stage follow the same convention.
+model PricePerKwh {
+  id             String    @id @default(uuid())
+  organizationId String
+  facilityId     String
+  facility       Facility  @relation(fields: [facilityId], references: [id])
+  pricePerKwh    Int
+  validFrom      DateTime
+  validTo        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([facilityId])
+}
+
+// value is a cumulative kWh counter reading (can be fractional, hence
+// Decimal, unlike the Int-cents money fields below). invoiceId marks the
+// invoice this reading's consumption was billed through — set on the
+// endpoint reading (currentReadingId of that invoice) and every reading
+// between the previous and the new invoice that got swept into the same
+// billed period, not only the exact endpoint.
+model MeterReading {
+  id             String   @id @default(uuid())
+  organizationId String
+  garageId       String
+  garage         Garage   @relation(fields: [garageId], references: [id])
+  readingDate    DateTime
+  value          Decimal
+  note           String?
+  invoiceId      String?
+  invoice        Invoice? @relation("InvoiceContainedReadings", fields: [invoiceId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([garageId])
+  @@index([invoiceId])
+}
+
+enum InvoiceStatus {
+  @@type("pg/text@1")
+  open     = "open"
+  paid     = "paid"
+  canceled = "canceled"
+}
+
+// Stage 5 generalizes Invoice beyond consumption billing: `consumption` keeps
+// the Stage 4 shape (garage/reading/kWh fields below, no InvoiceLineItem
+// rows); `membershipFee` and `custom` are club-level (no garage/facility),
+// carry their totals as InvoiceLineItem rows instead of consumptionKwh/
+// pricePerKwh, and share the same status/payment/open-item machinery.
+enum InvoiceType {
+  @@type("pg/text@1")
+  consumption   = "consumption"
+  membershipFee = "membershipFee"
+  custom        = "custom"
+}
+
+// Bills the ClubMember holding the active `member`-type GarageAssignment for
+// the garage at generation time — Tenant/renter invoicing is Stage 10 scope.
+// currentReadingId is @unique so a reading can be billed at most once (the
+// billing engine also checks this up front for a clean error message rather
+// than relying solely on the constraint). previousReadingId is nullable: a
+// garage's first-ever invoice has no prior billed reading and bills from a
+// 0 kWh baseline instead of pinning a MeterReading row.
+//
+// facilityId/garageId/currentReadingId/consumptionKwh/pricePerKwh are only
+// populated for type=consumption; type=membershipFee/custom invoices are
+// club-level (no facility/garage) and carry their amount as InvoiceLineItem
+// rows instead, with `description` as the invoice's free-text title.
+model Invoice {
+  id                String            @id @default(uuid())
+  organizationId    String
+  type              InvoiceType       @default(consumption)
+  facilityId        String?
+  facility          Facility?         @relation(fields: [facilityId], references: [id])
+  garageId          String?
+  garage            Garage?           @relation(fields: [garageId], references: [id])
+  clubMemberId      String
+  clubMember        ClubMember        @relation(fields: [clubMemberId], references: [id])
+  invoiceNumber     String
+  description       String?
+  periodStart       DateTime
+  periodEnd         DateTime
+  previousReadingId String?
+  previousReading   MeterReading?     @relation("InvoicePreviousReading", fields: [previousReadingId], references: [id])
+  currentReadingId  String?           @unique
+  currentReading    MeterReading?     @relation("InvoiceCurrentReading", fields: [currentReadingId], references: [id])
+  consumptionKwh    Decimal?
+  pricePerKwh       Int?
+  netAmount         Int
+  vatRate           Int               @default(19)
+  vatAmount         Int
+  grossAmount       Int
+  status            InvoiceStatus     @default(open)
+  issueDate         DateTime          @default(now())
+  dueDate           DateTime?
+  lineItems         InvoiceLineItem[]
+  createdAt         DateTime          @default(now())
+  updatedAt         temporal.updatedAt()
+
+  @@unique([organizationId, invoiceNumber])
+  @@index([organizationId])
+  @@index([facilityId])
+  @@index([garageId])
+  @@index([clubMemberId])
+  @@index([status])
+}
+
+// Only populated for type=membershipFee/custom invoices — type=consumption
+// invoices keep their single amount directly on Invoice (netAmount/
+// pricePerKwh/consumptionKwh), unchanged from Stage 4, since retrofitting
+// line items onto every past consumption invoice isn't needed by any Stage 5
+// requirement.
+model InvoiceLineItem {
+  id             String   @id @default(uuid())
+  organizationId String
+  invoiceId      String
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description    String
+  quantity       Decimal
+  unitPrice      Int
+  netAmount      Int
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([invoiceId])
+}
+
+// Effective-dated Mitgliedsbeitrag rate, club-wide (not per-Facility, unlike
+// PricePerKwh) — mirrors its validFrom/validTo pattern. Stored in cents
+// (Int), same money convention as every other amount field.
+model MembershipFee {
+  id             String    @id @default(uuid())
+  organizationId String
+  description    String?
+  amount         Int
+  validFrom      DateTime
+  validTo        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+model Payment {
+  id             String   @id @default(uuid())
+  organizationId String
+  invoiceId      String
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount         Int
+  paidAt         DateTime @default(now())
+  method         String?
+  note           String?
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([invoiceId])
+}
+
+// Reusable correspondence templates (e.g. "Zahlungserinnerung",
+// "Jahresbeitrag fällig") with `{{firstName}}`/`{{lastName}}`/`{{email}}`
+// placeholders substituted at send time — see lib/email/render-template.ts.
+// Not effective-dated like PricePerKwh/MembershipFee: a template is edited
+// in place, only past CorrespondenceLog rows freeze what was actually sent.
+model EmailTemplate {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  subject        String
+  body           String
+  createdAt      DateTime @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+enum CorrespondenceStatus {
+  @@type("pg/text@1")
+  sent   = "sent"
+  failed = "failed"
+}
+
+// One row per recipient per send (a bulk send to N members writes N rows,
+// same fan-out pattern as Stage 5's bulk invoice generation) — this is the
+// "per-member/per-Anlage correspondence history log" the roadmap calls for:
+// always tied to the ClubMember it was sent to, optionally tagged with the
+// Facility the send was scoped to (see CorrespondenceRecipientMode in
+// lib/validation/correspondence.ts) so /korrespondenz can filter by Anlage.
+// templateId is nullable with onDelete(SetNull): deleting a template must
+// not be blocked by (or destroy) the history of emails already sent with
+// it. subject/body are the fully-rendered text actually sent, not the
+// template source, so history stays correct even after the template is
+// later edited or deleted.
+model CorrespondenceLog {
+  id             String                @id @default(uuid())
+  organizationId String
+  facilityId     String?
+  facility       Facility?             @relation(fields: [facilityId], references: [id])
+  clubMemberId   String
+  clubMember     ClubMember            @relation(fields: [clubMemberId], references: [id])
+  templateId     String?
+  template       EmailTemplate?        @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  recipientEmail String
+  subject        String
+  body           String
+  status         CorrespondenceStatus
+  errorMessage   String?
+  sentAt         DateTime              @default(now())
+  createdAt      DateTime              @default(now())
+
+  @@index([organizationId])
+  @@index([facilityId])
+  @@index([clubMemberId])
+  @@index([templateId])
+}

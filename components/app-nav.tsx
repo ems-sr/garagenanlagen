@@ -8,6 +8,8 @@ import {
   GarageIcon,
   BuildingsIcon,
   ArrowsLeftRightIcon,
+  ReceiptIcon,
+  EnvelopeSimpleIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import {
@@ -24,6 +26,8 @@ const NAV_ICONS: Record<string, Icon> = {
   '/mitglieder': UsersIcon,
   '/garagenanlagen': GarageIcon,
   '/verein': BuildingsIcon,
+  '/rechnungen': ReceiptIcon,
+  '/korrespondenz': EnvelopeSimpleIcon,
   '/organizations': ArrowsLeftRightIcon,
 };
 

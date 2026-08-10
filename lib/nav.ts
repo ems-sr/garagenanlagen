@@ -11,6 +11,9 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/mitglieder', label: 'Mitglieder', permission: { resource: 'member', actions: ['read'] } },
   { href: '/garagenanlagen', label: 'Garagenanlagen', permission: { resource: 'garage', actions: ['read'] } },
+  { href: '/garagen', label: 'Garagen', permission: { resource: 'garage', actions: ['read'] } },
   { href: '/verein', label: 'Verein', permission: { resource: 'club', actions: ['read'] } },
+  { href: '/rechnungen', label: 'Rechnungen', permission: { resource: 'invoice', actions: ['read'] } },
+  { href: '/korrespondenz', label: 'Korrespondenz', permission: { resource: 'correspondence', actions: ['read'] } },
   { href: '/organizations', label: 'Verein wechseln' },
 ];

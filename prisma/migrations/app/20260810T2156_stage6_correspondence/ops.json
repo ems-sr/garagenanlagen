@@ -1,0 +1,443 @@
+[
+  {
+    "id": "table.correspondenceLog",
+    "label": "Create table \"correspondenceLog\"",
+    "summary": "Creates table \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"correspondenceLog\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"correspondenceLog\"",
+        "sql": "CREATE TABLE \"public\".\"correspondenceLog\" (\n  \"body\" text NOT NULL,\n  \"clubMemberId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"errorMessage\" text,\n  \"facilityId\" text,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"recipientEmail\" text NOT NULL,\n  \"sentAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"status\" text NOT NULL,\n  \"subject\" text NOT NULL,\n  \"templateId\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"correspondenceLog\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.emailTemplate",
+    "label": "Create table \"emailTemplate\"",
+    "summary": "Creates table \"emailTemplate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "emailTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"emailTemplate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"emailTemplate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"emailTemplate\"",
+        "sql": "CREATE TABLE \"public\".\"emailTemplate\" (\n  \"body\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"subject\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"emailTemplate\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"emailTemplate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.correspondenceLog.correspondenceLog_status_check",
+    "label": "Add check constraint \"correspondenceLog_status_check\" on \"correspondenceLog\".\"status\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "correspondenceLog_status_check",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"correspondenceLog_status_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_status_check",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"correspondenceLog_status_check\"",
+        "sql": "ALTER TABLE \"public\".\"correspondenceLog\" ADD CONSTRAINT \"correspondenceLog_status_check\" CHECK (\"status\" IN ('sent', 'failed'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"correspondenceLog_status_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_status_check",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.correspondenceLog.correspondenceLog_clubMemberId_idx_363aef22",
+    "label": "Create index \"correspondenceLog_clubMemberId_idx_363aef22\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "correspondenceLog_clubMemberId_idx_363aef22",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"correspondenceLog_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"correspondenceLog_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"correspondenceLog_clubMemberId_idx_363aef22\" ON \"public\".\"correspondenceLog\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"correspondenceLog_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.correspondenceLog.correspondenceLog_facilityId_idx_3710d8c1",
+    "label": "Create index \"correspondenceLog_facilityId_idx_3710d8c1\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "correspondenceLog_facilityId_idx_3710d8c1",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"correspondenceLog_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"correspondenceLog_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"correspondenceLog_facilityId_idx_3710d8c1\" ON \"public\".\"correspondenceLog\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"correspondenceLog_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.correspondenceLog.correspondenceLog_organizationId_idx_2e17ef41",
+    "label": "Create index \"correspondenceLog_organizationId_idx_2e17ef41\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "correspondenceLog_organizationId_idx_2e17ef41",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"correspondenceLog_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"correspondenceLog_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"correspondenceLog_organizationId_idx_2e17ef41\" ON \"public\".\"correspondenceLog\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"correspondenceLog_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.correspondenceLog.correspondenceLog_templateId_idx_19e0d972",
+    "label": "Create index \"correspondenceLog_templateId_idx_19e0d972\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "correspondenceLog_templateId_idx_19e0d972",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"correspondenceLog_templateId_idx_19e0d972\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_templateId_idx_19e0d972\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"correspondenceLog_templateId_idx_19e0d972\"",
+        "sql": "CREATE INDEX \"correspondenceLog_templateId_idx_19e0d972\" ON \"public\".\"correspondenceLog\" (\"templateId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"correspondenceLog_templateId_idx_19e0d972\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"correspondenceLog_templateId_idx_19e0d972\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.emailTemplate.emailTemplate_organizationId_idx_2e17ef41",
+    "label": "Create index \"emailTemplate_organizationId_idx_2e17ef41\" on \"emailTemplate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "emailTemplate_organizationId_idx_2e17ef41",
+        "table": "emailTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"emailTemplate_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"emailTemplate_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"emailTemplate_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"emailTemplate_organizationId_idx_2e17ef41\" ON \"public\".\"emailTemplate\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"emailTemplate_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"emailTemplate_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.correspondenceLog.correspondenceLog_facilityId_fkey",
+    "label": "Add foreign key \"correspondenceLog_facilityId_fkey\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "correspondenceLog_facilityId_fkey",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"correspondenceLog_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_facilityId_fkey",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"correspondenceLog_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"correspondenceLog\"\nADD CONSTRAINT \"correspondenceLog_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"correspondenceLog_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_facilityId_fkey",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.correspondenceLog.correspondenceLog_clubMemberId_fkey",
+    "label": "Add foreign key \"correspondenceLog_clubMemberId_fkey\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "correspondenceLog_clubMemberId_fkey",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"correspondenceLog_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_clubMemberId_fkey",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"correspondenceLog_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"correspondenceLog\"\nADD CONSTRAINT \"correspondenceLog_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"correspondenceLog_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_clubMemberId_fkey",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.correspondenceLog.correspondenceLog_templateId_fkey",
+    "label": "Add foreign key \"correspondenceLog_templateId_fkey\" on \"correspondenceLog\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "correspondenceLog_templateId_fkey",
+        "table": "correspondenceLog"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"correspondenceLog_templateId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_templateId_fkey",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"correspondenceLog_templateId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"correspondenceLog\"\nADD CONSTRAINT \"correspondenceLog_templateId_fkey\"\nFOREIGN KEY (\"templateId\")\nREFERENCES \"public\".\"emailTemplate\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"correspondenceLog_templateId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "correspondenceLog_templateId_fkey",
+          "public",
+          "\"public\".\"correspondenceLog\""
+        ]
+      }
+    ]
+  }
+]

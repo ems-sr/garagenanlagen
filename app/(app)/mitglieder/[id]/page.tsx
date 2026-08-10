@@ -9,6 +9,8 @@ import { GarageAssignmentManager } from '@/components/garage-assignment-manager'
 import { MemberAddressManager } from '@/components/member-address-manager';
 import { MemberContactManager } from '@/components/member-contact-manager';
 import { MemberNameEditor } from '@/components/member-name-editor';
+import { SendCorrespondenceDialog } from '@/components/send-correspondence-dialog';
+import { CorrespondenceLogTable } from '@/components/correspondence-log-table';
 
 export default async function MitgliedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,7 +21,7 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
   const member = await db.orm.public.ClubMember.where({ id, organizationId }).first();
   if (!member) notFound();
 
-  const [periods, assignments, activeAssignmentsOrgWide, garages, facilities, addresses, contacts] =
+  const [periods, assignments, activeAssignmentsOrgWide, garages, facilities, addresses, contacts, templates, logs, canSend] =
     await Promise.all([
       db.orm.public.MembershipPeriod.where({ clubMemberId: id, organizationId }).all(),
       db.orm.public.GarageAssignment.where({ clubMemberId: id, organizationId, type: 'member' }).all(),
@@ -28,6 +30,11 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
       db.orm.public.Facility.where({ organizationId }).all(),
       db.orm.public.MemberAddress.where({ clubMemberId: id, organizationId }).all(),
       db.orm.public.MemberContact.where({ clubMemberId: id, organizationId }).all(),
+      db.orm.public.EmailTemplate.where({ organizationId }).all(),
+      db.orm.public.CorrespondenceLog.where({ clubMemberId: id, organizationId }).orderBy((log) => log.sentAt.desc()).all(),
+      auth.api
+        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { correspondence: ['create'] } } })
+        .then((result) => result.success),
     ]);
 
   const facilityNameById = new Map(facilities.map((facility) => [facility.id, facility.name]));
@@ -53,6 +60,7 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
         <TabsTrigger value="adressen">Adressen</TabsTrigger>
         <TabsTrigger value="kontakte">Kontakte</TabsTrigger>
         <TabsTrigger value="garagen">Garagen</TabsTrigger>
+        <TabsTrigger value="korrespondenz">Korrespondenz</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -151,6 +159,38 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
                 };
               })}
               availableGarages={availableGarages}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="korrespondenz">
+        <Card>
+          <CardHeader className="flex-row items-start justify-between">
+            <div>
+              <CardTitle>Korrespondenz</CardTitle>
+              <CardDescription>Verlauf der an dieses Mitglied gesendeten E-Mails.</CardDescription>
+            </div>
+            {canSend && (
+              <SendCorrespondenceDialog
+                scope="fixedMember"
+                fixedClubMemberId={member.id}
+                templates={templates.map((template) => ({ id: template.id, name: template.name, subject: template.subject, body: template.body }))}
+              />
+            )}
+          </CardHeader>
+          <CardContent>
+            <CorrespondenceLogTable
+              showMember={false}
+              items={logs.map((log) => ({
+                id: log.id,
+                memberName: `${member.firstName} ${member.lastName}`,
+                recipientEmail: log.recipientEmail,
+                subject: log.subject,
+                status: log.status,
+                errorMessage: log.errorMessage,
+                sentAt: log.sentAt.toISOString(),
+              }))}
             />
           </CardContent>
         </Card>

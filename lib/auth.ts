@@ -30,6 +30,22 @@ const statement = {
   // separate from `member` (Mitgliederverwaltung) so the two can be granted
   // independently.
   club: ['read', 'update'],
+  // Stage 4: meter-reading data entry and price-per-kWh maintenance, kept
+  // separate from `invoice` (billing/payment management) so the two can be
+  // granted independently — e.g. a caretaker enters meter readings without
+  // being able to generate or cancel invoices.
+  meterReading: ['create', 'read', 'update', 'delete'],
+  // Stage 5: Mitgliedsbeitrag rate maintenance, kept separate from `invoice`
+  // for the same reason meterReading is — generating/canceling dues and
+  // custom invoices stays gated by `invoice`, only setting the rate itself
+  // needs this.
+  membershipFee: ['create', 'read', 'update', 'delete'],
+  // Stage 6: template management + sending/viewing correspondence. One
+  // statement for both (unlike meterReading/invoice's split) since there's
+  // no scenario here needing "can send emails but not manage templates" or
+  // vice versa — templates only exist to be sent, sending only makes sense
+  // with templates to pick from.
+  correspondence: ['create', 'read', 'update', 'delete'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -40,6 +56,9 @@ const owner = ac.newRole({
   garage: ['create', 'read', 'update', 'delete'],
   invoice: ['create', 'read', 'update', 'delete'],
   club: ['read', 'update'],
+  meterReading: ['create', 'read', 'update', 'delete'],
+  membershipFee: ['create', 'read', 'update', 'delete'],
+  correspondence: ['create', 'read', 'update', 'delete'],
 });
 
 const orgAdmin = ac.newRole({
@@ -48,6 +67,9 @@ const orgAdmin = ac.newRole({
   garage: ['create', 'read', 'update', 'delete'],
   invoice: ['create', 'read', 'update', 'delete'],
   club: ['read', 'update'],
+  meterReading: ['create', 'read', 'update', 'delete'],
+  membershipFee: ['create', 'read', 'update', 'delete'],
+  correspondence: ['create', 'read', 'update', 'delete'],
 });
 
 const orgMember = ac.newRole({
@@ -56,6 +78,9 @@ const orgMember = ac.newRole({
   garage: ['read'],
   invoice: ['read'],
   club: ['read'],
+  meterReading: ['read'],
+  membershipFee: ['read'],
+  correspondence: ['read'],
 });
 
 // Seed custom role proving the "Vorstand"/"Werkstatt-Team"-style functional
@@ -65,8 +90,11 @@ const orgMember = ac.newRole({
 const vorstand = ac.newRole({
   member: ['read', 'update'],
   garage: ['read'],
-  invoice: ['read'],
+  invoice: ['create', 'read', 'update', 'delete'],
   club: ['read', 'update'],
+  meterReading: ['create', 'read', 'update', 'delete'],
+  membershipFee: ['create', 'read', 'update', 'delete'],
+  correspondence: ['create', 'read', 'update', 'delete'],
 });
 
 export const auth = betterAuth({

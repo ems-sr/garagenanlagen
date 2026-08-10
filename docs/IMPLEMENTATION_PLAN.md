@@ -123,4 +123,210 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
       a Client Component boundary; fixed by dropping the icon from the
       server-rendered button. All test data cleaned up from the dev
       database afterward.
-- [ ] Stage 4–15 — not started
+- [x] Stage 4 — done: consumption billing core. New contract models
+      `PricePerKwh` (effective-dated, per Facility), `MeterReading`,
+      `Invoice`, `Payment` (+ `InvoiceStatus` enum) — all money fields
+      (`pricePerKwh`, `netAmount`/`vatAmount`/`grossAmount`, `Payment.amount`)
+      are `Int` cents per explicit user decision, not `Decimal`, for exact
+      arithmetic; only the physical kWh quantities (`MeterReading.value`,
+      `Invoice.consumptionKwh`) stay `Decimal`. New `meterReading`
+      Better Auth AC statement (kept separate from the existing `invoice`
+      statement so meter-entry and billing/payment permissions can be
+      granted independently), wired into `owner`/`admin`/`vorstand` (full)
+      and `member` (read). Billing engine in `lib/billing/`
+      (`generateInvoiceForReading`, `generateBulkInvoicesForFacility`,
+      `recordPayment`) computes consumption since the last reading for a
+      garage, resolves the effective price and the active `member`-type
+      `GarageAssignment` to bill (Tenant/renter billing is Stage 10 scope),
+      and generates a sequential `RE-{year}-{seq}` invoice number per
+      transaction; partial payments are supported and an invoice flips to
+      `paid` once payments cover `grossAmount`.
+      **API pattern clarified with the user and now the standing rule**:
+      Server Actions (`app/(app)/_actions/**`) are for mutations,
+      REST routes are for reads, and — per explicit instruction —
+      REST routes must always exist for every domain function regardless
+      (for later external use), correcting Stage 2/3's undocumented drift
+      to Server-Actions-only for members/garage-assignments/club-profile/
+      board-members (not retrofitted this stage). Stage 4 therefore ships
+      full REST CRUD under `app/api/price-per-kwh`, `app/api/meter-readings`,
+      `app/api/invoices` (+`/bulk`, +`/[id]/payments`), all calling the same
+      `lib/billing/*`/`lib/validation/*` functions as the Server Actions
+      used by the UI — no duplicated business logic between the two lanes.
+      UI: a "Strompreise" tab on the facility detail page
+      (`/garagenanlagen/[id]`); the garage page (`/garagen/[garageId]`,
+      previously an edit-only form) converted to a Stammdaten/Zählerstände
+      tabbed view, the new tab listing readings with an inline
+      "Rechnung erzeugen" action; new `/rechnungen` (facility-scoped via
+      the existing `selected-facility` cookie, status filter, bulk-generate
+      button) and `/rechnungen/[id]` (full breakdown, payment history,
+      cancel-if-unpaid-and-no-payments) pages. Verified end-to-end via
+      `pnpm run lint`, `tsc --noEmit`, and a `pnpm dev` + `curl` run against
+      a throwaway org (no interactive browser available in this session, so
+      the new pages were instead verified by inspecting their rendered SSR
+      HTML for the expected content): consumption/VAT math and sequential
+      invoice numbering, re-invoicing the same reading rejected cleanly,
+      bulk generation across garages with mixed billable state (skips
+      reported per-garage, not a batch failure), partial-then-full payment
+      correctly flipping status to `paid`, cancel blocked on a paid invoice,
+      RBAC 403 for a read-only role vs 200 on read, 401 unauthenticated —
+      caught and fixed one bug in the process: `.count()` on a filtered
+      collection threw `ORM.INCLUDE_INVALID` at runtime (contrary to the
+      Prisma Next skill's own docs, which list it as a plain terminal verb
+      alongside `.all()`/`.first()`), worked around by using `.all().length`
+      for the invoice-numbering sequence query. All test data cleaned up
+      from the dev database afterward.
+- [x] Stage 5 — done: generalized invoicing beyond consumption billing.
+      `Invoice` gained a `type` enum (`consumption`/`membershipFee`/`custom`,
+      `@default(consumption)` for backward compatibility) and its
+      facility/garage/reading/kWh/price fields were widened to nullable —
+      only `type=consumption` populates them, matching Stage 4's shape
+      unchanged; `membershipFee`/`custom` invoices are club-level (no
+      facility) and carry their amount as new `InvoiceLineItem` rows
+      (description/quantity/unitPrice/netAmount) instead, with a free-text
+      `description` on the invoice itself. New `MembershipFee` model
+      (effective-dated Beitragssatz, club-wide like `PricePerKwh` but not
+      per-Facility) rounds out the contract additions. New `membershipFee`
+      Better Auth AC statement for rate maintenance (mirrors Stage 4's
+      `meterReading`/`invoice` split: setting the rate is separately
+      gated from generating/canceling invoices, which stays on the
+      existing `invoice` statement — no new statement needed there since
+      dues/custom invoicing reuses Stage 4's open-item machinery
+      end-to-end). Billing engine additions in `lib/billing/`:
+      `generateMembershipFeeInvoiceForMember` (bills one member for
+      `[periodStart, periodEnd)`, rejecting a second invoice for the same
+      member+period via an application-level lookup — no DB constraint,
+      mirroring how Stage 4 checks `currentReadingId` up front),
+      `generateBulkMembershipFeeInvoices` (bills every `ClubMember` with a
+      `MembershipPeriod` overlapping the period, skipping — not failing —
+      members without one), and `generateCustomInvoice` (arbitrary line
+      items, net/vat/gross summed from them). All three, plus Stage 4's
+      `generateInvoiceForReading`, now share one `nextInvoiceNumber`
+      helper (extracted to `lib/billing/invoice-number.ts`) so
+      `RE-{year}-{seq}` stays one gap-free sequence per organization per
+      year across every invoice type, not per type — verified via curl
+      (numbers landed 0001/0002/0003 across a dues/dues/custom sequence
+      in the same run). `recordPayment`/cancel-invoice logic needed no
+      changes at all: both already operated on `Invoice`/`Payment` without
+      assuming consumption fields, so Stage 5's open-item tracking is
+      Stage 4's unmodified, confirming the "shared open-item tracking"
+      requirement fell out of the existing design rather than needing new
+      code. REST API: `app/api/membership-fees` (+`[id]`, full CRUD,
+      mirrors `price-per-kwh`'s shape exactly) and
+      `app/api/invoices/membership-fee` (+`/bulk`),
+      `app/api/invoices/custom`, `app/api/invoices/[id]/line-items` (GET
+      only — line items are billing-engine-created, never hand-edited,
+      same rationale as Invoice's own lack of free-form create). Server
+      Actions mirror the REST surface per the Stage 4 pattern
+      (`_actions/membership-fees.ts`, three new functions added to
+      `_actions/invoices.ts`). UI: new "Mitgliedsbeiträge" tab on
+      `/verein` (`MembershipFeeManager`, copy of `PricePerKwhManager`
+      minus the per-facility scoping); `/rechnungen` now queries
+      organization-wide and filters client-side to "this facility's
+      consumption invoices + every club-wide dues/custom invoice"
+      (`!invoice.facilityId || invoice.facilityId === facilityId` — no
+      `or()` combinator available in the query builder, same workaround
+      Stage 4 used for price/assignment lookups), gained a Typ column, and
+      `InvoiceList` gained two dialogs (bulk Beitragsrechnungen by period;
+      free-form Rechnung with dynamic line-item rows) alongside the
+      existing bulk-consumption button; `/rechnungen/[id]` branches on
+      `invoice.type` — the Stage 4 Zählerstand/kWh breakdown is untouched
+      for `consumption`, a new line-item table + totals renders for
+      `membershipFee`/`custom`; `PaymentManager` is reused verbatim (it
+      never assumed consumption fields either). Verified end-to-end via
+      `pnpm run lint`, `tsc --noEmit`, and a `pnpm dev` + curl run against
+      a throwaway org/member (no interactive browser available in this
+      session): fee-rate resolution at period start, dues net/VAT/gross
+      math, duplicate-period rejection (single and inside a bulk run,
+      correctly reported as skipped rather than failing the batch),
+      bulk dues billing only active-`MembershipPeriod` members, custom
+      invoice multi-line-item summation, shared invoice-number sequence
+      across types, full payment flipping a dues/custom invoice to
+      `paid` exactly like Stage 4's consumption invoices, cancel blocked
+      on a paid invoice, 401 unauthenticated, and the `/verein` Beiträge
+      tab and both new invoice-detail renderings (line-item table for
+      membershipFee/custom, unchanged Zählerstand view for consumption)
+      rendering their expected content in the SSR HTML. All test data
+      cleaned up from the dev database afterward (including the Better
+      Auth user/org rows the throwaway sign-up created, via a one-off
+      script since Better Auth's tables sit outside `db.orm`).
+- [x] Stage 6 — done: SMTP correspondence. New `nodemailer` dependency (no
+      SMTP client existed yet); `lib/email/transport.ts` lazily builds and
+      caches a transport from `SMTP_HOST`/`SMTP_PORT`/`SMTP_SECURE`/
+      `SMTP_USER`/`SMTP_PASS`/`SMTP_FROM` env vars (added to `.env.example`),
+      throwing a clear message when unconfigured rather than letting
+      nodemailer fail opaquely; `lib/email/send-email.ts` is the one
+      low-level send point the whole app should route through;
+      `lib/email/render-template.ts` does flat `{{key}}` substitution (no
+      templating engine — only member fields are ever needed). Deliberately
+      did **not** wire this into Better Auth's own transactional email
+      (password reset): there's no forgot-password UI yet to trigger it, and
+      the roadmap's Stage 6 scope is club correspondence, not auth UX —
+      wiring a send path nothing calls would be a half-finished feature, not
+      "SMTP integration" per se. New contract models: `EmailTemplate`
+      (reusable subject/body pairs, organization-scoped, edited in place —
+      not effective-dated like PricePerKwh/MembershipFee) and
+      `CorrespondenceLog` (the "per-member/per-Anlage" history log the
+      roadmap calls for: always tied to the `ClubMember` it was sent to,
+      optionally tagged with the `Facility` a send was scoped to; stores the
+      fully-rendered subject/body actually sent, not the template
+      reference, so history stays correct after a template is edited or
+      deleted — `templateId` is nullable with `onDelete: SetNull` so
+      deleting a template can't be blocked by, or destroy, past history).
+      New `correspondence` Better Auth AC statement — one statement for both
+      template management and sending/viewing, unlike the meterReading/
+      invoice or membershipFee/invoice splits from Stages 4/5, since there's
+      no scenario here needing one without the other. Engine in
+      `lib/email/send-correspondence.ts`: a single `sendCorrespondence`
+      entry point handles all three recipient modes (`member` — one
+      `ClubMember`; `allMembers` — every `ClubMember` in the org,
+      intentionally unfiltered by active/inactive status since dunning
+      correspondence to a lapsed member is a legitimate use case unlike
+      billing; `facilityMembers` — every `ClubMember` with an active
+      `member`-type `GarageAssignment` to a garage in the given `Facility`,
+      giving the "per-Anlage" framing real targeting behavior, not just a
+      log tag). Never wrapped in a transaction: a partial batch (some sent,
+      some failed, some skipped for a missing email address) is the
+      expected, useful outcome, matching Stage 4/5's bulk-generation
+      skip-not-fail pattern — every attempted send gets a logged
+      `CorrespondenceLog` row regardless of whether the SMTP call itself
+      succeeded (`status: sent|failed`, with `errorMessage` on failure),
+      only recipients with no email on file are skipped before an attempt
+      is made. REST API: `app/api/email-templates` (+`[id]`, full CRUD) and
+      `app/api/correspondence` (GET history with `clubMemberId`/`facilityId`
+      filters, POST send) — same Server-Action-mirrors-REST pattern as
+      Stages 4/5. UI: new `/korrespondenz` top-level nav page (Verlauf tab:
+      org-wide log table + a `SendCorrespondenceDialog` with a recipient-
+      mode picker; Vorlagen tab: `EmailTemplateManager`, copy of
+      `BoardMemberManager`'s CRUD-dialog shape with a `Textarea` for the
+      body and a placeholder-syntax hint); a new "Korrespondenz" tab on
+      `/mitglieder/[id]` reusing the same two components in a
+      `scope="fixedMember"` mode (recipient picker hidden, target locked to
+      that member) — `SendCorrespondenceDialog`'s props are a discriminated
+      union on `scope` (`'fixedMember' | 'org'`) so TypeScript actually
+      enforces which fields each call site must pass, rather than an
+      all-optional prop bag. Verified end-to-end via `pnpm run lint`,
+      `tsc --noEmit`, and a `pnpm dev` + curl run against a throwaway org
+      with one member with an email and one without (no interactive browser
+      available in this session, no real SMTP credentials in this dev
+      environment either): `{{firstName}}`/`{{lastName}}` placeholder
+      substitution in both subject and body, single-member template send
+      logged with `status=failed` and a clear "SMTP nicht konfiguriert"
+      `errorMessage` (proving the graceful-degradation path rather than a
+      500), bulk `allMembers` send producing one attempted log row plus one
+      `NO_EMAIL`-skipped row, `facilityMembers` against a nonexistent
+      facility → 404, missing subject/body/templateId → 400
+      `VALIDATION_ERROR`, 401 unauthenticated, and both new page renderings
+      (org-wide `/korrespondenz` history + Vorlagen, and the per-member
+      Korrespondenz tab) showing the expected content in the SSR HTML.
+      Also fixed a migration-authoring mistake caught during this stage:
+      the first `migration plan` run defaulted `--from` to the `db` ref,
+      which Stage 5 had applied via `migrate` but never advanced (a gap in
+      Stage 5's own process) — so it silently replanned Stage 5's already-
+      applied operations alongside Stage 6's new ones instead of just the
+      delta; recovered by deleting the bad migration package, `ref set db`
+      to the Stage 5 tip hash, and re-planning, which produced the correct
+      11-operation additive-only migration (and the `db` ref was advanced
+      to the new tip afterward this time, to avoid leaving the same trap
+      for Stage 7). All test data cleaned up from the dev database
+      afterward.
+- [ ] Stage 7–15 — not started

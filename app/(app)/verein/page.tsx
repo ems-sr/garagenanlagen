@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ClubStammdatenForm, ClubBankForm } from '@/components/club-profile-form';
 import { BoardMemberManager } from '@/components/board-member-manager';
+import { MembershipFeeManager } from '@/components/membership-fee-manager';
 
 export default async function VereinPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -21,15 +22,19 @@ export default async function VereinPage() {
     );
   }
 
-  const [organization, profile, boardMembers, canEdit, canEditName] = await Promise.all([
+  const [organization, profile, boardMembers, membershipFees, canEdit, canEditName, canEditFees] = await Promise.all([
     auth.api.getFullOrganization({ headers: await headers(), query: { organizationId } }),
     db.orm.public.ClubProfile.where({ organizationId }).first(),
     db.orm.public.BoardMember.where({ organizationId }).all(),
+    db.orm.public.MembershipFee.where({ organizationId }).orderBy((f) => f.validFrom.desc()).all(),
     auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { club: ['update'] } } })
       .then((result) => result.success),
     auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { organization: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { membershipFee: ['update'] } } })
       .then((result) => result.success),
   ]);
 
@@ -39,6 +44,7 @@ export default async function VereinPage() {
         <TabsTrigger value="stammdaten">Vereins-Stammdaten</TabsTrigger>
         <TabsTrigger value="bank">Bankverbindung</TabsTrigger>
         <TabsTrigger value="vorstand">Vorstand</TabsTrigger>
+        <TabsTrigger value="beitraege">Mitgliedsbeiträge</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -92,6 +98,27 @@ export default async function VereinPage() {
           </CardHeader>
           <CardContent>
             <BoardMemberManager initialItems={boardMembers} canEdit={canEdit} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="beitraege">
+        <Card>
+          <CardHeader>
+            <CardTitle>Mitgliedsbeiträge</CardTitle>
+            <CardDescription>Beitragssatz für die Vereinsmitglieder, mit Gültigkeitszeitraum.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MembershipFeeManager
+              initialItems={membershipFees.map((fee) => ({
+                id: fee.id,
+                description: fee.description,
+                amount: fee.amount,
+                validFrom: fee.validFrom.toISOString(),
+                validTo: fee.validTo ? fee.validTo.toISOString() : null,
+              }))}
+              canEdit={canEditFees}
+            />
           </CardContent>
         </Card>
       </TabsContent>

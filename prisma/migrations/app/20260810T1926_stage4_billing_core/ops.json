@@ -1,0 +1,1088 @@
+[
+  {
+    "id": "table.invoice",
+    "label": "Create table \"invoice\"",
+    "summary": "Creates table \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"invoice\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"invoice\"",
+        "sql": "CREATE TABLE \"public\".\"invoice\" (\n  \"clubMemberId\" text NOT NULL,\n  \"consumptionKwh\" numeric NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"currentReadingId\" text NOT NULL,\n  \"dueDate\" timestamptz,\n  \"facilityId\" text NOT NULL,\n  \"garageId\" text NOT NULL,\n  \"grossAmount\" int4 NOT NULL,\n  \"id\" text NOT NULL,\n  \"invoiceNumber\" text NOT NULL,\n  \"issueDate\" timestamptz DEFAULT (now()) NOT NULL,\n  \"netAmount\" int4 NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"periodEnd\" timestamptz NOT NULL,\n  \"periodStart\" timestamptz NOT NULL,\n  \"previousReadingId\" text NOT NULL,\n  \"pricePerKwh\" int4 NOT NULL,\n  \"status\" text DEFAULT 'open' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"vatAmount\" int4 NOT NULL,\n  \"vatRate\" int4 DEFAULT 19 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"invoice\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.meterReading",
+    "label": "Create table \"meterReading\"",
+    "summary": "Creates table \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"meterReading\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"meterReading\"",
+        "sql": "CREATE TABLE \"public\".\"meterReading\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"garageId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"note\" text,\n  \"organizationId\" text NOT NULL,\n  \"readingDate\" timestamptz NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"value\" numeric NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"meterReading\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.payment",
+    "label": "Create table \"payment\"",
+    "summary": "Creates table \"payment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "payment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"payment\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"payment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"payment\"",
+        "sql": "CREATE TABLE \"public\".\"payment\" (\n  \"amount\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"invoiceId\" text NOT NULL,\n  \"method\" text,\n  \"note\" text,\n  \"organizationId\" text NOT NULL,\n  \"paidAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"payment\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"payment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.pricePerKwh",
+    "label": "Create table \"pricePerKwh\"",
+    "summary": "Creates table \"pricePerKwh\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "pricePerKwh"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"pricePerKwh\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"pricePerKwh\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"pricePerKwh\"",
+        "sql": "CREATE TABLE \"public\".\"pricePerKwh\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"facilityId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"pricePerKwh\" int4 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"validFrom\" timestamptz NOT NULL,\n  \"validTo\" timestamptz,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"pricePerKwh\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"pricePerKwh\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.invoice.invoice_currentReadingId_key",
+    "label": "Add unique constraint on \"invoice\" (currentReadingId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "invoice_currentReadingId_key",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_currentReadingId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_key",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"invoice_currentReadingId_key\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" ADD CONSTRAINT \"invoice_currentReadingId_key\" UNIQUE (\"currentReadingId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_currentReadingId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_key",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.invoice.invoice_organizationId_invoiceNumber_key",
+    "label": "Add unique constraint on \"invoice\" (organizationId, invoiceNumber)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "invoice_organizationId_invoiceNumber_key",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_organizationId_invoiceNumber_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_organizationId_invoiceNumber_key",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"invoice_organizationId_invoiceNumber_key\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" ADD CONSTRAINT \"invoice_organizationId_invoiceNumber_key\" UNIQUE (\"organizationId\", \"invoiceNumber\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_organizationId_invoiceNumber_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_organizationId_invoiceNumber_key",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.invoice.invoice_status_check",
+    "label": "Add check constraint \"invoice_status_check\" on \"invoice\".\"status\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "invoice_status_check",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_status_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_status_check",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"invoice_status_check\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" ADD CONSTRAINT \"invoice_status_check\" CHECK (\"status\" IN ('open', 'paid', 'canceled'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_status_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_status_check",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoice.invoice_clubMemberId_idx_363aef22",
+    "label": "Create index \"invoice_clubMemberId_idx_363aef22\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_clubMemberId_idx_363aef22",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoice_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"invoice_clubMemberId_idx_363aef22\" ON \"public\".\"invoice\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoice.invoice_facilityId_idx_3710d8c1",
+    "label": "Create index \"invoice_facilityId_idx_3710d8c1\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_facilityId_idx_3710d8c1",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoice_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"invoice_facilityId_idx_3710d8c1\" ON \"public\".\"invoice\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoice.invoice_garageId_idx_3676c979",
+    "label": "Create index \"invoice_garageId_idx_3676c979\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_garageId_idx_3676c979",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_garageId_idx_3676c979\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_garageId_idx_3676c979\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoice_garageId_idx_3676c979\"",
+        "sql": "CREATE INDEX \"invoice_garageId_idx_3676c979\" ON \"public\".\"invoice\" (\"garageId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_garageId_idx_3676c979\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_garageId_idx_3676c979\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoice.invoice_organizationId_idx_2e17ef41",
+    "label": "Create index \"invoice_organizationId_idx_2e17ef41\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_organizationId_idx_2e17ef41",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoice_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"invoice_organizationId_idx_2e17ef41\" ON \"public\".\"invoice\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoice.invoice_previousReadingId_idx_cbaf49d5",
+    "label": "Create index \"invoice_previousReadingId_idx_cbaf49d5\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_previousReadingId_idx_cbaf49d5",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_previousReadingId_idx_cbaf49d5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_previousReadingId_idx_cbaf49d5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoice_previousReadingId_idx_cbaf49d5\"",
+        "sql": "CREATE INDEX \"invoice_previousReadingId_idx_cbaf49d5\" ON \"public\".\"invoice\" (\"previousReadingId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_previousReadingId_idx_cbaf49d5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_previousReadingId_idx_cbaf49d5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoice.invoice_status_idx_e98638ab",
+    "label": "Create index \"invoice_status_idx_e98638ab\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_status_idx_e98638ab",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoice_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"invoice_status_idx_e98638ab\" ON \"public\".\"invoice\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.meterReading.meterReading_garageId_idx_3676c979",
+    "label": "Create index \"meterReading_garageId_idx_3676c979\" on \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "meterReading_garageId_idx_3676c979",
+        "table": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"meterReading_garageId_idx_3676c979\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading_garageId_idx_3676c979\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"meterReading_garageId_idx_3676c979\"",
+        "sql": "CREATE INDEX \"meterReading_garageId_idx_3676c979\" ON \"public\".\"meterReading\" (\"garageId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"meterReading_garageId_idx_3676c979\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading_garageId_idx_3676c979\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.meterReading.meterReading_organizationId_idx_2e17ef41",
+    "label": "Create index \"meterReading_organizationId_idx_2e17ef41\" on \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "meterReading_organizationId_idx_2e17ef41",
+        "table": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"meterReading_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"meterReading_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"meterReading_organizationId_idx_2e17ef41\" ON \"public\".\"meterReading\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"meterReading_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterReading_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.payment.payment_invoiceId_idx_d5c4f70e",
+    "label": "Create index \"payment_invoiceId_idx_d5c4f70e\" on \"payment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "payment_invoiceId_idx_d5c4f70e",
+        "table": "payment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"payment_invoiceId_idx_d5c4f70e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"payment_invoiceId_idx_d5c4f70e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"payment_invoiceId_idx_d5c4f70e\"",
+        "sql": "CREATE INDEX \"payment_invoiceId_idx_d5c4f70e\" ON \"public\".\"payment\" (\"invoiceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"payment_invoiceId_idx_d5c4f70e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"payment_invoiceId_idx_d5c4f70e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.payment.payment_organizationId_idx_2e17ef41",
+    "label": "Create index \"payment_organizationId_idx_2e17ef41\" on \"payment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "payment_organizationId_idx_2e17ef41",
+        "table": "payment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"payment_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"payment_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"payment_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"payment_organizationId_idx_2e17ef41\" ON \"public\".\"payment\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"payment_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"payment_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.pricePerKwh.pricePerKwh_facilityId_idx_3710d8c1",
+    "label": "Create index \"pricePerKwh_facilityId_idx_3710d8c1\" on \"pricePerKwh\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "pricePerKwh_facilityId_idx_3710d8c1",
+        "table": "pricePerKwh"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"pricePerKwh_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"pricePerKwh_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"pricePerKwh_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"pricePerKwh_facilityId_idx_3710d8c1\" ON \"public\".\"pricePerKwh\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"pricePerKwh_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"pricePerKwh_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.pricePerKwh.pricePerKwh_organizationId_idx_2e17ef41",
+    "label": "Create index \"pricePerKwh_organizationId_idx_2e17ef41\" on \"pricePerKwh\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "pricePerKwh_organizationId_idx_2e17ef41",
+        "table": "pricePerKwh"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"pricePerKwh_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"pricePerKwh_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"pricePerKwh_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"pricePerKwh_organizationId_idx_2e17ef41\" ON \"public\".\"pricePerKwh\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"pricePerKwh_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"pricePerKwh_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoice.invoice_facilityId_fkey",
+    "label": "Add foreign key \"invoice_facilityId_fkey\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_facilityId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoice_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_facilityId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoice_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\"\nADD CONSTRAINT \"invoice_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoice_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_facilityId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoice.invoice_garageId_fkey",
+    "label": "Add foreign key \"invoice_garageId_fkey\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_garageId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoice_garageId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_garageId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoice_garageId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\"\nADD CONSTRAINT \"invoice_garageId_fkey\"\nFOREIGN KEY (\"garageId\")\nREFERENCES \"public\".\"garage\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoice_garageId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_garageId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoice.invoice_clubMemberId_fkey",
+    "label": "Add foreign key \"invoice_clubMemberId_fkey\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_clubMemberId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoice_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_clubMemberId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoice_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\"\nADD CONSTRAINT \"invoice_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoice_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_clubMemberId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoice.invoice_previousReadingId_fkey",
+    "label": "Add foreign key \"invoice_previousReadingId_fkey\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_previousReadingId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoice_previousReadingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_previousReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoice_previousReadingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\"\nADD CONSTRAINT \"invoice_previousReadingId_fkey\"\nFOREIGN KEY (\"previousReadingId\")\nREFERENCES \"public\".\"meterReading\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoice_previousReadingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_previousReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoice.invoice_currentReadingId_fkey",
+    "label": "Add foreign key \"invoice_currentReadingId_fkey\" on \"invoice\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_currentReadingId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoice_currentReadingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoice_currentReadingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\"\nADD CONSTRAINT \"invoice_currentReadingId_fkey\"\nFOREIGN KEY (\"currentReadingId\")\nREFERENCES \"public\".\"meterReading\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoice_currentReadingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.meterReading.meterReading_garageId_fkey",
+    "label": "Add foreign key \"meterReading_garageId_fkey\" on \"meterReading\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "meterReading_garageId_fkey",
+        "table": "meterReading"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"meterReading_garageId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterReading_garageId_fkey",
+          "public",
+          "\"public\".\"meterReading\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"meterReading_garageId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"meterReading\"\nADD CONSTRAINT \"meterReading_garageId_fkey\"\nFOREIGN KEY (\"garageId\")\nREFERENCES \"public\".\"garage\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"meterReading_garageId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterReading_garageId_fkey",
+          "public",
+          "\"public\".\"meterReading\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.payment.payment_invoiceId_fkey",
+    "label": "Add foreign key \"payment_invoiceId_fkey\" on \"payment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "payment_invoiceId_fkey",
+        "table": "payment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"payment_invoiceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "payment_invoiceId_fkey",
+          "public",
+          "\"public\".\"payment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"payment_invoiceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"payment\"\nADD CONSTRAINT \"payment_invoiceId_fkey\"\nFOREIGN KEY (\"invoiceId\")\nREFERENCES \"public\".\"invoice\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"payment_invoiceId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "payment_invoiceId_fkey",
+          "public",
+          "\"public\".\"payment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.pricePerKwh.pricePerKwh_facilityId_fkey",
+    "label": "Add foreign key \"pricePerKwh_facilityId_fkey\" on \"pricePerKwh\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "pricePerKwh_facilityId_fkey",
+        "table": "pricePerKwh"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"pricePerKwh_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "pricePerKwh_facilityId_fkey",
+          "public",
+          "\"public\".\"pricePerKwh\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"pricePerKwh_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"pricePerKwh\"\nADD CONSTRAINT \"pricePerKwh_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"pricePerKwh_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "pricePerKwh_facilityId_fkey",
+          "public",
+          "\"public\".\"pricePerKwh\""
+        ]
+      }
+    ]
+  }
+]

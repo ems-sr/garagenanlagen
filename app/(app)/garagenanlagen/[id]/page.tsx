@@ -8,8 +8,9 @@ import { FacilityProfileEditor } from '@/components/facility-profile-editor';
 import { ConstructionSectionManager } from '@/components/construction-section-manager';
 import { BlockManager } from '@/components/block-manager';
 import { GarageManager } from '@/components/garage-manager';
+import { PricePerKwhManager } from '@/components/price-per-kwh-manager';
 
-const TABS = ['stammdaten', 'bauabschnitte', 'trakte', 'garagen'] as const;
+const TABS = ['stammdaten', 'bauabschnitte', 'trakte', 'garagen', 'preise'] as const;
 
 export default async function GaragenanlageDetailPage({
   params,
@@ -28,12 +29,16 @@ export default async function GaragenanlageDetailPage({
   const facility = await db.orm.public.Facility.where({ id, organizationId }).first();
   if (!facility) notFound();
 
-  const [constructionSections, blocks, garages, canEdit] = await Promise.all([
+  const [constructionSections, blocks, garages, prices, canEdit, canEditPrices] = await Promise.all([
     db.orm.public.ConstructionSection.where({ facilityId: id, organizationId }).all(),
     db.orm.public.Block.where({ facilityId: id, organizationId }).all(),
     db.orm.public.Garage.where({ facilityId: id, organizationId }).all(),
+    db.orm.public.PricePerKwh.where({ facilityId: id, organizationId }).orderBy((p) => p.validFrom.desc()).all(),
     auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { garage: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { meterReading: ['update'] } } })
       .then((result) => result.success),
   ]);
 
@@ -51,6 +56,7 @@ export default async function GaragenanlageDetailPage({
         <TabsTrigger value="bauabschnitte">Bauabschnitte</TabsTrigger>
         <TabsTrigger value="trakte">Trakte</TabsTrigger>
         <TabsTrigger value="garagen">Garagen</TabsTrigger>
+        <TabsTrigger value="preise">Strompreise</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -128,6 +134,27 @@ export default async function GaragenanlageDetailPage({
               constructionSections={sectionOptions}
               blocks={blockOptions}
               canEdit={canEdit}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="preise">
+        <Card>
+          <CardHeader>
+            <CardTitle>Strompreise</CardTitle>
+            <CardDescription>Preis pro kWh für diese Garagenanlage, mit Gültigkeitszeitraum.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PricePerKwhManager
+              facilityId={facility.id}
+              initialItems={prices.map((price) => ({
+                id: price.id,
+                pricePerKwh: price.pricePerKwh,
+                validFrom: price.validFrom.toISOString(),
+                validTo: price.validTo ? price.validTo.toISOString() : null,
+              }))}
+              canEdit={canEditPrices}
             />
           </CardContent>
         </Card>
