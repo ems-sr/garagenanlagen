@@ -16,5 +16,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/rechnungen', label: 'Rechnungen', permission: { resource: 'invoice', actions: ['read'] } },
   { href: '/korrespondenz', label: 'Korrespondenz', permission: { resource: 'correspondence', actions: ['read'] } },
   { href: '/berichte', label: 'Berichte', permission: { resource: 'report', actions: ['read'] } },
+  { href: '/arbeitseinsaetze', label: 'Arbeitseinsätze', permission: { resource: 'workShift', actions: ['read'] } },
   { href: '/organizations', label: 'Verein wechseln' },
 ];

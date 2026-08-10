@@ -53,6 +53,14 @@ const statement = {
   // Stage 7: document archive (upload/list/download/delete), kept separate
   // from `report` since the two are functionally independent.
   document: ['create', 'read', 'update', 'delete'],
+  // Stage 8: shift definition, participant/hours entry, and cash payout
+  // recording — kept separate from `workShiftRate` for the same reason
+  // `meterReading`/`invoice` and `membershipFee`/`invoice` are split: rate
+  // maintenance can be granted independently of day-to-day shift
+  // coordination.
+  workShift: ['create', 'read', 'update', 'delete'],
+  // Stage 8: Aufwandsentschädigung (reimbursement) rate maintenance.
+  workShiftRate: ['create', 'read', 'update', 'delete'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -68,6 +76,8 @@ const owner = ac.newRole({
   correspondence: ['create', 'read', 'update', 'delete'],
   report: ['read'],
   document: ['create', 'read', 'update', 'delete'],
+  workShift: ['create', 'read', 'update', 'delete'],
+  workShiftRate: ['create', 'read', 'update', 'delete'],
 });
 
 const orgAdmin = ac.newRole({
@@ -81,6 +91,8 @@ const orgAdmin = ac.newRole({
   correspondence: ['create', 'read', 'update', 'delete'],
   report: ['read'],
   document: ['create', 'read', 'update', 'delete'],
+  workShift: ['create', 'read', 'update', 'delete'],
+  workShiftRate: ['create', 'read', 'update', 'delete'],
 });
 
 const orgMember = ac.newRole({
@@ -94,6 +106,8 @@ const orgMember = ac.newRole({
   correspondence: ['read'],
   report: ['read'],
   document: ['read'],
+  workShift: ['read'],
+  workShiftRate: ['read'],
 });
 
 // Seed custom role proving the "Vorstand"/"Werkstatt-Team"-style functional
@@ -110,6 +124,8 @@ const vorstand = ac.newRole({
   correspondence: ['create', 'read', 'update', 'delete'],
   report: ['read'],
   document: ['create', 'read', 'update', 'delete'],
+  workShift: ['create', 'read', 'update', 'delete'],
+  workShiftRate: ['create', 'read', 'update', 'delete'],
 });
 
 export const auth = betterAuth({

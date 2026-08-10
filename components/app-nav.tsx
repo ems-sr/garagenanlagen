@@ -11,6 +11,7 @@ import {
   ReceiptIcon,
   EnvelopeSimpleIcon,
   FilePdfIcon,
+  HardHatIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import {
@@ -30,6 +31,7 @@ const NAV_ICONS: Record<string, Icon> = {
   '/rechnungen': ReceiptIcon,
   '/korrespondenz': EnvelopeSimpleIcon,
   '/berichte': FilePdfIcon,
+  '/arbeitseinsaetze': HardHatIcon,
   '/organizations': ArrowsLeftRightIcon,
 };
 

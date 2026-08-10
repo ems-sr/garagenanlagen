@@ -1,0 +1,521 @@
+[
+  {
+    "id": "table.shiftParticipant",
+    "label": "Create table \"shiftParticipant\"",
+    "summary": "Creates table \"shiftParticipant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"shiftParticipant\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"shiftParticipant\"",
+        "sql": "CREATE TABLE \"public\".\"shiftParticipant\" (\n  \"clubMemberId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"hoursWorked\" numeric NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"paidOut\" bool DEFAULT false NOT NULL,\n  \"paidOutAt\" timestamptz,\n  \"reimbursementAmount\" int4 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"workShiftId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"shiftParticipant\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.workShift",
+    "label": "Create table \"workShift\"",
+    "summary": "Creates table \"workShift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "workShift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"workShift\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShift\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"workShift\"",
+        "sql": "CREATE TABLE \"public\".\"workShift\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"date\" timestamptz NOT NULL,\n  \"description\" text,\n  \"facilityId\" text,\n  \"id\" text NOT NULL,\n  \"location\" text,\n  \"organizationId\" text NOT NULL,\n  \"title\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"workShift\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShift\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.workShiftReimbursementRate",
+    "label": "Create table \"workShiftReimbursementRate\"",
+    "summary": "Creates table \"workShiftReimbursementRate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "workShiftReimbursementRate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"workShiftReimbursementRate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftReimbursementRate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"workShiftReimbursementRate\"",
+        "sql": "CREATE TABLE \"public\".\"workShiftReimbursementRate\" (\n  \"amountPerHour\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"validFrom\" timestamptz NOT NULL,\n  \"validTo\" timestamptz,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"workShiftReimbursementRate\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftReimbursementRate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.shiftParticipant.shiftParticipant_workShiftId_clubMemberId_key",
+    "label": "Add unique constraint on \"shiftParticipant\" (workShiftId, clubMemberId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "shiftParticipant_workShiftId_clubMemberId_key",
+        "table": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"shiftParticipant_workShiftId_clubMemberId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "shiftParticipant_workShiftId_clubMemberId_key",
+          "public",
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"shiftParticipant_workShiftId_clubMemberId_key\"",
+        "sql": "ALTER TABLE \"public\".\"shiftParticipant\" ADD CONSTRAINT \"shiftParticipant_workShiftId_clubMemberId_key\" UNIQUE (\"workShiftId\", \"clubMemberId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"shiftParticipant_workShiftId_clubMemberId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "shiftParticipant_workShiftId_clubMemberId_key",
+          "public",
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.shiftParticipant.shiftParticipant_clubMemberId_idx_363aef22",
+    "label": "Create index \"shiftParticipant_clubMemberId_idx_363aef22\" on \"shiftParticipant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "shiftParticipant_clubMemberId_idx_363aef22",
+        "table": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"shiftParticipant_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"shiftParticipant_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"shiftParticipant_clubMemberId_idx_363aef22\" ON \"public\".\"shiftParticipant\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"shiftParticipant_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.shiftParticipant.shiftParticipant_organizationId_idx_2e17ef41",
+    "label": "Create index \"shiftParticipant_organizationId_idx_2e17ef41\" on \"shiftParticipant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "shiftParticipant_organizationId_idx_2e17ef41",
+        "table": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"shiftParticipant_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"shiftParticipant_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"shiftParticipant_organizationId_idx_2e17ef41\" ON \"public\".\"shiftParticipant\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"shiftParticipant_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.shiftParticipant.shiftParticipant_workShiftId_idx_6d239a0e",
+    "label": "Create index \"shiftParticipant_workShiftId_idx_6d239a0e\" on \"shiftParticipant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "shiftParticipant_workShiftId_idx_6d239a0e",
+        "table": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"shiftParticipant_workShiftId_idx_6d239a0e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant_workShiftId_idx_6d239a0e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"shiftParticipant_workShiftId_idx_6d239a0e\"",
+        "sql": "CREATE INDEX \"shiftParticipant_workShiftId_idx_6d239a0e\" ON \"public\".\"shiftParticipant\" (\"workShiftId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"shiftParticipant_workShiftId_idx_6d239a0e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"shiftParticipant_workShiftId_idx_6d239a0e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.workShift.workShift_facilityId_idx_3710d8c1",
+    "label": "Create index \"workShift_facilityId_idx_3710d8c1\" on \"workShift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "workShift_facilityId_idx_3710d8c1",
+        "table": "workShift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"workShift_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShift_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"workShift_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"workShift_facilityId_idx_3710d8c1\" ON \"public\".\"workShift\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"workShift_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShift_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.workShift.workShift_organizationId_idx_2e17ef41",
+    "label": "Create index \"workShift_organizationId_idx_2e17ef41\" on \"workShift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "workShift_organizationId_idx_2e17ef41",
+        "table": "workShift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"workShift_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShift_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"workShift_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"workShift_organizationId_idx_2e17ef41\" ON \"public\".\"workShift\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"workShift_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShift_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.workShiftReimbursementRate.workShiftReimbursementRate_organizationId_idx_2e17ef41",
+    "label": "Create index \"workShiftReimbursementRate_organizationId_idx_2e17ef41\" on \"workShiftReimbursementRate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "workShiftReimbursementRate_organizationId_idx_2e17ef41",
+        "table": "workShiftReimbursementRate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"workShiftReimbursementRate_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftReimbursementRate_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"workShiftReimbursementRate_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"workShiftReimbursementRate_organizationId_idx_2e17ef41\" ON \"public\".\"workShiftReimbursementRate\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"workShiftReimbursementRate_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftReimbursementRate_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.shiftParticipant.shiftParticipant_workShiftId_fkey",
+    "label": "Add foreign key \"shiftParticipant_workShiftId_fkey\" on \"shiftParticipant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "shiftParticipant_workShiftId_fkey",
+        "table": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"shiftParticipant_workShiftId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "shiftParticipant_workShiftId_fkey",
+          "public",
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"shiftParticipant_workShiftId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"shiftParticipant\"\nADD CONSTRAINT \"shiftParticipant_workShiftId_fkey\"\nFOREIGN KEY (\"workShiftId\")\nREFERENCES \"public\".\"workShift\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"shiftParticipant_workShiftId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "shiftParticipant_workShiftId_fkey",
+          "public",
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.shiftParticipant.shiftParticipant_clubMemberId_fkey",
+    "label": "Add foreign key \"shiftParticipant_clubMemberId_fkey\" on \"shiftParticipant\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "shiftParticipant_clubMemberId_fkey",
+        "table": "shiftParticipant"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"shiftParticipant_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "shiftParticipant_clubMemberId_fkey",
+          "public",
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"shiftParticipant_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"shiftParticipant\"\nADD CONSTRAINT \"shiftParticipant_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"shiftParticipant_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "shiftParticipant_clubMemberId_fkey",
+          "public",
+          "\"public\".\"shiftParticipant\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.workShift.workShift_facilityId_fkey",
+    "label": "Add foreign key \"workShift_facilityId_fkey\" on \"workShift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "workShift_facilityId_fkey",
+        "table": "workShift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"workShift_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "workShift_facilityId_fkey",
+          "public",
+          "\"public\".\"workShift\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"workShift_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"workShift\"\nADD CONSTRAINT \"workShift_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"workShift_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "workShift_facilityId_fkey",
+          "public",
+          "\"public\".\"workShift\""
+        ]
+      }
+    ]
+  }
+]

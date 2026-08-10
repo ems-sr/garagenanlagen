@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ClubStammdatenForm, ClubBankForm } from '@/components/club-profile-form';
 import { BoardMemberManager } from '@/components/board-member-manager';
 import { MembershipFeeManager } from '@/components/membership-fee-manager';
+import { WorkShiftRateManager } from '@/components/work-shift-rate-manager';
 
 export default async function VereinPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -22,21 +23,26 @@ export default async function VereinPage() {
     );
   }
 
-  const [organization, profile, boardMembers, membershipFees, canEdit, canEditName, canEditFees] = await Promise.all([
-    auth.api.getFullOrganization({ headers: await headers(), query: { organizationId } }),
-    db.orm.public.ClubProfile.where({ organizationId }).first(),
-    db.orm.public.BoardMember.where({ organizationId }).all(),
-    db.orm.public.MembershipFee.where({ organizationId }).orderBy((f) => f.validFrom.desc()).all(),
-    auth.api
-      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { club: ['update'] } } })
-      .then((result) => result.success),
-    auth.api
-      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { organization: ['update'] } } })
-      .then((result) => result.success),
-    auth.api
-      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { membershipFee: ['update'] } } })
-      .then((result) => result.success),
-  ]);
+  const [organization, profile, boardMembers, membershipFees, workShiftRates, canEdit, canEditName, canEditFees, canEditWorkShiftRates] =
+    await Promise.all([
+      auth.api.getFullOrganization({ headers: await headers(), query: { organizationId } }),
+      db.orm.public.ClubProfile.where({ organizationId }).first(),
+      db.orm.public.BoardMember.where({ organizationId }).all(),
+      db.orm.public.MembershipFee.where({ organizationId }).orderBy((f) => f.validFrom.desc()).all(),
+      db.orm.public.WorkShiftReimbursementRate.where({ organizationId }).orderBy((r) => r.validFrom.desc()).all(),
+      auth.api
+        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { club: ['update'] } } })
+        .then((result) => result.success),
+      auth.api
+        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { organization: ['update'] } } })
+        .then((result) => result.success),
+      auth.api
+        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { membershipFee: ['update'] } } })
+        .then((result) => result.success),
+      auth.api
+        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { workShiftRate: ['update'] } } })
+        .then((result) => result.success),
+    ]);
 
   return (
     <Tabs defaultValue="stammdaten">
@@ -45,6 +51,7 @@ export default async function VereinPage() {
         <TabsTrigger value="bank">Bankverbindung</TabsTrigger>
         <TabsTrigger value="vorstand">Vorstand</TabsTrigger>
         <TabsTrigger value="beitraege">Mitgliedsbeiträge</TabsTrigger>
+        <TabsTrigger value="arbeitseinsatz-verguetung">Arbeitseinsatz-Vergütung</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -118,6 +125,26 @@ export default async function VereinPage() {
                 validTo: fee.validTo ? fee.validTo.toISOString() : null,
               }))}
               canEdit={canEditFees}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="arbeitseinsatz-verguetung">
+        <Card>
+          <CardHeader>
+            <CardTitle>Arbeitseinsatz-Vergütung</CardTitle>
+            <CardDescription>Aufwandsentschädigung pro Stunde für Arbeitseinsätze, mit Gültigkeitszeitraum.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WorkShiftRateManager
+              initialItems={workShiftRates.map((rate) => ({
+                id: rate.id,
+                amountPerHour: rate.amountPerHour,
+                validFrom: rate.validFrom.toISOString(),
+                validTo: rate.validTo ? rate.validTo.toISOString() : null,
+              }))}
+              canEdit={canEditWorkShiftRates}
             />
           </CardContent>
         </Card>

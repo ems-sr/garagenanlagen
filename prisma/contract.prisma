@@ -580,3 +580,69 @@ model Document {
   @@index([clubMemberId])
   @@index([facilityId])
 }
+
+// Stage 8: club-wide effective-dated Aufwandsentschädigung (reimbursement)
+// rate for Arbeitseinsatz hours — same validFrom/validTo pattern as
+// MembershipFee/PricePerKwh, club-wide not per-Facility like MembershipFee.
+// amountPerHour in cents (Int), the established money convention throughout
+// this contract.
+model WorkShiftReimbursementRate {
+  id             String    @id @default(uuid())
+  organizationId String
+  amountPerHour  Int
+  validFrom      DateTime
+  validTo        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+// facilityId is optional: a shift can be club-wide (e.g. a general cleanup
+// day) or scoped to one Garagenanlage — same optional-tag shape as
+// Document's facilityId.
+model WorkShift {
+  id             String             @id @default(uuid())
+  organizationId String
+  facilityId     String?
+  facility       Facility?          @relation(fields: [facilityId], references: [id])
+  title          String
+  description    String?
+  date           DateTime
+  location       String?
+  participants   ShiftParticipant[]
+  createdAt      DateTime           @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([facilityId])
+}
+
+// reimbursementAmount is a snapshot computed at add-time from hoursWorked x
+// the rate effective on the shift's date — same snapshot-not-recompute
+// reasoning as Invoice.netAmount (a later rate change must not alter past
+// participants' amounts). paidOut/paidOutAt record a one-time full cash
+// payout; no partial-payment concept applies here (unlike Invoice/Payment),
+// so no separate payment child table. @@unique([workShiftId, clubMemberId])
+// prevents double-adding the same member to a shift — enforced at the DB
+// level since there's no legitimate exception, mirroring
+// Invoice.currentReadingId's @unique.
+model ShiftParticipant {
+  id                  String     @id @default(uuid())
+  organizationId      String
+  workShiftId         String
+  workShift           WorkShift  @relation(fields: [workShiftId], references: [id], onDelete: Cascade)
+  clubMemberId        String
+  clubMember          ClubMember @relation(fields: [clubMemberId], references: [id])
+  hoursWorked         Decimal
+  reimbursementAmount Int
+  paidOut             Boolean    @default(false)
+  paidOutAt           DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           temporal.updatedAt()
+
+  @@unique([workShiftId, clubMemberId])
+  @@index([organizationId])
+  @@index([workShiftId])
+  @@index([clubMemberId])
+}

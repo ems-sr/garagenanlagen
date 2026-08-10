@@ -413,4 +413,97 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
       (org, both throwaway users, member, facility, garage, invoices,
       documents) cleaned up from the dev database afterward, including the
       Better Auth rows via a one-off script per the Stage 5+ pattern.
-- [ ] Stage 8–15 — not started
+- [x] Stage 8 — done: Arbeitseinsatz (work shifts). Three new contract
+      models: `WorkShiftReimbursementRate` (club-wide effective-dated
+      Aufwandsentschädigung rate, `amountPerHour` in cents — same
+      `validFrom`/`validTo` shape as `MembershipFee`/`PricePerKwh`),
+      `WorkShift` (title/description/date/location, optional `facilityId`
+      — a shift can be club-wide or scoped to one Facility, same
+      optional-tag shape as Stage 7's `Document`), and `ShiftParticipant`
+      (join row: `hoursWorked` Decimal, `reimbursementAmount` Int snapshot,
+      `paidOut`/`paidOutAt` for a one-time full cash payout — no partial-
+      payout concept, so no separate payment child table unlike
+      `Invoice`/`Payment`). `@@unique([workShiftId, clubMemberId])` blocks
+      double-adding a member to a shift at the DB level (mirrors
+      `Invoice.currentReadingId`'s `@unique`) — caught at the route/action
+      layer via a new `isUniqueViolation` helper (sqlState `23505`) added
+      alongside `lib/api/responses.ts`'s existing `isForeignKeyViolation`,
+      backing up a pre-check in `lib/work-shifts/add-participant.ts` for a
+      friendly error message. New `workShift`/`workShiftRate` Better Auth
+      AC statements (split the same way `meterReading`/`invoice` and
+      `membershipFee`/`invoice` are — rate maintenance gated independently
+      of day-to-day shift/participant/payout management), wired into
+      `owner`/`admin`/`vorstand` (full) and `member` (read). Reimbursement
+      logic in `lib/work-shifts/` resolves the rate effective on the
+      shift's `date` (same `validFrom <= date && (!validTo || validTo >
+      date)` JS-filter pattern `generate-invoice.ts` uses for
+      `PricePerKwh` — still no `or()` combinator) and snapshots
+      `reimbursementAmount = round(hoursWorked * amountPerHour)` at
+      add-time, same snapshot-not-recompute reasoning as
+      `Invoice.netAmount`; a later rate edit never touches past
+      participants. New `lib/cash/denomination-breakdown.ts`: a pure,
+      synchronous greedy function over the full standard EUR cash set
+      (`€500` down to `1 Cent`, 15 denominations total) — greedy is
+      provably optimal for this specific denomination set, per user
+      decision to support banknotes *and* coins since `hours × rate`
+      reimbursement won't generally land on a whole banknote. Deliberately
+      not persisted: the breakdown is always re-derivable from the stored
+      `reimbursementAmount`, same non-persistence reasoning Stage 7 used
+      for PDF reports. REST API: `app/api/work-shifts` (+`[id]`, full
+      CRUD), `app/api/work-shifts/[id]/participants` (+`[participantId]`,
+      add/update/remove — POST wrapped in `db.transaction`, mirrors
+      `app/api/invoices/[id]/payments`'s shape), a dedicated
+      `.../participants/[participantId]/payout` POST route (records the
+      payout and returns the breakdown alongside the updated row), and
+      `app/api/work-shift-rates` (+`[id]`, mirrors `membership-fees`
+      exactly). Server Actions mirror the full REST surface in
+      `_actions/work-shifts.ts` and `_actions/work-shift-rates.ts`. UI: new
+      `/arbeitseinsaetze` nav entry — list page (`WorkShiftManager`:
+      date/title/facility/participant-count table + create dialog) and
+      `/arbeitseinsaetze/[id]` detail page (`ShiftParticipantManager`:
+      participant table with hours/reimbursement/paid-status, add-
+      participant dialog, and a "Bar auszahlen" dialog rendering the
+      denomination breakdown client-side via the same pure
+      `breakdownIntoDenominations` function — no network round-trip needed
+      for the preview — before calling the payout Server Action to
+      confirm); new "Arbeitseinsatz-Vergütung" tab on `/verein`
+      (`WorkShiftRateManager`, copy of `MembershipFeeManager` minus the
+      `description` field) — rate maintenance lives alongside
+      `Mitgliedsbeiträge`, same precedent as putting other club-wide rate
+      management under `/verein` rather than a standalone nav entry. No
+      new shadcn components needed (plain `<Input type="date">`/
+      `type="number">`, existing `Select`/`Badge`/`Table`). Verified
+      end-to-end via `pnpm run lint`, `tsc --noEmit`, and a `pnpm dev` +
+      curl run against a throwaway org/member/facility (no interactive
+      browser available in this session): `NO_RATE` error cleanly
+      returned before any rate exists; reimbursement math verified by hand
+      (3.5h × €12.37 → €43.30, 0.33h × €12.37 → €4.08, both matching
+      `Math.round` exactly); duplicate participant add → clean 409, not a
+      500; denomination breakdowns for both amounts verified to sum back
+      to the exact reimbursement and use the minimum note/coin count
+      (5 pieces each, including the odd-cent case exercising coins down to
+      1 cent); payout flips `paidOut`/`paidOutAt` and blocks both a second
+      payout and a post-payout hours edit with clean 409s; RBAC verified
+      (401 unauthenticated, 403 for a read-only `member` role on every
+      mutation, 200 on every read); `/arbeitseinsaetze` and
+      `/arbeitseinsaetze/[id]` SSR HTML confirmed to render shift/
+      participant data; the `/verein` Arbeitseinsatz-Vergütung tab trigger
+      renders (its manager content isn't in the default-tab SSR HTML,
+      since Base UI's `Tabs` only server-renders the active panel — a
+      testing-methodology note, not a defect, confirmed instead via the
+      REST JSON response). Also fixed a migration-authoring gap discovered
+      at the start of this stage: Stage 7's `migrate` had applied cleanly
+      but the `db` prisma-next ref was never advanced afterward (the same
+      class of mistake caught and fixed in Stages 3 and 6) — caught by
+      checking `migration status` before planning, fixed via
+      `ref set db <tip-hash>` before this stage's `migration plan`, and
+      the ref was advanced again immediately after this stage's `migrate`
+      to avoid leaving the same trap for Stage 9 — `prisma-next migrate`
+      confirmed to never auto-advance the `db` ref, so this is a
+      standing manual step every stage's migration workflow must include,
+      not a one-off slip. All test data (org, both throwaway users,
+      2 members, facility, shift, participants, rate) cleaned up from the
+      dev database afterward, including the Better Auth rows via a
+      one-off script per the Stage 5+ pattern, remembering Stage 7's
+      `.deleteAll()`-not-`.delete()` lesson for the multi-row cleanup.
+- [ ] Stage 9–15 — not started
