@@ -1,0 +1,242 @@
+[
+  {
+    "id": "table.document",
+    "label": "Create table \"document\"",
+    "summary": "Creates table \"document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"document\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"document\"",
+        "sql": "CREATE TABLE \"public\".\"document\" (\n  \"clubMemberId\" text,\n  \"content\" bytea NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text,\n  \"facilityId\" text,\n  \"fileName\" text NOT NULL,\n  \"fileSize\" int4 NOT NULL,\n  \"id\" text NOT NULL,\n  \"mimeType\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"uploadedByUserId\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"document\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.document.document_clubMemberId_idx_363aef22",
+    "label": "Create index \"document_clubMemberId_idx_363aef22\" on \"document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "document_clubMemberId_idx_363aef22",
+        "table": "document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"document_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"document_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"document_clubMemberId_idx_363aef22\" ON \"public\".\"document\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"document_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.document.document_facilityId_idx_3710d8c1",
+    "label": "Create index \"document_facilityId_idx_3710d8c1\" on \"document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "document_facilityId_idx_3710d8c1",
+        "table": "document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"document_facilityId_idx_3710d8c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"document_facilityId_idx_3710d8c1\"",
+        "sql": "CREATE INDEX \"document_facilityId_idx_3710d8c1\" ON \"public\".\"document\" (\"facilityId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"document_facilityId_idx_3710d8c1\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_facilityId_idx_3710d8c1\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.document.document_organizationId_idx_2e17ef41",
+    "label": "Create index \"document_organizationId_idx_2e17ef41\" on \"document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "document_organizationId_idx_2e17ef41",
+        "table": "document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"document_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"document_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"document_organizationId_idx_2e17ef41\" ON \"public\".\"document\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"document_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.document.document_clubMemberId_fkey",
+    "label": "Add foreign key \"document_clubMemberId_fkey\" on \"document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "document_clubMemberId_fkey",
+        "table": "document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"document_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "document_clubMemberId_fkey",
+          "public",
+          "\"public\".\"document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"document_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"document\"\nADD CONSTRAINT \"document_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"document_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "document_clubMemberId_fkey",
+          "public",
+          "\"public\".\"document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.document.document_facilityId_fkey",
+    "label": "Add foreign key \"document_facilityId_fkey\" on \"document\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "document_facilityId_fkey",
+        "table": "document"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"document_facilityId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "document_facilityId_fkey",
+          "public",
+          "\"public\".\"document\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"document_facilityId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"document\"\nADD CONSTRAINT \"document_facilityId_fkey\"\nFOREIGN KEY (\"facilityId\")\nREFERENCES \"public\".\"facility\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"document_facilityId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "document_facilityId_fkey",
+          "public",
+          "\"public\".\"document\""
+        ]
+      }
+    ]
+  }
+]

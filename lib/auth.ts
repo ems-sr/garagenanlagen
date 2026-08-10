@@ -46,6 +46,13 @@ const statement = {
   // vice versa — templates only exist to be sent, sending only makes sense
   // with templates to pick from.
   correspondence: ['create', 'read', 'update', 'delete'],
+  // Stage 7: PDF report export. Read-only by design — "generating" a report
+  // is a read of existing data, there's no create/update/delete verb that
+  // makes sense for it.
+  report: ['read'],
+  // Stage 7: document archive (upload/list/download/delete), kept separate
+  // from `report` since the two are functionally independent.
+  document: ['create', 'read', 'update', 'delete'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -59,6 +66,8 @@ const owner = ac.newRole({
   meterReading: ['create', 'read', 'update', 'delete'],
   membershipFee: ['create', 'read', 'update', 'delete'],
   correspondence: ['create', 'read', 'update', 'delete'],
+  report: ['read'],
+  document: ['create', 'read', 'update', 'delete'],
 });
 
 const orgAdmin = ac.newRole({
@@ -70,6 +79,8 @@ const orgAdmin = ac.newRole({
   meterReading: ['create', 'read', 'update', 'delete'],
   membershipFee: ['create', 'read', 'update', 'delete'],
   correspondence: ['create', 'read', 'update', 'delete'],
+  report: ['read'],
+  document: ['create', 'read', 'update', 'delete'],
 });
 
 const orgMember = ac.newRole({
@@ -81,6 +92,8 @@ const orgMember = ac.newRole({
   meterReading: ['read'],
   membershipFee: ['read'],
   correspondence: ['read'],
+  report: ['read'],
+  document: ['read'],
 });
 
 // Seed custom role proving the "Vorstand"/"Werkstatt-Team"-style functional
@@ -95,6 +108,8 @@ const vorstand = ac.newRole({
   meterReading: ['create', 'read', 'update', 'delete'],
   membershipFee: ['create', 'read', 'update', 'delete'],
   correspondence: ['create', 'read', 'update', 'delete'],
+  report: ['read'],
+  document: ['create', 'read', 'update', 'delete'],
 });
 
 export const auth = betterAuth({

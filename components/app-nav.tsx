@@ -10,6 +10,7 @@ import {
   ArrowsLeftRightIcon,
   ReceiptIcon,
   EnvelopeSimpleIcon,
+  FilePdfIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import {
@@ -28,6 +29,7 @@ const NAV_ICONS: Record<string, Icon> = {
   '/verein': BuildingsIcon,
   '/rechnungen': ReceiptIcon,
   '/korrespondenz': EnvelopeSimpleIcon,
+  '/berichte': FilePdfIcon,
   '/organizations': ArrowsLeftRightIcon,
 };
 

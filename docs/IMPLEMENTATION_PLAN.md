@@ -329,4 +329,88 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
       to the new tip afterward this time, to avoid leaving the same trap
       for Stage 7). All test data cleaned up from the dev database
       afterward.
-- [ ] Stage 7–15 — not started
+- [x] Stage 7 — done: PDF report generation + simple document management.
+      New `Document` model (`prisma/contract.prisma`) — first binary column
+      in this contract; `content Bytes` maps to Postgres `bytea` (verified
+      by reading the installed `@prisma-next/target-postgres` package's
+      field-preset table before authoring, since neither the `prisma-8`
+      skill nor its bundled references mention `Bytes` at all — a gap worth
+      flagging back to the Prisma Next team). Org-wide with independent
+      optional `clubMemberId`/`facilityId` tags (`onDelete: SetNull`, same
+      rationale as `CorrespondenceLog.templateId`), so a document can be
+      filed under a member, a facility, both, or neither (Satzung,
+      Protokolle). Deliberately **no** `ReportRun` audit-log model: unlike
+      Stage 6's `CorrespondenceLog` (which freezes the outcome of a
+      real side effect — an email actually sent), a PDF report has no side
+      effect and is always re-derivable from current data, so logging "a
+      report was generated" would be speculative scope with no consumer.
+      New `report: ['read']` (generating a PDF is a read, no other verb
+      applies) and `document: ['create', 'read', 'update', 'delete']`
+      Better Auth AC statements, wired into `owner`/`admin` (full),
+      `member` (read-only on both), and `vorstand` (full, matching its
+      existing grants on `invoice`/`meterReading`/`membershipFee`/
+      `correspondence`). New dependency: `@react-pdf/renderer` (pure-JS,
+      React-component PDF generation — no headless-Chromium dependency,
+      chosen specifically for the "non-Vercel hosting target" architectural
+      constraint). Report engine in `lib/reports/*.ts`
+      (`assembleMemberListReport`, `assembleFinancialReport`,
+      `assembleInvoiceRunReport`) — read-only aggregations over existing
+      `ClubMember`/`MembershipPeriod`/`GarageAssignment`/`Invoice`/
+      `Payment`/`InvoiceLineItem` data, reusing the flat-fetch-then-JS-join
+      query pattern from `/rechnungen` (still no `or()` combinator) and the
+      `facilityMembers` targeting logic from Stage 6's
+      `send-correspondence.ts`; PDF templates in `lib/pdf/*.tsx`. Reports
+      are GET-only REST routes (`app/api/reports/{member-list,
+      financial-report,invoice-run}`) returning `application/pdf` —
+      no Server Actions at all for this half of the stage, since there is
+      no mutation to wrap. Documents get the full REST CRUD +
+      Server-Action-mirror pattern (`app/api/documents`, `+[id]`,
+      `app/(app)/_actions/documents.ts`), with upload handled via the
+      native Web `Request.formData()`/`File` API (no extra multipart
+      dependency) and an explicit 20 MB size ceiling enforced in
+      application code (Route Handlers have no framework-level body-size
+      limit the way Server Actions do). The document list endpoint always
+      strips `content` before returning JSON, so listing never balloons the
+      response with BLOB data. UI: new `/berichte` nav entry (one page,
+      four tabs — Mitgliederliste/Finanzbericht/Rechnungslauf/Dokumente —
+      mirroring Stage 6's `/korrespondenz` Verlauf/Vorlagen shape),
+      `ReportExportPanel` (one shared component parameterized by report
+      kind rather than three near-duplicates) and `DocumentManager` (copy
+      of `EmailTemplateManager`'s CRUD-dialog shape, plus a plain
+      `<input type="file">` — no file-input or date-range shadcn component
+      existed yet, and none was added; plain `<Input type="date">` pairs
+      match the pattern already used for `MembershipPeriod`/`PricePerKwh`).
+      No new shadcn components needed. Verified end-to-end via
+      `pnpm run lint`, `tsc --noEmit`, and a `pnpm dev` + curl run against a
+      throwaway org/user/member/facility/garage (no interactive browser
+      available in this session): unauthenticated → 401 on every new
+      route; a read-only `member`-role user got 200 on every read/download
+      and 403 on upload/delete; all three report PDFs rendered correctly
+      (`%PDF` header, correct page count) with net/VAT/gross totals and a
+      payments-received total verified byte-for-byte against hand-computed
+      fixture values (€35.00/€6.65/€41.65 consumption +
+      €100.00/€19.00/€119.00 dues = €135.00/€25.65/€160.65 grand total,
+      €119.00 collected) by extracting each PDF's text via `pdftotext`;
+      Mitgliederliste correctly filtered by `activeOnly` and by
+      `facilityId` (including the garage-number column that only appears
+      once a facility filter is set); document upload/list/download/PATCH/
+      DELETE all verified (tag filtering by `clubMemberId` and by
+      `facilityId`, downloaded bytes diffed identical to the uploaded
+      source file, list response confirmed to exclude `content`, oversized
+      21 MB upload rejected with a clean 400 `FILE_TOO_LARGE` rather than a
+      500/timeout); `/berichte` SSR HTML confirmed to render all four tabs.
+      Caught and fixed two bugs in the process: (1) `NextResponse`'s
+      `BodyInit` type didn't accept a Node `Buffer`/the `Bytea` codec's
+      `Uint8Array<ArrayBufferLike>` output directly under this project's TS
+      lib version — fixed by wrapping in `new Uint8Array(...)` at each of
+      the four binary-response call sites; (2) confirmed that Prisma Next's
+      single-row-affecting-verb caveat (already known for `.update()`, per
+      Stage 4's `generate-invoice.ts` comment) applies to `.delete()` too —
+      a first cleanup-script pass silently left every row but the first
+      behind and tripped a foreign-key violation on the following table;
+      fixed by using `.deleteAll()` throughout the cleanup script, worth
+      remembering for any future ad hoc multi-row delete. All test data
+      (org, both throwaway users, member, facility, garage, invoices,
+      documents) cleaned up from the dev database afterward, including the
+      Better Auth rows via a one-off script per the Stage 5+ pattern.
+- [ ] Stage 8–15 — not started

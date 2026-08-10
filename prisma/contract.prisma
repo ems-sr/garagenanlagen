@@ -63,7 +63,7 @@ model BoardMember {
 }
 
 model Facility {
-  id             String   @id @default(uuid())
+  id             String     @id @default(uuid())
   // References Better Auth's `organization.id` (not a Prisma-level FK — see
   // note above).
   organizationId String
@@ -72,7 +72,8 @@ model Facility {
   houseNumber    String?
   postalCode     String?
   city           String?
-  createdAt      DateTime @default(now())
+  documents      Document[]
+  createdAt      DateTime   @default(now())
   updatedAt      temporal.updatedAt()
 
   @@index([organizationId])
@@ -175,7 +176,7 @@ model Garage {
 // Vereinsmitglied business record, unrelated to Better Auth's org-membership
 // concept.
 model ClubMember {
-  id             String   @id @default(uuid())
+  id             String     @id @default(uuid())
   organizationId String
   firstName      String
   lastName       String
@@ -184,7 +185,8 @@ model ClubMember {
   city           String?
   email          String?
   phone          String?
-  createdAt      DateTime @default(now())
+  documents      Document[]
+  createdAt      DateTime   @default(now())
   updatedAt      temporal.updatedAt()
 
   @@index([organizationId])
@@ -545,4 +547,36 @@ model CorrespondenceLog {
   @@index([facilityId])
   @@index([clubMemberId])
   @@index([templateId])
+}
+
+// Stage 7: simple document management as DB BLOBs (no object storage
+// integration — per the roadmap's non-Vercel-hosting-target constraint).
+// Org-wide by default; clubMemberId/facilityId are independent optional
+// tags (nullable, not mutually exclusive) for filtering — untagged
+// documents are valid too (Satzung, Protokolle, Formulare). onDelete:
+// SetNull on both tags (not the contract's usual Restrict default):
+// deleting a ClubMember/Facility must not delete or block deletion of an
+// otherwise-standalone document — same rationale as CorrespondenceLog's
+// nullable templateId. uploadedByUserId references Better Auth's `user.id`
+// as a plain string, like organizationId elsewhere (no cross-system Prisma
+// relation — see the note at the top of this file).
+model Document {
+  id               String      @id @default(uuid())
+  organizationId   String
+  clubMemberId     String?
+  clubMember       ClubMember? @relation(fields: [clubMemberId], references: [id], onDelete: SetNull)
+  facilityId       String?
+  facility         Facility?   @relation(fields: [facilityId], references: [id], onDelete: SetNull)
+  fileName         String
+  mimeType         String
+  fileSize         Int
+  content          Bytes
+  description      String?
+  uploadedByUserId String?
+  createdAt        DateTime    @default(now())
+  updatedAt        temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([clubMemberId])
+  @@index([facilityId])
 }

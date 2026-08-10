@@ -15,5 +15,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/verein', label: 'Verein', permission: { resource: 'club', actions: ['read'] } },
   { href: '/rechnungen', label: 'Rechnungen', permission: { resource: 'invoice', actions: ['read'] } },
   { href: '/korrespondenz', label: 'Korrespondenz', permission: { resource: 'correspondence', actions: ['read'] } },
+  { href: '/berichte', label: 'Berichte', permission: { resource: 'report', actions: ['read'] } },
   { href: '/organizations', label: 'Verein wechseln' },
 ];

@@ -28,6 +28,10 @@
       "model": "CorrespondenceLog",
       "namespace": "public"
     },
+    "document": {
+      "model": "Document",
+      "namespace": "public"
+    },
     "emailTemplate": {
       "model": "EmailTemplate",
       "namespace": "public"
@@ -497,7 +501,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "documents": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "clubMemberId"
+                  ]
+                },
+                "to": {
+                  "model": "Document",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "city": {
@@ -949,6 +969,168 @@
               "table": "correspondenceLog"
             }
           },
+          "Document": {
+            "fields": {
+              "clubMemberId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "content": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bytea@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "facilityId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fileName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fileSize": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "mimeType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "uploadedByUserId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "clubMember": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "clubMemberId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ClubMember",
+                  "namespace": "public"
+                }
+              },
+              "facility": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "facilityId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Facility",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "clubMemberId": {
+                  "column": "clubMemberId"
+                },
+                "content": {
+                  "column": "content"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "facilityId": {
+                  "column": "facilityId"
+                },
+                "fileName": {
+                  "column": "fileName"
+                },
+                "fileSize": {
+                  "column": "fileSize"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "mimeType": {
+                  "column": "mimeType"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "uploadedByUserId": {
+                  "column": "uploadedByUserId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "document"
+            }
+          },
           "EmailTemplate": {
             "fields": {
               "body": {
@@ -1096,7 +1278,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "documents": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "facilityId"
+                  ]
+                },
+                "to": {
+                  "model": "Document",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "city": {
@@ -3611,6 +3809,142 @@
               },
               "uniques": []
             },
+            "document": {
+              "columns": {
+                "clubMemberId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "content": {
+                  "codecId": "pg/bytea@1",
+                  "nativeType": "bytea",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "facilityId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "fileName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "fileSize": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "mimeType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "uploadedByUserId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "clubMemberId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "document"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "clubMember"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "facilityId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "document"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "facility"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "clubMemberId"
+                  ],
+                  "name": "document_clubMemberId_idx_363aef22",
+                  "prefix": "document_clubMemberId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "facilityId"
+                  ],
+                  "name": "document_facilityId_idx_3710d8c1",
+                  "prefix": "document_facilityId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "document_organizationId_idx_2e17ef41",
+                  "prefix": "document_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "emailTemplate": {
               "columns": {
                 "body": {
@@ -5471,10 +5805,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6b98a5e9666f12087c33bf3b7cec2e1cf6bf4763d8ffc4b5caf1259a4504555c"
+    "storageHash": "e56a085d9160e2b0054a6ec22762e1e11773ee6219e4eafdd2629914869489d5"
   },
   "execution": {
-    "executionHash": "95b86902cfb9cc8e73b38c008b7a2268e39200b4d3a6ffff4f7cdf4168f1955a",
+    "executionHash": "bcb1a366e0b7885689e420a661755162a04bdd6cd9fd777f104530a087dd8183",
     "mutations": {
       "defaults": [
         {
@@ -5616,6 +5950,32 @@
             "column": "id",
             "namespace": "public",
             "table": "correspondenceLog"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "document"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "document"
           }
         },
         {
