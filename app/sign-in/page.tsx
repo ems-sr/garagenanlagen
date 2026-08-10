@@ -47,6 +47,11 @@ export default function SignInPage() {
       return;
     }
 
+    const { data: organizations } = await authClient.organization.list();
+    if (organizations?.length === 1) {
+      await authClient.organization.setActive({ organizationId: organizations[0].id });
+    }
+
     router.push('/dashboard');
   }
 
