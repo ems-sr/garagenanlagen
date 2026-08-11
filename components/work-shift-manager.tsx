@@ -24,7 +24,13 @@ type WorkShiftRow = {
   date: string;
   location: string | null;
   facilityId: string | null;
+  reimbursementUnit: 'hourly' | 'fixed';
   participantCount: number;
+};
+
+const REIMBURSEMENT_UNIT_LABELS: Record<'hourly' | 'fixed', string> = {
+  hourly: 'Stundensatz',
+  fixed: 'Fixbetrag',
 };
 
 function formatDate(value: string) {
@@ -48,6 +54,7 @@ export function WorkShiftManager({
   const date = useSignal('');
   const location = useSignal('');
   const facilityId = useSignal(NONE);
+  const reimbursementUnit = useSignal<'hourly' | 'fixed'>('hourly');
   const errors = useSignal<Record<string, string>>({});
   const isSubmitting = useSignal(false);
 
@@ -62,6 +69,7 @@ export function WorkShiftManager({
       date: date.value,
       location: location.value || undefined,
       facilityId: facilityId.value === NONE ? undefined : facilityId.value,
+      reimbursementUnit: reimbursementUnit.value,
     };
     const result = createWorkShiftSchema.safeParse(payload);
     if (!result.success) {
@@ -89,6 +97,7 @@ export function WorkShiftManager({
     date.value = '';
     location.value = '';
     facilityId.value = NONE;
+    reimbursementUnit.value = 'hourly';
     router.refresh();
   }
 
@@ -155,6 +164,23 @@ export function WorkShiftManager({
                       </SelectContent>
                     </Select>
                   </Field>
+                  <Field>
+                    <FieldLabel htmlFor="shiftReimbursementUnit">Vergütungsart</FieldLabel>
+                    <Select
+                      value={reimbursementUnit.value}
+                      onValueChange={(value) => (reimbursementUnit.value = (value as 'hourly' | 'fixed') ?? 'hourly')}
+                    >
+                      <SelectTrigger id="shiftReimbursementUnit">
+                        <SelectValue>{(value: 'hourly' | 'fixed' | null) => (value ? REIMBURSEMENT_UNIT_LABELS[value] : '')}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="hourly">Stundensatz</SelectItem>
+                          <SelectItem value="fixed">Fixbetrag (Kautionsrückerstattung)</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </Field>
                   <Field data-invalid={!!errors.value.description}>
                     <FieldLabel htmlFor="shiftDescription">Beschreibung (optional)</FieldLabel>
                     <Textarea
@@ -182,6 +208,7 @@ export function WorkShiftManager({
             <TableHead>Titel</TableHead>
             <TableHead>Ort</TableHead>
             <TableHead>Garagenanlage</TableHead>
+            <TableHead>Vergütungsart</TableHead>
             <TableHead>Teilnehmer</TableHead>
             <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
@@ -189,7 +216,7 @@ export function WorkShiftManager({
         <TableBody>
           {initialItems.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
                 Noch kein Arbeitseinsatz erfasst.
               </TableCell>
             </TableRow>
@@ -200,6 +227,7 @@ export function WorkShiftManager({
               <TableCell>{shift.title}</TableCell>
               <TableCell>{shift.location ?? '–'}</TableCell>
               <TableCell>{shift.facilityId ? (facilityById.get(shift.facilityId) ?? '–') : 'Vereinsweit'}</TableCell>
+              <TableCell>{REIMBURSEMENT_UNIT_LABELS[shift.reimbursementUnit]}</TableCell>
               <TableCell>{shift.participantCount}</TableCell>
               <TableCell className="text-right">
                 <Link href={`/arbeitseinsaetze/${shift.id}`}>

@@ -7,7 +7,10 @@ import { ClubStammdatenForm, ClubBankForm } from '@/components/club-profile-form
 import { BoardMemberManager } from '@/components/board-member-manager';
 import { MembershipFeeManager } from '@/components/membership-fee-manager';
 import { WorkShiftRateManager } from '@/components/work-shift-rate-manager';
+import { WorkShiftDepositAmountManager } from '@/components/work-shift-deposit-amount-manager';
 import { GarageAttributeTypeManager } from '@/components/garage-attribute-type-manager';
+import { LineItemTypeManager } from '@/components/line-item-type-manager';
+import { InvoiceTemplateManager } from '@/components/invoice-template-manager';
 
 export default async function VereinPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -30,19 +33,29 @@ export default async function VereinPage() {
     boardMembers,
     membershipFees,
     workShiftRates,
+    workShiftDepositAmounts,
     attributeTypes,
+    lineItemTypes,
+    invoiceTemplates,
+    invoiceTemplateLineItems,
     canEdit,
     canEditName,
     canEditFees,
     canEditWorkShiftRates,
+    canEditWorkShiftDepositAmounts,
     canEditAttributeTypes,
+    canEditInvoiceTemplates,
   ] = await Promise.all([
     auth.api.getFullOrganization({ headers: await headers(), query: { organizationId } }),
     db.orm.public.ClubProfile.where({ organizationId }).first(),
     db.orm.public.BoardMember.where({ organizationId }).all(),
     db.orm.public.MembershipFee.where({ organizationId }).orderBy((f) => f.validFrom.desc()).all(),
     db.orm.public.WorkShiftReimbursementRate.where({ organizationId }).orderBy((r) => r.validFrom.desc()).all(),
+    db.orm.public.WorkShiftDepositAmount.where({ organizationId }).orderBy((a) => a.validFrom.desc()).all(),
     db.orm.public.GarageAttributeType.where({ organizationId }).orderBy((t) => t.name.asc()).all(),
+    db.orm.public.LineItemType.where({ organizationId }).orderBy((t) => t.name.asc()).all(),
+    db.orm.public.InvoiceTemplate.where({ organizationId }).orderBy((t) => t.name.asc()).all(),
+    db.orm.public.InvoiceTemplateLineItem.where({ organizationId }).orderBy((li) => li.sortOrder.asc()).all(),
     auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { club: ['update'] } } })
       .then((result) => result.success),
@@ -56,7 +69,13 @@ export default async function VereinPage() {
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { workShiftRate: ['update'] } } })
       .then((result) => result.success),
     auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { workShiftDepositAmount: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { garageAttribute: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { invoiceTemplate: ['update'] } } })
       .then((result) => result.success),
   ]);
 
@@ -69,6 +88,7 @@ export default async function VereinPage() {
         <TabsTrigger value="beitraege">Mitgliedsbeiträge</TabsTrigger>
         <TabsTrigger value="arbeitseinsatz-verguetung">Arbeitseinsatz-Vergütung</TabsTrigger>
         <TabsTrigger value="ausstattungsattribute">Ausstattungsattribute</TabsTrigger>
+        <TabsTrigger value="rechnungsvorlagen">Rechnungsvorlagen</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -165,6 +185,27 @@ export default async function VereinPage() {
             />
           </CardContent>
         </Card>
+
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Kaution Arbeitseinsatz (Fixbetrag)</CardTitle>
+            <CardDescription>
+              Jährlicher Kautionsbetrag, der bei der Mitgliedsbeitragsrechnung eingehoben und bei Teilnahme an einem Arbeitseinsatz mit
+              Vergütungsart &bdquo;Fixbetrag&ldquo; in voller Höhe erstattet wird.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WorkShiftDepositAmountManager
+              initialItems={workShiftDepositAmounts.map((amount) => ({
+                id: amount.id,
+                amount: amount.amount,
+                validFrom: amount.validFrom.toISOString(),
+                validTo: amount.validTo ? amount.validTo.toISOString() : null,
+              }))}
+              canEdit={canEditWorkShiftDepositAmounts}
+            />
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <TabsContent value="ausstattungsattribute">
@@ -177,6 +218,56 @@ export default async function VereinPage() {
             <GarageAttributeTypeManager
               initialItems={attributeTypes.map((t) => ({ id: t.id, name: t.name, dataType: t.dataType, unit: t.unit }))}
               canEdit={canEditAttributeTypes}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="rechnungsvorlagen">
+        <Card>
+          <CardHeader>
+            <CardTitle>Rechnungsposten-Typen</CardTitle>
+            <CardDescription>Wiederverwendbare Rechnungsposten (z. B. Mitgliedsbeitrag, Kaution Arbeitseinsatz).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <LineItemTypeManager
+              initialItems={lineItemTypes.map((t) => ({
+                id: t.id,
+                name: t.name,
+                description: t.description,
+                amountSource: t.amountSource,
+                defaultAmount: t.defaultAmount,
+              }))}
+              canEdit={canEditInvoiceTemplates}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Rechnungsvorlagen</CardTitle>
+            <CardDescription>
+              Ordnen Sie Rechnungsposten-Typen einer Rechnungsart zu — automatisch angewendet bei der Rechnungserstellung, oder als
+              Vorbelegung wählbar.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <InvoiceTemplateManager
+              initialItems={invoiceTemplates.map((template) => ({
+                id: template.id,
+                name: template.name,
+                invoiceType: template.invoiceType as 'membershipFee' | 'custom',
+                autoGenerate: template.autoGenerate,
+                lineItems: invoiceTemplateLineItems
+                  .filter((li) => li.invoiceTemplateId === template.id)
+                  .map((li) => ({
+                    lineItemTypeId: li.lineItemTypeId,
+                    quantity: li.quantity.toString(),
+                    overrideAmountEuro: li.overrideAmount != null ? (li.overrideAmount / 100).toString() : '',
+                  })),
+              }))}
+              lineItemTypes={lineItemTypes.map((t) => ({ id: t.id, name: t.name }))}
+              canEdit={canEditInvoiceTemplates}
             />
           </CardContent>
         </Card>

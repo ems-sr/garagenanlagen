@@ -52,15 +52,33 @@ function formatDate(value: string) {
 
 type LineItemDraft = { description: string; quantity: string; unitPrice: string };
 
+type PrefillTemplate = {
+  id: string;
+  name: string;
+  lineItems: { description: string; quantity: string; unitPrice: number | null }[];
+};
+
+const NO_TEMPLATE = 'none';
+
+// Offered as a quick-fill for the period fields below (Jan 1 – Dec 31 of the
+// chosen year) — periodStart/periodEnd stay the source of truth the form
+// submits, so a manual date afterwards still overrides the year pick.
+function duesYearOptions(): number[] {
+  const currentYear = new Date().getFullYear();
+  return Array.from({ length: 7 }, (_, i) => currentYear + 1 - i);
+}
+
 export function InvoiceList({
   facilityId,
   items,
   members,
+  prefillTemplates,
   canGenerate,
 }: {
   facilityId: string;
   items: InvoiceRow[];
   members: { id: string; name: string }[];
+  prefillTemplates: PrefillTemplate[];
   canGenerate: boolean;
 }) {
   useSignals();
@@ -69,6 +87,7 @@ export function InvoiceList({
   const isGenerating = useSignal(false);
 
   const duesOpen = useSignal(false);
+  const duesYear = useSignal('');
   const duesPeriodStart = useSignal('');
   const duesPeriodEnd = useSignal('');
   const isDuesSubmitting = useSignal(false);
@@ -76,6 +95,7 @@ export function InvoiceList({
   const customOpen = useSignal(false);
   const customMemberId = useSignal('');
   const customDescription = useSignal('');
+  const customTemplateId = useSignal(NO_TEMPLATE);
   const customLineItems = useSignal<LineItemDraft[]>([{ description: '', quantity: '1', unitPrice: '' }]);
   const customErrors = useSignal<Record<string, string>>({});
   const isCustomSubmitting = useSignal(false);
@@ -129,9 +149,16 @@ export function InvoiceList({
       type: created.length > 0 ? 'success' : 'info',
     });
     duesOpen.value = false;
+    duesYear.value = '';
     duesPeriodStart.value = '';
     duesPeriodEnd.value = '';
     router.refresh();
+  }
+
+  function applyDuesYear(year: string) {
+    duesYear.value = year;
+    duesPeriodStart.value = `${year}-01-01`;
+    duesPeriodEnd.value = `${year}-12-31`;
   }
 
   function updateLineItem(index: number, patch: Partial<LineItemDraft>) {
@@ -144,6 +171,21 @@ export function InvoiceList({
 
   function removeLineItem(index: number) {
     customLineItems.value = customLineItems.value.filter((_, i) => i !== index);
+  }
+
+  function applyTemplate(templateId: string) {
+    customTemplateId.value = templateId;
+    if (templateId === NO_TEMPLATE) return;
+
+    const template = prefillTemplates.find((t) => t.id === templateId);
+    if (!template) return;
+
+    customDescription.value = template.name;
+    customLineItems.value = template.lineItems.map((item) => ({
+      description: item.description,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice != null ? (item.unitPrice / 100).toString() : '',
+    }));
   }
 
   async function handleGenerateCustom(e: React.FormEvent) {
@@ -181,6 +223,7 @@ export function InvoiceList({
     customOpen.value = false;
     customMemberId.value = '';
     customDescription.value = '';
+    customTemplateId.value = NO_TEMPLATE;
     customLineItems.value = [{ description: '', quantity: '1', unitPrice: '' }];
     router.refresh();
   }
@@ -216,6 +259,25 @@ export function InvoiceList({
                 </DialogHeader>
                 <form onSubmit={handleGenerateDues}>
                   <FieldGroup>
+                    <Field>
+                      <FieldLabel htmlFor="duesYear">Jahr</FieldLabel>
+                      <Select value={duesYear.value} onValueChange={(value) => applyDuesYear(value ?? '')}>
+                        <SelectTrigger id="duesYear">
+                          <SelectValue placeholder="Jahr auswählen">
+                            {(value: string | null) => value || 'Jahr auswählen'}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {duesYearOptions().map((year) => (
+                              <SelectItem key={year} value={String(year)}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
                     <Field>
                       <FieldLabel htmlFor="duesPeriodStart">Zeitraumbeginn</FieldLabel>
                       <Input
@@ -277,6 +339,32 @@ export function InvoiceList({
                       </Select>
                       {customErrors.value.clubMemberId && <FieldError errors={[{ message: customErrors.value.clubMemberId }]} />}
                     </Field>
+                    {prefillTemplates.length > 0 && (
+                      <Field>
+                        <FieldLabel htmlFor="customTemplate">Vorlage (optional)</FieldLabel>
+                        <Select value={customTemplateId.value} onValueChange={(value) => applyTemplate(value ?? NO_TEMPLATE)}>
+                          <SelectTrigger id="customTemplate">
+                            <SelectValue>
+                              {(value: string | null) =>
+                                value && value !== NO_TEMPLATE
+                                  ? (prefillTemplates.find((t) => t.id === value)?.name ?? value)
+                                  : 'Keine Vorlage'
+                              }
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value={NO_TEMPLATE}>Keine Vorlage</SelectItem>
+                              {prefillTemplates.map((template) => (
+                                <SelectItem key={template.id} value={template.id}>
+                                  {template.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    )}
                     <Field data-invalid={!!customErrors.value.description}>
                       <FieldLabel htmlFor="customDescription">Beschreibung</FieldLabel>
                       <Input

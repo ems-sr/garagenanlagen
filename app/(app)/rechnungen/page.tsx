@@ -51,12 +51,24 @@ export default async function RechnungenPage() {
   // facility, per Stage 5's shared open-item tracking.
   const invoices = allInvoices.filter((invoice) => !invoice.facilityId || invoice.facilityId === facilityId);
 
-  const [members, garages] = await Promise.all([
+  const [members, garages, customTemplates, customTemplateLineItems] = await Promise.all([
     db.orm.public.ClubMember.where({ organizationId }).all(),
-    db.orm.public.Garage.where({ organizationId, facilityId }).all(),
+    // Org-wide, not scoped to the selected facility: membershipFee invoices
+    // are club-wide (see the invoices filter above) and can reference a
+    // garage in any facility, so the garageId -> number lookup below must
+    // cover every facility, not just the currently selected one.
+    db.orm.public.Garage.where({ organizationId }).all(),
+    db.orm.public.InvoiceTemplate.where({ organizationId, invoiceType: 'custom', autoGenerate: false }).all(),
+    db.orm.public.InvoiceTemplateLineItem.where({ organizationId }).orderBy((li) => li.sortOrder.asc()).all(),
   ]);
   const memberById = new Map(members.map((member) => [member.id, member]));
   const garageById = new Map(garages.map((garage) => [garage.id, garage]));
+
+  const lineItemTypeIds = [...new Set(customTemplateLineItems.map((li) => li.lineItemTypeId))];
+  const lineItemTypes =
+    lineItemTypeIds.length > 0 ? await db.orm.public.LineItemType.where({ organizationId }).all() : [];
+  const lineItemTypeById = new Map(lineItemTypes.map((type) => [type.id, type]));
+  const customTemplateIds = new Set(customTemplates.map((t) => t.id));
 
   return (
     <Card>
@@ -69,6 +81,21 @@ export default async function RechnungenPage() {
           facilityId={facilityId}
           canGenerate={canGenerate}
           members={members.map((member) => ({ id: member.id, name: `${member.firstName} ${member.lastName}` }))}
+          prefillTemplates={customTemplates.map((template) => ({
+            id: template.id,
+            name: template.name,
+            lineItems: customTemplateLineItems
+              .filter((li) => li.invoiceTemplateId === template.id && customTemplateIds.has(li.invoiceTemplateId))
+              .map((li) => {
+                const lineItemType = lineItemTypeById.get(li.lineItemTypeId);
+                const unitPrice = lineItemType?.amountSource === 'fixed' ? (li.overrideAmount ?? lineItemType.defaultAmount ?? null) : null;
+                return {
+                  description: lineItemType?.name ?? '',
+                  quantity: li.quantity.toString(),
+                  unitPrice,
+                };
+              }),
+          }))}
           items={invoices.map((invoice) => {
             const member = memberById.get(invoice.clubMemberId);
             const garage = invoice.garageId ? garageById.get(invoice.garageId) : undefined;

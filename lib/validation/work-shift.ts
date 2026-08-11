@@ -6,6 +6,7 @@ export const createWorkShiftSchema = z.object({
   date: z.coerce.date('Ungültiges Datum'),
   location: z.string().trim().max(200, 'Ort zu lang').optional(),
   facilityId: z.string().min(1).optional(),
+  reimbursementUnit: z.enum(['hourly', 'fixed']).default('hourly'),
 });
 
 export const updateWorkShiftSchema = createWorkShiftSchema.partial();

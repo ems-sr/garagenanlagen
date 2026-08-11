@@ -47,6 +47,7 @@ export default async function ArbeitseinsaetzePage() {
             date: shift.date.toISOString(),
             location: shift.location,
             facilityId: shift.facilityId,
+            reimbursementUnit: shift.reimbursementUnit,
             participantCount: participantCountByShift.get(shift.id) ?? 0,
           }))}
           facilities={facilities.map((facility) => ({ id: facility.id, name: facility.name }))}

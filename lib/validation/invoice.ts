@@ -11,11 +11,16 @@ export const createBulkInvoicesSchema = z.object({
   facilityId: z.string().min(1, 'Garagenanlage erforderlich'),
 });
 
-// Stage 5: bills one member's Mitgliedsbeitrag for [periodStart, periodEnd) —
-// see lib/billing/generate-membership-fee-invoice.ts.
+// Bills one member's Mitgliedsbeitrag for [periodStart, periodEnd) for a
+// single garage — see lib/billing/generate-membership-fee-invoice.ts. A
+// member with multiple garages gets one invoice per garage (generated via
+// generateBulkMembershipFeeInvoices, which loops over each of the member's
+// active garage assignments), so garageId is required here rather than
+// optional.
 export const createMembershipFeeInvoiceSchema = z
   .object({
     clubMemberId: z.string().min(1, 'Mitglied erforderlich'),
+    garageId: z.string().min(1, 'Garage erforderlich'),
     periodStart: z.coerce.date('Ungültiger Zeitraumbeginn'),
     periodEnd: z.coerce.date('Ungültiges Zeitraumende'),
   })

@@ -61,6 +61,14 @@ const statement = {
   workShift: ['create', 'read', 'update', 'delete'],
   // Stage 8: Aufwandsentschädigung (reimbursement) rate maintenance.
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  // Arbeitseinsatz-Kaution rate maintenance (the fixed reimbursement unit's
+  // per-year amount) — kept separate from workShiftRate since it's a
+  // distinct rate table, though granted alongside it in every role below.
+  workShiftDepositAmount: ['create', 'read', 'update', 'delete'],
+  // Line item type + invoice template management. One statement for both
+  // (like `correspondence`) since there's no scenario needing templates
+  // without their line item types or vice versa.
+  invoiceTemplate: ['create', 'read', 'update', 'delete'],
   // Stage 9: user-defined equipment attribute type definitions and their
   // per-garage value assignments — one statement for both, same rationale
   // as `correspondence` (no scenario needing one without the other).
@@ -87,6 +95,8 @@ const owner = ac.newRole({
   document: ['create', 'read', 'update', 'delete'],
   workShift: ['create', 'read', 'update', 'delete'],
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  workShiftDepositAmount: ['create', 'read', 'update', 'delete'],
+  invoiceTemplate: ['create', 'read', 'update', 'delete'],
   garageAttribute: ['create', 'read', 'update', 'delete'],
   garageUsageEvent: ['create', 'read'],
 });
@@ -104,6 +114,8 @@ const orgAdmin = ac.newRole({
   document: ['create', 'read', 'update', 'delete'],
   workShift: ['create', 'read', 'update', 'delete'],
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  workShiftDepositAmount: ['create', 'read', 'update', 'delete'],
+  invoiceTemplate: ['create', 'read', 'update', 'delete'],
   garageAttribute: ['create', 'read', 'update', 'delete'],
   garageUsageEvent: ['create', 'read'],
 });
@@ -121,6 +133,8 @@ const orgMember = ac.newRole({
   document: ['read'],
   workShift: ['read'],
   workShiftRate: ['read'],
+  workShiftDepositAmount: ['read'],
+  invoiceTemplate: ['read'],
   garageAttribute: ['read'],
   garageUsageEvent: ['read'],
 });
@@ -141,6 +155,8 @@ const vorstand = ac.newRole({
   document: ['create', 'read', 'update', 'delete'],
   workShift: ['create', 'read', 'update', 'delete'],
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  workShiftDepositAmount: ['create', 'read', 'update', 'delete'],
+  invoiceTemplate: ['create', 'read', 'update', 'delete'],
   garageAttribute: ['create', 'read', 'update', 'delete'],
   garageUsageEvent: ['create', 'read'],
 });

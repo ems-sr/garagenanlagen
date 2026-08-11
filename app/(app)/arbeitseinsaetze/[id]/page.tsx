@@ -9,6 +9,11 @@ function formatDate(value: Date) {
   return value.toLocaleDateString('de-DE');
 }
 
+const REIMBURSEMENT_UNIT_LABELS: Record<'hourly' | 'fixed', string> = {
+  hourly: 'Stundensatz',
+  fixed: 'Fixbetrag (Kautionsrückerstattung)',
+};
+
 export default async function ArbeitseinsatzDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
@@ -41,6 +46,8 @@ export default async function ArbeitseinsatzDetailPage({ params }: { params: Pro
             {workShift.location ? ` · ${workShift.location}` : ''}
             {' · '}
             {facility ? facility.name : 'Vereinsweit'}
+            {' · '}
+            {REIMBURSEMENT_UNIT_LABELS[workShift.reimbursementUnit]}
           </CardDescription>
         </CardHeader>
         {workShift.description && <CardContent className="text-sm text-muted-foreground">{workShift.description}</CardContent>}

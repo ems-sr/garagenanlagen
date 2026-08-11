@@ -69,7 +69,14 @@ export async function generateMembershipFeeInvoice(input: CreateMembershipFeeInv
   if (!parsed.success) return zodActionError(parsed);
 
   const result = await db.transaction((tx) =>
-    generateMembershipFeeInvoiceForMember(tx, organizationId, parsed.data.clubMemberId, parsed.data.periodStart, parsed.data.periodEnd),
+    generateMembershipFeeInvoiceForMember(
+      tx,
+      organizationId,
+      parsed.data.clubMemberId,
+      parsed.data.garageId,
+      parsed.data.periodStart,
+      parsed.data.periodEnd,
+    ),
   );
   if (!result.success) return actionError(result.error.code, result.error.message);
   return { success: true, data: result.data };

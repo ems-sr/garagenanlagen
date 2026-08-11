@@ -1,0 +1,725 @@
+[
+  {
+    "id": "table.invoiceTemplate",
+    "label": "Create table \"invoiceTemplate\"",
+    "summary": "Creates table \"invoiceTemplate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "invoiceTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"invoiceTemplate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"invoiceTemplate\"",
+        "sql": "CREATE TABLE \"public\".\"invoiceTemplate\" (\n  \"autoGenerate\" bool DEFAULT false NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"invoiceType\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"invoiceTemplate\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.invoiceTemplateLineItem",
+    "label": "Create table \"invoiceTemplateLineItem\"",
+    "summary": "Creates table \"invoiceTemplateLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"invoiceTemplateLineItem\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"invoiceTemplateLineItem\"",
+        "sql": "CREATE TABLE \"public\".\"invoiceTemplateLineItem\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"invoiceTemplateId\" text NOT NULL,\n  \"lineItemTypeId\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"overrideAmount\" int4,\n  \"quantity\" numeric DEFAULT 1 NOT NULL,\n  \"sortOrder\" int4 DEFAULT 0 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"invoiceTemplateLineItem\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.lineItemType",
+    "label": "Create table \"lineItemType\"",
+    "summary": "Creates table \"lineItemType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "lineItemType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"lineItemType\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lineItemType\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"lineItemType\"",
+        "sql": "CREATE TABLE \"public\".\"lineItemType\" (\n  \"amountSource\" text DEFAULT 'fixed' NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"defaultAmount\" int4,\n  \"description\" text,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"lineItemType\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lineItemType\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.workShiftDepositAmount",
+    "label": "Create table \"workShiftDepositAmount\"",
+    "summary": "Creates table \"workShiftDepositAmount\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "workShiftDepositAmount"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"workShiftDepositAmount\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftDepositAmount\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"workShiftDepositAmount\"",
+        "sql": "CREATE TABLE \"public\".\"workShiftDepositAmount\" (\n  \"amount\" int4 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"validFrom\" timestamptz NOT NULL,\n  \"validTo\" timestamptz,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"workShiftDepositAmount\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftDepositAmount\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.workShift.reimbursementUnit",
+    "label": "Add column \"reimbursementUnit\" to \"workShift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "reimbursementUnit",
+        "table": "workShift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"reimbursementUnit\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "workShift",
+          "reimbursementUnit"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"reimbursementUnit\"",
+        "sql": "ALTER TABLE \"public\".\"workShift\" ADD COLUMN \"reimbursementUnit\" text DEFAULT 'hourly' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"reimbursementUnit\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "workShift",
+          "reimbursementUnit"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.invoiceTemplateLineItem.invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key",
+    "label": "Add unique constraint on \"invoiceTemplateLineItem\" (invoiceTemplateId, lineItemTypeId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key",
+        "table": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key",
+          "public",
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key\"",
+        "sql": "ALTER TABLE \"public\".\"invoiceTemplateLineItem\" ADD CONSTRAINT \"invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key\" UNIQUE (\"invoiceTemplateId\", \"lineItemTypeId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplateLineItem_invoiceTemplateId_lineItemTypeId_key",
+          "public",
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.invoiceTemplate.invoiceTemplate_invoiceType_check",
+    "label": "Add check constraint \"invoiceTemplate_invoiceType_check\" on \"invoiceTemplate\".\"invoiceType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "invoiceTemplate_invoiceType_check",
+        "table": "invoiceTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoiceTemplate_invoiceType_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplate_invoiceType_check",
+          "public",
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"invoiceTemplate_invoiceType_check\"",
+        "sql": "ALTER TABLE \"public\".\"invoiceTemplate\" ADD CONSTRAINT \"invoiceTemplate_invoiceType_check\" CHECK (\"invoiceType\" IN ('consumption', 'membershipFee', 'custom'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoiceTemplate_invoiceType_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplate_invoiceType_check",
+          "public",
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.lineItemType.lineItemType_amountSource_check",
+    "label": "Add check constraint \"lineItemType_amountSource_check\" on \"lineItemType\".\"amountSource\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "lineItemType_amountSource_check",
+        "table": "lineItemType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"lineItemType_amountSource_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lineItemType_amountSource_check",
+          "public",
+          "\"public\".\"lineItemType\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"lineItemType_amountSource_check\"",
+        "sql": "ALTER TABLE \"public\".\"lineItemType\" ADD CONSTRAINT \"lineItemType_amountSource_check\" CHECK (\"amountSource\" IN ('fixed', 'membershipFeeRate', 'workShiftDepositRate'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"lineItemType_amountSource_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "lineItemType_amountSource_check",
+          "public",
+          "\"public\".\"lineItemType\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.workShift.workShift_reimbursementUnit_check",
+    "label": "Add check constraint \"workShift_reimbursementUnit_check\" on \"workShift\".\"reimbursementUnit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "workShift_reimbursementUnit_check",
+        "table": "workShift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"workShift_reimbursementUnit_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "workShift_reimbursementUnit_check",
+          "public",
+          "\"public\".\"workShift\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"workShift_reimbursementUnit_check\"",
+        "sql": "ALTER TABLE \"public\".\"workShift\" ADD CONSTRAINT \"workShift_reimbursementUnit_check\" CHECK (\"reimbursementUnit\" IN ('hourly', 'fixed'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"workShift_reimbursementUnit_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "workShift_reimbursementUnit_check",
+          "public",
+          "\"public\".\"workShift\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoiceTemplate.invoiceTemplate_invoiceType_idx_cc224f0e",
+    "label": "Create index \"invoiceTemplate_invoiceType_idx_cc224f0e\" on \"invoiceTemplate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoiceTemplate_invoiceType_idx_cc224f0e",
+        "table": "invoiceTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoiceTemplate_invoiceType_idx_cc224f0e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplate_invoiceType_idx_cc224f0e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoiceTemplate_invoiceType_idx_cc224f0e\"",
+        "sql": "CREATE INDEX \"invoiceTemplate_invoiceType_idx_cc224f0e\" ON \"public\".\"invoiceTemplate\" (\"invoiceType\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoiceTemplate_invoiceType_idx_cc224f0e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplate_invoiceType_idx_cc224f0e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoiceTemplate.invoiceTemplate_organizationId_idx_2e17ef41",
+    "label": "Create index \"invoiceTemplate_organizationId_idx_2e17ef41\" on \"invoiceTemplate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoiceTemplate_organizationId_idx_2e17ef41",
+        "table": "invoiceTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoiceTemplate_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplate_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoiceTemplate_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"invoiceTemplate_organizationId_idx_2e17ef41\" ON \"public\".\"invoiceTemplate\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoiceTemplate_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplate_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoiceTemplateLineItem.invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d",
+    "label": "Create index \"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\" on \"invoiceTemplateLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d",
+        "table": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\"",
+        "sql": "CREATE INDEX \"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\" ON \"public\".\"invoiceTemplateLineItem\" (\"invoiceTemplateId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoiceTemplateLineItem.invoiceTemplateLineItem_lineItemTypeId_idx_580140ff",
+    "label": "Create index \"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\" on \"invoiceTemplateLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoiceTemplateLineItem_lineItemTypeId_idx_580140ff",
+        "table": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\"",
+        "sql": "CREATE INDEX \"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\" ON \"public\".\"invoiceTemplateLineItem\" (\"lineItemTypeId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem_lineItemTypeId_idx_580140ff\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.invoiceTemplateLineItem.invoiceTemplateLineItem_organizationId_idx_2e17ef41",
+    "label": "Create index \"invoiceTemplateLineItem_organizationId_idx_2e17ef41\" on \"invoiceTemplateLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoiceTemplateLineItem_organizationId_idx_2e17ef41",
+        "table": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoiceTemplateLineItem_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"invoiceTemplateLineItem_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"invoiceTemplateLineItem_organizationId_idx_2e17ef41\" ON \"public\".\"invoiceTemplateLineItem\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoiceTemplateLineItem_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoiceTemplateLineItem_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.lineItemType.lineItemType_organizationId_idx_2e17ef41",
+    "label": "Create index \"lineItemType_organizationId_idx_2e17ef41\" on \"lineItemType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "lineItemType_organizationId_idx_2e17ef41",
+        "table": "lineItemType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"lineItemType_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lineItemType_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"lineItemType_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"lineItemType_organizationId_idx_2e17ef41\" ON \"public\".\"lineItemType\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"lineItemType_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"lineItemType_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.workShiftDepositAmount.workShiftDepositAmount_organizationId_idx_2e17ef41",
+    "label": "Create index \"workShiftDepositAmount_organizationId_idx_2e17ef41\" on \"workShiftDepositAmount\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "workShiftDepositAmount_organizationId_idx_2e17ef41",
+        "table": "workShiftDepositAmount"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"workShiftDepositAmount_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftDepositAmount_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"workShiftDepositAmount_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"workShiftDepositAmount_organizationId_idx_2e17ef41\" ON \"public\".\"workShiftDepositAmount\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"workShiftDepositAmount_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"workShiftDepositAmount_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoiceTemplateLineItem.invoiceTemplateLineItem_invoiceTemplateId_fkey",
+    "label": "Add foreign key \"invoiceTemplateLineItem_invoiceTemplateId_fkey\" on \"invoiceTemplateLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoiceTemplateLineItem_invoiceTemplateId_fkey",
+        "table": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoiceTemplateLineItem_invoiceTemplateId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplateLineItem_invoiceTemplateId_fkey",
+          "public",
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoiceTemplateLineItem_invoiceTemplateId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoiceTemplateLineItem\"\nADD CONSTRAINT \"invoiceTemplateLineItem_invoiceTemplateId_fkey\"\nFOREIGN KEY (\"invoiceTemplateId\")\nREFERENCES \"public\".\"invoiceTemplate\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoiceTemplateLineItem_invoiceTemplateId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplateLineItem_invoiceTemplateId_fkey",
+          "public",
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.invoiceTemplateLineItem.invoiceTemplateLineItem_lineItemTypeId_fkey",
+    "label": "Add foreign key \"invoiceTemplateLineItem_lineItemTypeId_fkey\" on \"invoiceTemplateLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoiceTemplateLineItem_lineItemTypeId_fkey",
+        "table": "invoiceTemplateLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"invoiceTemplateLineItem_lineItemTypeId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplateLineItem_lineItemTypeId_fkey",
+          "public",
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"invoiceTemplateLineItem_lineItemTypeId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoiceTemplateLineItem\"\nADD CONSTRAINT \"invoiceTemplateLineItem_lineItemTypeId_fkey\"\nFOREIGN KEY (\"lineItemTypeId\")\nREFERENCES \"public\".\"lineItemType\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"invoiceTemplateLineItem_lineItemTypeId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplateLineItem_lineItemTypeId_fkey",
+          "public",
+          "\"public\".\"invoiceTemplateLineItem\""
+        ]
+      }
+    ]
+  }
+]

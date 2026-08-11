@@ -20,7 +20,14 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return zodError(parsed);
 
   const result = await db.transaction((tx) =>
-    generateMembershipFeeInvoiceForMember(tx, organizationId, parsed.data.clubMemberId, parsed.data.periodStart, parsed.data.periodEnd),
+    generateMembershipFeeInvoiceForMember(
+      tx,
+      organizationId,
+      parsed.data.clubMemberId,
+      parsed.data.garageId,
+      parsed.data.periodStart,
+      parsed.data.periodEnd,
+    ),
   );
 
   if (!result.success) {

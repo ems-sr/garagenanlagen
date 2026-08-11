@@ -460,6 +460,83 @@ model InvoiceLineItem {
   @@index([invoiceId])
 }
 
+// Named, reusable line-item definition (e.g. "Mitgliedsbeitrag", "Kaution
+// Arbeitseinsatz") referenced by InvoiceTemplateLineItem rows below.
+// amountSource picks how a template resolves this line item's price at
+// generation time: `fixed` uses defaultAmount (optionally overridden per
+// template row), `membershipFeeRate`/`workShiftDepositRate` instead resolve
+// the effective-dated MembershipFee/WorkShiftDepositAmount rate for the
+// invoice's period — the same snapshot-at-generation-time rule every rate
+// table in this contract already follows. defaultAmount is only meaningful
+// for `fixed` (nullable since the rate-linked sources ignore it).
+enum LineItemAmountSource {
+  @@type("pg/text@1")
+  fixed                = "fixed"
+  membershipFeeRate    = "membershipFeeRate"
+  workShiftDepositRate = "workShiftDepositRate"
+}
+
+model LineItemType {
+  id             String               @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  amountSource   LineItemAmountSource @default(fixed)
+  defaultAmount  Int?
+  createdAt      DateTime             @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+// A named, ordered set of LineItemTypes assignable to an InvoiceType (e.g. a
+// "Jahresrechnung" template for type=membershipFee bundling the membership
+// fee and the Arbeitseinsatz deposit into one invoice). Only meaningful for
+// membershipFee/custom invoice types — type=consumption invoices carry their
+// amount directly on Invoice, not via line items (see the note above
+// Invoice). autoGenerate distinguishes two usage modes: true means bulk/
+// single generation for this invoiceType builds its line items from this
+// template automatically (no manual entry step); false means the template is
+// offered as an optional prefill at manual/custom invoice creation time,
+// still fully editable before submit.
+model InvoiceTemplate {
+  id             String                    @id @default(uuid())
+  organizationId String
+  name           String
+  invoiceType    InvoiceType
+  autoGenerate   Boolean                   @default(false)
+  lineItems      InvoiceTemplateLineItem[]
+  createdAt      DateTime                  @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+  @@index([invoiceType])
+}
+
+// One row per LineItemType included in a template. @@unique prevents adding
+// the same line item type twice to one template (no legitimate use case for
+// a duplicate row — adjust quantity instead). overrideAmount lets a
+// particular template charge a different fixed amount than the LineItemType's
+// own defaultAmount without editing the shared type definition; only
+// meaningful when the referenced type's amountSource is `fixed`.
+model InvoiceTemplateLineItem {
+  id                String          @id @default(uuid())
+  organizationId    String
+  invoiceTemplateId String
+  invoiceTemplate   InvoiceTemplate @relation(fields: [invoiceTemplateId], references: [id], onDelete: Cascade)
+  lineItemTypeId    String
+  lineItemType      LineItemType    @relation(fields: [lineItemTypeId], references: [id])
+  quantity          Decimal         @default(1)
+  overrideAmount    Int?
+  sortOrder         Int             @default(0)
+  createdAt         DateTime        @default(now())
+  updatedAt         temporal.updatedAt()
+
+  @@unique([invoiceTemplateId, lineItemTypeId])
+  @@index([organizationId])
+  @@index([invoiceTemplateId])
+}
+
 // Effective-dated Mitgliedsbeitrag rate, club-wide (not per-Facility, unlike
 // PricePerKwh) — mirrors its validFrom/validTo pattern. Stored in cents
 // (Int), same money convention as every other amount field.
@@ -598,21 +675,53 @@ model WorkShiftReimbursementRate {
   @@index([organizationId])
 }
 
+// Effective-dated club-wide Arbeitseinsatz-Kaution amount — same
+// validFrom/validTo pattern as WorkShiftReimbursementRate/MembershipFee, in
+// cents. This is the single source of truth for both the deposit line item
+// on membership-fee invoice templates (LineItemAmountSource.workShiftDepositRate)
+// and WorkShift's `fixed` reimbursement unit below, so the amount a member is
+// refunded for attending a shift always matches what was charged that year.
+model WorkShiftDepositAmount {
+  id             String    @id @default(uuid())
+  organizationId String
+  amount         Int
+  validFrom      DateTime
+  validTo        DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@index([organizationId])
+}
+
+// `hourly` reimburses hoursWorked x WorkShiftReimbursementRate (existing
+// Stage 8 behavior); `fixed` instead reimburses the WorkShiftDepositAmount
+// effective on the shift's date, regardless of hours worked — modeling the
+// "deposit refunded in full for taking part" rule described in the
+// Projektbeschreibung. Chosen once per shift (applies to all its
+// participants), not per participant, since a shift is either a
+// deposit-refund event or an hourly-paid one.
+enum WorkShiftReimbursementUnit {
+  @@type("pg/text@1")
+  hourly = "hourly"
+  fixed  = "fixed"
+}
+
 // facilityId is optional: a shift can be club-wide (e.g. a general cleanup
 // day) or scoped to one Garagenanlage — same optional-tag shape as
 // Document's facilityId.
 model WorkShift {
-  id             String             @id @default(uuid())
-  organizationId String
-  facilityId     String?
-  facility       Facility?          @relation(fields: [facilityId], references: [id])
-  title          String
-  description    String?
-  date           DateTime
-  location       String?
-  participants   ShiftParticipant[]
-  createdAt      DateTime           @default(now())
-  updatedAt      temporal.updatedAt()
+  id                String                     @id @default(uuid())
+  organizationId    String
+  facilityId        String?
+  facility          Facility?                  @relation(fields: [facilityId], references: [id])
+  title             String
+  description       String?
+  date              DateTime
+  location          String?
+  reimbursementUnit WorkShiftReimbursementUnit @default(hourly)
+  participants      ShiftParticipant[]
+  createdAt         DateTime                   @default(now())
+  updatedAt         temporal.updatedAt()
 
   @@index([organizationId])
   @@index([facilityId])

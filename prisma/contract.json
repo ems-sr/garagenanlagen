@@ -72,6 +72,18 @@
       "model": "InvoiceLineItem",
       "namespace": "public"
     },
+    "invoiceTemplate": {
+      "model": "InvoiceTemplate",
+      "namespace": "public"
+    },
+    "invoiceTemplateLineItem": {
+      "model": "InvoiceTemplateLineItem",
+      "namespace": "public"
+    },
+    "lineItemType": {
+      "model": "LineItemType",
+      "namespace": "public"
+    },
     "memberAddress": {
       "model": "MemberAddress",
       "namespace": "public"
@@ -110,6 +122,10 @@
     },
     "workShift": {
       "model": "WorkShift",
+      "namespace": "public"
+    },
+    "workShiftDepositAmount": {
+      "model": "WorkShiftDepositAmount",
       "namespace": "public"
     },
     "workShiftReimbursementRate": {
@@ -271,6 +287,36 @@
               {
                 "name": "custom",
                 "value": "custom"
+              }
+            ]
+          },
+          "LineItemAmountSource": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "fixed",
+                "value": "fixed"
+              },
+              {
+                "name": "membershipFeeRate",
+                "value": "membershipFeeRate"
+              },
+              {
+                "name": "workShiftDepositRate",
+                "value": "workShiftDepositRate"
+              }
+            ]
+          },
+          "WorkShiftReimbursementUnit": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "hourly",
+                "value": "hourly"
+              },
+              {
+                "name": "fixed",
+                "value": "fixed"
               }
             ]
           }
@@ -2682,6 +2728,338 @@
               "table": "invoiceLineItem"
             }
           },
+          "InvoiceTemplate": {
+            "fields": {
+              "autoGenerate": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "invoiceType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "InvoiceType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "lineItems": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "invoiceTemplateId"
+                  ]
+                },
+                "to": {
+                  "model": "InvoiceTemplateLineItem",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "autoGenerate": {
+                  "column": "autoGenerate"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "invoiceType": {
+                  "column": "invoiceType"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "invoiceTemplate"
+            }
+          },
+          "InvoiceTemplateLineItem": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "invoiceTemplateId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lineItemTypeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "overrideAmount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "quantity": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "sortOrder": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "invoiceTemplate": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "invoiceTemplateId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "InvoiceTemplate",
+                  "namespace": "public"
+                }
+              },
+              "lineItemType": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "lineItemTypeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "LineItemType",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "invoiceTemplateId": {
+                  "column": "invoiceTemplateId"
+                },
+                "lineItemTypeId": {
+                  "column": "lineItemTypeId"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "overrideAmount": {
+                  "column": "overrideAmount"
+                },
+                "quantity": {
+                  "column": "quantity"
+                },
+                "sortOrder": {
+                  "column": "sortOrder"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "invoiceTemplateLineItem"
+            }
+          },
+          "LineItemType": {
+            "fields": {
+              "amountSource": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "LineItemAmountSource",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "defaultAmount": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "amountSource": {
+                  "column": "amountSource"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "defaultAmount": {
+                  "column": "defaultAmount"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "lineItemType"
+            }
+          },
           "MemberAddress": {
             "fields": {
               "city": {
@@ -3776,6 +4154,19 @@
                   "kind": "scalar"
                 }
               },
+              "reimbursementUnit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "WorkShiftReimbursementUnit",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
               "title": {
                 "nullable": false,
                 "type": {
@@ -3846,6 +4237,9 @@
                 "organizationId": {
                   "column": "organizationId"
                 },
+                "reimbursementUnit": {
+                  "column": "reimbursementUnit"
+                },
                 "title": {
                   "column": "title"
                 },
@@ -3855,6 +4249,87 @@
               },
               "namespaceId": "public",
               "table": "workShift"
+            }
+          },
+          "WorkShiftDepositAmount": {
+            "fields": {
+              "amount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "validFrom": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "validTo": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "amount": {
+                  "column": "amount"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "validFrom": {
+                  "column": "validFrom"
+                },
+                "validTo": {
+                  "column": "validTo"
+                }
+              },
+              "namespaceId": "public",
+              "table": "workShiftDepositAmount"
             }
           },
           "WorkShiftReimbursementRate": {
@@ -6059,6 +6534,318 @@
               },
               "uniques": []
             },
+            "invoiceTemplate": {
+              "checks": [
+                {
+                  "column": "invoiceType",
+                  "name": "invoiceTemplate_invoiceType_check",
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "InvoiceType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              ],
+              "columns": {
+                "autoGenerate": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "invoiceType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "InvoiceType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "invoiceType"
+                  ],
+                  "name": "invoiceTemplate_invoiceType_idx_cc224f0e",
+                  "prefix": "invoiceTemplate_invoiceType_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "invoiceTemplate_organizationId_idx_2e17ef41",
+                  "prefix": "invoiceTemplate_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "invoiceTemplateLineItem": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "invoiceTemplateId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "lineItemTypeId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "overrideAmount": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "quantity": {
+                  "codecId": "pg/numeric@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "sortOrder": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "invoiceTemplateId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoiceTemplateLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoiceTemplate"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "lineItemTypeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoiceTemplateLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "lineItemType"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "invoiceTemplateId"
+                  ],
+                  "name": "invoiceTemplateLineItem_invoiceTemplateId_idx_c37ee64d",
+                  "prefix": "invoiceTemplateLineItem_invoiceTemplateId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "lineItemTypeId"
+                  ],
+                  "name": "invoiceTemplateLineItem_lineItemTypeId_idx_580140ff",
+                  "prefix": "invoiceTemplateLineItem_lineItemTypeId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "invoiceTemplateLineItem_organizationId_idx_2e17ef41",
+                  "prefix": "invoiceTemplateLineItem_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "invoiceTemplateId",
+                    "lineItemTypeId"
+                  ]
+                }
+              ]
+            },
+            "lineItemType": {
+              "checks": [
+                {
+                  "column": "amountSource",
+                  "name": "lineItemType_amountSource_check",
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LineItemAmountSource",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              ],
+              "columns": {
+                "amountSource": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "fixed"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LineItemAmountSource",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "defaultAmount": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "lineItemType_organizationId_idx_2e17ef41",
+                  "prefix": "lineItemType_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "memberAddress": {
               "checks": [
                 {
@@ -6959,6 +7746,18 @@
               "uniques": []
             },
             "workShift": {
+              "checks": [
+                {
+                  "column": "reimbursementUnit",
+                  "name": "workShift_reimbursementUnit_check",
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "WorkShiftReimbursementUnit",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              ],
               "columns": {
                 "createdAt": {
                   "codecId": "pg/timestamptz@1",
@@ -6998,6 +7797,21 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "reimbursementUnit": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "hourly"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "WorkShiftReimbursementUnit",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 },
                 "title": {
                   "codecId": "pg/text@1",
@@ -7043,6 +7857,66 @@
                   ],
                   "name": "workShift_organizationId_idx_2e17ef41",
                   "prefix": "workShift_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "workShiftDepositAmount": {
+              "columns": {
+                "amount": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "validFrom": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "validTo": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "workShiftDepositAmount_organizationId_idx_2e17ef41",
+                  "prefix": "workShiftDepositAmount_organizationId_idx",
                   "unique": false
                 }
               ],
@@ -7186,6 +8060,21 @@
                 "membershipFee",
                 "custom"
               ]
+            },
+            "LineItemAmountSource": {
+              "kind": "valueSet",
+              "values": [
+                "fixed",
+                "membershipFeeRate",
+                "workShiftDepositRate"
+              ]
+            },
+            "WorkShiftReimbursementUnit": {
+              "kind": "valueSet",
+              "values": [
+                "hourly",
+                "fixed"
+              ]
             }
           }
         },
@@ -7193,10 +8082,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "16aa3fbb6f48da7046ac15949467613bf2aa24bfa5a0090bdf32388ab0420c8d"
+    "storageHash": "60370d21b6cc49534c1f7683d8a11388f7d884714d296779e841bb2b2de8f1a7"
   },
   "execution": {
-    "executionHash": "1088b71ae66ea01be5c58e754628e85c164893856a85a3118e2014515daff48a",
+    "executionHash": "076e49df17defd26b060373ef265d05350ad6fe72995866b537f45b43995bc30",
     "mutations": {
       "defaults": [
         {
@@ -7619,6 +8508,84 @@
           "ref": {
             "column": "id",
             "namespace": "public",
+            "table": "invoiceTemplate"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "invoiceTemplate"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "invoiceTemplateLineItem"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "invoiceTemplateLineItem"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "lineItemType"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "lineItemType"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
             "table": "memberAddress"
           }
         },
@@ -7869,6 +8836,32 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "workShift"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "workShiftDepositAmount"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "workShiftDepositAmount"
           }
         },
         {

@@ -1,5 +1,6 @@
 import { db } from '@/prisma/db';
 import { billingError, type BillingResult } from '@/lib/billing/types';
+import { resolveReimbursementAmount } from './resolve-reimbursement-amount';
 
 type Tx = { orm: typeof db.orm };
 type ShiftParticipant = Awaited<ReturnType<typeof db.orm.public.ShiftParticipant.create>>;
@@ -7,7 +8,10 @@ type ShiftParticipant = Awaited<ReturnType<typeof db.orm.public.ShiftParticipant
 // Re-resolves the rate effective on the shift's date and re-snapshots
 // reimbursementAmount — same resolution as addParticipant, since correcting
 // a logged hours value should recompute the amount the same way adding it
-// fresh would.
+// fresh would. For `fixed`-unit shifts the hours correction doesn't change
+// the resolved amount (resolveReimbursementAmount ignores hoursWorked for
+// that unit), but re-resolving keeps this in one place rather than
+// special-casing it here.
 export async function updateParticipantHours(
   tx: Tx,
   organizationId: string,
@@ -21,15 +25,12 @@ export async function updateParticipantHours(
   const workShift = await tx.orm.public.WorkShift.where({ id: existing.workShiftId, organizationId }).first();
   if (!workShift) return billingError('NOT_FOUND', 'Arbeitseinsatz nicht gefunden.');
 
-  const rates = await tx.orm.public.WorkShiftReimbursementRate.where({ organizationId }).all();
-  const rate = rates.find((r) => r.validFrom <= workShift.date && (!r.validTo || r.validTo > workShift.date));
-  if (!rate) return billingError('NO_RATE', 'Kein gültiger Aufwandsentschädigungssatz für dieses Datum hinterlegt.');
-
-  const reimbursementAmount = Math.round(hoursWorked * rate.amountPerHour);
+  const resolved = await resolveReimbursementAmount(tx, organizationId, workShift, hoursWorked);
+  if (!resolved.success) return resolved;
 
   const participant = await tx.orm.public.ShiftParticipant.where({ id: participantId, organizationId }).update({
     hoursWorked: hoursWorked.toString(),
-    reimbursementAmount,
+    reimbursementAmount: resolved.data,
   });
   if (!participant) return billingError('NOT_FOUND', 'Teilnahme nicht gefunden.');
 
