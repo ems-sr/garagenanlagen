@@ -26,6 +26,7 @@ import { toast } from '@/components/ui/toast';
 import { PlusIcon } from '@phosphor-icons/react';
 
 type Payment = { id: string; amount: number; paidAt: string; method: string | null; note: string | null };
+type InvoiceType = 'consumption' | 'membershipFee' | 'custom' | 'creditNote';
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString('de-DE');
@@ -37,14 +38,17 @@ export function PaymentManager({
   status,
   initialItems,
   canRecordPayment,
+  invoiceType = 'custom',
 }: {
   invoiceId: string;
   grossAmount: number;
   status: 'open' | 'paid' | 'canceled';
   initialItems: Payment[];
   canRecordPayment: boolean;
+  invoiceType?: InvoiceType;
 }) {
   useSignals();
+  const isCreditNote = invoiceType === 'creditNote';
   const router = useRouter();
   const open = useSignal(false);
   const amountEuro = useSignal('');
@@ -60,7 +64,12 @@ export function PaymentManager({
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
 
-    const cents = Math.round(Number(amountEuro.value.replace(',', '.')) * 100);
+    // Staff always type a positive euro amount, whether recording a normal
+    // payment or a repayment — negate here for creditNote invoices so the
+    // stored Payment.amount has the sign lib/billing/record-payment.ts
+    // requires (repayment = negative), matching how generate-credit-note.ts
+    // also takes positive input and negates internally.
+    const cents = Math.round(Number(amountEuro.value.replace(',', '.')) * 100) * (isCreditNote ? -1 : 1);
     const payload = {
       amount: cents,
       paidAt: paidAt.value || undefined,
@@ -82,11 +91,15 @@ export function PaymentManager({
     isSubmitting.value = false;
 
     if (!actionResult.success) {
-      toast.add({ title: 'Zahlung konnte nicht erfasst werden', description: actionResult.error.message, type: 'error' });
+      toast.add({
+        title: isCreditNote ? 'Rückzahlung konnte nicht erfasst werden' : 'Zahlung konnte nicht erfasst werden',
+        description: actionResult.error.message,
+        type: 'error',
+      });
       return;
     }
 
-    toast.add({ title: 'Zahlung erfasst', type: 'success' });
+    toast.add({ title: isCreditNote ? 'Rückzahlung erfasst' : 'Zahlung erfasst', type: 'success' });
     open.value = false;
     amountEuro.value = '';
     paidAt.value = '';
@@ -111,7 +124,9 @@ export function PaymentManager({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          {status === 'open' ? `Offener Betrag: ${formatCents(remaining)}` : `Bezahlt: ${formatCents(totalPaid)}`}
+          {status === 'open'
+            ? `${isCreditNote ? 'Noch zu erstattender Betrag' : 'Offener Betrag'}: ${formatCents(Math.abs(remaining))}`
+            : `${isCreditNote ? 'Erstattet' : 'Bezahlt'}: ${formatCents(Math.abs(totalPaid))}`}
         </p>
         <div className="flex gap-2">
           {canCancel && (
@@ -134,18 +149,19 @@ export function PaymentManager({
                 render={
                   <Button size="sm">
                     <PlusIcon data-icon="inline-start" />
-                    Zahlung erfassen
+                    {isCreditNote ? 'Rückzahlung erfassen' : 'Zahlung erfassen'}
                   </Button>
                 }
               />
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Zahlung erfassen</DialogTitle>
+                  <DialogTitle>{isCreditNote ? 'Rückzahlung erfassen' : 'Zahlung erfassen'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleAdd}>
                   <FieldGroup>
                     <Field data-invalid={!!errors.value.amount}>
                       <FieldLabel htmlFor="amount">Betrag (€)</FieldLabel>
+                      {isCreditNote && <p className="text-xs text-muted-foreground">Positiven Betrag eingeben — wird als Rückzahlung erfasst.</p>}
                       <Input
                         id="amount"
                         type="number"

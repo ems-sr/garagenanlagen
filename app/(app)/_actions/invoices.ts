@@ -9,17 +9,20 @@ import {
   createMembershipFeeInvoiceSchema,
   createBulkMembershipFeeInvoicesSchema,
   createCustomInvoiceSchema,
+  createCreditNoteSchema,
   type CreateInvoiceInput,
   type CreateBulkInvoicesInput,
   type CreateMembershipFeeInvoiceInput,
   type CreateBulkMembershipFeeInvoicesInput,
   type CreateCustomInvoiceInput,
+  type CreateCreditNoteInput,
 } from '@/lib/validation/invoice';
 import { generateInvoiceForReading } from '@/lib/billing/generate-invoice';
 import { generateBulkInvoicesForFacility, type BulkInvoiceResult } from '@/lib/billing/generate-bulk-invoices';
 import { generateMembershipFeeInvoiceForMember } from '@/lib/billing/generate-membership-fee-invoice';
 import { generateBulkMembershipFeeInvoices, type BulkMembershipFeeInvoiceResult } from '@/lib/billing/generate-bulk-membership-fee-invoices';
 import { generateCustomInvoice } from '@/lib/billing/generate-custom-invoice';
+import { generateCreditNote } from '@/lib/billing/generate-credit-note';
 
 type Invoice = Awaited<ReturnType<typeof db.orm.public.Invoice.create>>;
 
@@ -111,6 +114,22 @@ export async function generateCustomInvoiceAction(input: CreateCustomInvoiceInpu
   if (!parsed.success) return zodActionError(parsed);
 
   const result = await db.transaction((tx) => generateCustomInvoice(tx, organizationId, parsed.data));
+  if (!result.success) return actionError(result.error.code, result.error.message);
+  return { success: true, data: result.data };
+}
+
+export async function generateCreditNoteAction(input: CreateCreditNoteInput): Promise<ActionResult<Invoice>> {
+  const ctx = await getActionContext();
+  if ('error' in ctx) return actionError(ctx.error.code, ctx.error.message);
+  const { organizationId } = ctx;
+
+  const denied = await requireActionPermission(organizationId, { invoice: ['create'] });
+  if (denied) return actionError(denied.code, denied.message);
+
+  const parsed = createCreditNoteSchema.safeParse(input);
+  if (!parsed.success) return zodActionError(parsed);
+
+  const result = await db.transaction((tx) => generateCreditNote(tx, organizationId, parsed.data));
   if (!result.success) return actionError(result.error.code, result.error.message);
   return { success: true, data: result.data };
 }

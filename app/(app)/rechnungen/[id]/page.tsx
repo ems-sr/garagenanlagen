@@ -155,6 +155,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
             invoiceId={invoice.id}
             grossAmount={invoice.grossAmount}
             status={invoice.status}
+            invoiceType={invoice.type}
             canRecordPayment={canRecordPayment}
             initialItems={payments.map((payment) => ({
               id: payment.id,

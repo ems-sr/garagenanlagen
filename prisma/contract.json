@@ -287,6 +287,10 @@
               {
                 "name": "custom",
                 "value": "custom"
+              },
+              {
+                "name": "creditNote",
+                "value": "creditNote"
               }
             ]
           },
@@ -8058,7 +8062,8 @@
               "values": [
                 "consumption",
                 "membershipFee",
-                "custom"
+                "custom",
+                "creditNote"
               ]
             },
             "LineItemAmountSource": {
@@ -8082,7 +8087,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "60370d21b6cc49534c1f7683d8a11388f7d884714d296779e841bb2b2de8f1a7"
+    "storageHash": "310b7eabe17d3849afb4d2bb52bd4ccd647f8bacadeafb57a00cb1a95ab403e7"
   },
   "execution": {
     "executionHash": "076e49df17defd26b060373ef265d05350ad6fe72995866b537f45b43995bc30",

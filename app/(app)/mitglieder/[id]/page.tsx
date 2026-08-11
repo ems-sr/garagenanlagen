@@ -11,6 +11,9 @@ import { MemberContactManager } from '@/components/member-contact-manager';
 import { MemberNameEditor } from '@/components/member-name-editor';
 import { SendCorrespondenceDialog } from '@/components/send-correspondence-dialog';
 import { CorrespondenceLogTable } from '@/components/correspondence-log-table';
+import { MemberLedger } from '@/components/member-ledger';
+import { CreateCreditNoteDialog } from '@/components/create-credit-note-dialog';
+import { assembleMemberLedger } from '@/lib/ledger/assemble-member-ledger';
 
 export default async function MitgliedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,21 +24,41 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
   const member = await db.orm.public.ClubMember.where({ id, organizationId }).first();
   if (!member) notFound();
 
-  const [periods, assignments, activeAssignmentsOrgWide, garages, facilities, addresses, contacts, templates, logs, canSend] =
-    await Promise.all([
-      db.orm.public.MembershipPeriod.where({ clubMemberId: id, organizationId }).all(),
-      db.orm.public.GarageAssignment.where({ clubMemberId: id, organizationId, type: 'member' }).all(),
-      db.orm.public.GarageAssignment.where({ organizationId }).where((a) => a.validTo.isNull()).all(),
-      db.orm.public.Garage.where({ organizationId }).all(),
-      db.orm.public.Facility.where({ organizationId }).all(),
-      db.orm.public.MemberAddress.where({ clubMemberId: id, organizationId }).all(),
-      db.orm.public.MemberContact.where({ clubMemberId: id, organizationId }).all(),
-      db.orm.public.EmailTemplate.where({ organizationId }).all(),
-      db.orm.public.CorrespondenceLog.where({ clubMemberId: id, organizationId }).orderBy((log) => log.sentAt.desc()).all(),
-      auth.api
-        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { correspondence: ['create'] } } })
-        .then((result) => result.success),
-    ]);
+  const [
+    periods,
+    assignments,
+    activeAssignmentsOrgWide,
+    garages,
+    facilities,
+    addresses,
+    contacts,
+    templates,
+    logs,
+    canSend,
+    ledger,
+    canCreateCreditNote,
+    canRecordRepayment,
+  ] = await Promise.all([
+    db.orm.public.MembershipPeriod.where({ clubMemberId: id, organizationId }).all(),
+    db.orm.public.GarageAssignment.where({ clubMemberId: id, organizationId, type: 'member' }).all(),
+    db.orm.public.GarageAssignment.where({ organizationId }).where((a) => a.validTo.isNull()).all(),
+    db.orm.public.Garage.where({ organizationId }).all(),
+    db.orm.public.Facility.where({ organizationId }).all(),
+    db.orm.public.MemberAddress.where({ clubMemberId: id, organizationId }).all(),
+    db.orm.public.MemberContact.where({ clubMemberId: id, organizationId }).all(),
+    db.orm.public.EmailTemplate.where({ organizationId }).all(),
+    db.orm.public.CorrespondenceLog.where({ clubMemberId: id, organizationId }).orderBy((log) => log.sentAt.desc()).all(),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { correspondence: ['create'] } } })
+      .then((result) => result.success),
+    assembleMemberLedger(organizationId, id),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { invoice: ['create'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { invoice: ['update'] } } })
+      .then((result) => result.success),
+  ]);
 
   const facilityNameById = new Map(facilities.map((facility) => [facility.id, facility.name]));
   const garageById = new Map(garages.map((garage) => [garage.id, garage]));
@@ -61,6 +84,7 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
         <TabsTrigger value="kontakte">Kontakte</TabsTrigger>
         <TabsTrigger value="garagen">Garagen</TabsTrigger>
         <TabsTrigger value="korrespondenz">Korrespondenz</TabsTrigger>
+        <TabsTrigger value="kontoauszug">Kontoauszug</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -191,6 +215,25 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
                 errorMessage: log.errorMessage,
                 sentAt: log.sentAt.toISOString(),
               }))}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="kontoauszug">
+        <Card>
+          <CardHeader className="flex-row items-start justify-between">
+            <div>
+              <CardTitle>Kontoauszug</CardTitle>
+              <CardDescription>Rechnungen, Zahlungen, Gutschriften und Rückzahlungen für dieses Mitglied.</CardDescription>
+            </div>
+            {canCreateCreditNote && <CreateCreditNoteDialog clubMemberId={member.id} />}
+          </CardHeader>
+          <CardContent>
+            <MemberLedger
+              entries={ledger.entries.map((entry) => ({ ...entry, date: entry.date.toISOString() }))}
+              finalBalance={ledger.finalBalance}
+              canRecordRepayment={canRecordRepayment}
             />
           </CardContent>
         </Card>

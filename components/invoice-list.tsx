@@ -24,7 +24,7 @@ import { EyeIcon, ReceiptIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react
 type InvoiceRow = {
   id: string;
   invoiceNumber: string;
-  type: 'consumption' | 'membershipFee' | 'custom';
+  type: 'consumption' | 'membershipFee' | 'custom' | 'creditNote';
   memberName: string;
   garageNumber: string;
   periodStart: string;
@@ -44,6 +44,7 @@ const TYPE_LABEL: Record<InvoiceRow['type'], string> = {
   consumption: 'Verbrauch',
   membershipFee: 'Beitrag',
   custom: 'Sonstige',
+  creditNote: 'Gutschrift',
 };
 
 function formatDate(value: string) {

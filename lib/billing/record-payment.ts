@@ -8,7 +8,9 @@ type Payment = Awaited<ReturnType<typeof db.orm.public.Payment.create>>;
 // Records a payment and flips the invoice to 'paid' once payments cover
 // grossAmount — partial payments are supported and leave the invoice 'open',
 // with the remaining balance derived as grossAmount - sum(payments) rather
-// than stored.
+// than stored. Overpayment is not guarded, same as before — this function
+// has never capped totalPaid against grossAmount, and that permissiveness is
+// kept for creditNote invoices too rather than tightened asymmetrically.
 export async function recordPayment(
   tx: Tx,
   organizationId: string,
@@ -18,6 +20,20 @@ export async function recordPayment(
   const invoice = await tx.orm.public.Invoice.where({ id: invoiceId, organizationId }).first();
   if (!invoice) return billingError('NOT_FOUND', 'Rechnung nicht gefunden.');
   if (invoice.status === 'canceled') return billingError('INVOICE_CANCELED', 'Rechnung wurde storniert.');
+
+  // A creditNote's grossAmount is negative — a Payment against it (a
+  // "repayment", money paid back to the member) must be negative too;
+  // anything else (consumption/membershipFee/custom) must be positive. This
+  // guards against a wrong-sign payment silently corrupting the ledger (e.g.
+  // a positive Payment on a creditNote would increase what the member owes
+  // instead of repaying them).
+  const expectedSign = invoice.type === 'creditNote' ? -1 : 1;
+  if (Math.sign(input.amount) !== expectedSign) {
+    return billingError(
+      'INVALID_AMOUNT_SIGN',
+      invoice.type === 'creditNote' ? 'Rückzahlungsbetrag muss negativ sein.' : 'Zahlungsbetrag muss positiv sein.',
+    );
+  }
 
   const payment = await tx.orm.public.Payment.create({
     organizationId,
@@ -31,7 +47,18 @@ export async function recordPayment(
   const payments = await tx.orm.public.Payment.where({ invoiceId, organizationId }).all();
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-  if (totalPaid >= invoice.grossAmount && invoice.status !== 'paid') {
+  // Sign-and-magnitude comparison instead of a plain `totalPaid >=
+  // grossAmount`: that check only works when grossAmount is positive — for a
+  // negative-grossAmount creditNote it would flip to 'paid' the instant any
+  // payment row exists (e.g. 0 >= -5000 is already true before any
+  // repayment). Settled means totalPaid has reached the same sign and at
+  // least the same magnitude as grossAmount.
+  const isSettled =
+    invoice.grossAmount === 0
+      ? totalPaid === 0
+      : Math.sign(totalPaid) === Math.sign(invoice.grossAmount) && Math.abs(totalPaid) >= Math.abs(invoice.grossAmount);
+
+  if (isSettled && invoice.status !== 'paid') {
     await tx.orm.public.Invoice.where({ id: invoiceId, organizationId }).update({ status: 'paid' });
   }
 

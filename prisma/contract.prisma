@@ -381,11 +381,19 @@ enum InvoiceStatus {
 // rows); `membershipFee` and `custom` are club-level (no garage/facility),
 // carry their totals as InvoiceLineItem rows instead of consumptionKwh/
 // pricePerKwh, and share the same status/payment/open-item machinery.
+// `creditNote` is club-level like membershipFee/custom, but its
+// netAmount/vatAmount/grossAmount and every InvoiceLineItem.unitPrice/
+// netAmount are NEGATIVE — a credit note is literally "a negative invoice",
+// so it reuses the exact same Invoice/InvoiceLineItem/Payment machinery
+// (status open/paid/canceled, line items, payments) rather than needing new
+// tables. A Payment against a creditNote (a "repayment") is likewise
+// recorded with a negative amount — see lib/billing/record-payment.ts.
 enum InvoiceType {
   @@type("pg/text@1")
   consumption   = "consumption"
   membershipFee = "membershipFee"
   custom        = "custom"
+  creditNote    = "creditNote"
 }
 
 // Bills the ClubMember holding the active `member`-type GarageAssignment for
@@ -397,9 +405,10 @@ enum InvoiceType {
 // 0 kWh baseline instead of pinning a MeterReading row.
 //
 // facilityId/garageId/currentReadingId/consumptionKwh/pricePerKwh are only
-// populated for type=consumption; type=membershipFee/custom invoices are
-// club-level (no facility/garage) and carry their amount as InvoiceLineItem
-// rows instead, with `description` as the invoice's free-text title.
+// populated for type=consumption; type=membershipFee/custom/creditNote
+// invoices are club-level (no facility/garage) and carry their amount as
+// InvoiceLineItem rows instead, with `description` as the invoice's
+// free-text title.
 model Invoice {
   id                String            @id @default(uuid())
   organizationId    String

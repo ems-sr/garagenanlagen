@@ -55,6 +55,22 @@ export const createCustomInvoiceSchema = z.object({
   lineItems: z.array(lineItemSchema).min(1, 'Mindestens eine Position erforderlich'),
 });
 
+// Ad-hoc credit note (billing correction) issued to a member — see
+// lib/billing/generate-credit-note.ts. Staff enter POSITIVE euro amounts
+// here (same lineItemSchema as custom invoices, nobody types a minus sign);
+// the generator is the one place that negates them before storing, since a
+// credit note is "a negative invoice." applyVat controls whether 19% VAT is
+// added before negation — default true since a correction usually corrects
+// a VAT-bearing invoice.
+export const createCreditNoteSchema = z.object({
+  clubMemberId: z.string().min(1, 'Mitglied erforderlich'),
+  description: z.string().trim().max(200, 'Beschreibung zu lang').optional(),
+  periodStart: z.coerce.date('Ungültiger Zeitraumbeginn').optional(),
+  periodEnd: z.coerce.date('Ungültiges Zeitraumende').optional(),
+  applyVat: z.boolean().default(true),
+  lineItems: z.array(lineItemSchema).min(1, 'Mindestens eine Position erforderlich'),
+});
+
 // Invoices are financial records — the only supported edit via the API is
 // canceling an unpaid one (see lib/billing/generate-invoice.ts callers);
 // amounts/periods/status=open|paid are derived, not directly settable.
@@ -67,4 +83,5 @@ export type CreateBulkInvoicesInput = z.infer<typeof createBulkInvoicesSchema>;
 export type CreateMembershipFeeInvoiceInput = z.infer<typeof createMembershipFeeInvoiceSchema>;
 export type CreateBulkMembershipFeeInvoicesInput = z.infer<typeof createBulkMembershipFeeInvoicesSchema>;
 export type CreateCustomInvoiceInput = z.infer<typeof createCustomInvoiceSchema>;
+export type CreateCreditNoteInput = z.infer<typeof createCreditNoteSchema>;
 export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;

@@ -1,0 +1,170 @@
+[
+  {
+    "id": "dropCheckConstraint.invoice.invoice_type_check",
+    "label": "Drop check constraint \"invoice_type_check\" on \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "invoice_type_check",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_type_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_type_check",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"invoice_type_check\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP CONSTRAINT \"invoice_type_check\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_type_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_type_check",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropCheckConstraint.invoiceTemplate.invoiceTemplate_invoiceType_check",
+    "label": "Drop check constraint \"invoiceTemplate_invoiceType_check\" on \"invoiceTemplate\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "invoiceTemplate_invoiceType_check",
+        "table": "invoiceTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoiceTemplate_invoiceType_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplate_invoiceType_check",
+          "public",
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop check constraint \"invoiceTemplate_invoiceType_check\"",
+        "sql": "ALTER TABLE \"public\".\"invoiceTemplate\" DROP CONSTRAINT \"invoiceTemplate_invoiceType_check\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoiceTemplate_invoiceType_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplate_invoiceType_check",
+          "public",
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.invoice.invoice_type_check",
+    "label": "Add check constraint \"invoice_type_check\" on \"invoice\".\"type\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "invoice_type_check",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_type_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_type_check",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"invoice_type_check\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" ADD CONSTRAINT \"invoice_type_check\" CHECK (\"type\" IN ('consumption', 'membershipFee', 'custom', 'creditNote'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_type_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_type_check",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.invoiceTemplate.invoiceTemplate_invoiceType_check",
+    "label": "Add check constraint \"invoiceTemplate_invoiceType_check\" on \"invoiceTemplate\".\"invoiceType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "invoiceTemplate_invoiceType_check",
+        "table": "invoiceTemplate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoiceTemplate_invoiceType_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplate_invoiceType_check",
+          "public",
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"invoiceTemplate_invoiceType_check\"",
+        "sql": "ALTER TABLE \"public\".\"invoiceTemplate\" ADD CONSTRAINT \"invoiceTemplate_invoiceType_check\" CHECK (\"invoiceType\" IN ('consumption', 'membershipFee', 'custom', 'creditNote'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoiceTemplate_invoiceType_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoiceTemplate_invoiceType_check",
+          "public",
+          "\"public\".\"invoiceTemplate\""
+        ]
+      }
+    ]
+  }
+]
