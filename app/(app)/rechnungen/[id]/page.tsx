@@ -8,10 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { formatCents } from '@/lib/format-money';
 import { PaymentManager } from '@/components/payment-manager';
 
-const STATUS_LABEL: Record<string, string> = { open: 'Offen', paid: 'Bezahlt', canceled: 'Storniert' };
-const STATUS_VARIANT: Record<string, 'outline' | 'secondary' | 'destructive'> = {
+const STATUS_LABEL: Record<string, string> = { open: 'Offen', partiallyPaid: 'Teilzahlung', paid: 'Bezahlt', canceled: 'Storniert' };
+const STATUS_VARIANT: Record<string, 'outline' | 'secondary' | 'default' | 'destructive'> = {
   open: 'outline',
-  paid: 'secondary',
+  partiallyPaid: 'secondary',
+  paid: 'default',
   canceled: 'destructive',
 };
 

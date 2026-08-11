@@ -2,8 +2,8 @@ import { Document, Page, Text, View } from '@react-pdf/renderer';
 import { styles, ReportHeader, formatCentsForPdf, formatDateForPdf } from './shared';
 import type { InvoiceRunResult } from '@/lib/reports/invoice-run';
 
-const TYPE_LABEL: Record<string, string> = { consumption: 'Verbrauch', membershipFee: 'Beitrag', custom: 'Sonstige' };
-const STATUS_LABEL: Record<string, string> = { open: 'Offen', paid: 'Bezahlt', canceled: 'Storniert' };
+const TYPE_LABEL: Record<string, string> = { consumption: 'Verbrauch', membershipFee: 'Beitrag', custom: 'Sonstige', creditNote: 'Gutschrift' };
+const STATUS_LABEL: Record<string, string> = { open: 'Offen', partiallyPaid: 'Teilzahlung', paid: 'Bezahlt', canceled: 'Storniert' };
 
 export function InvoiceRunPdf({
   data,

@@ -31,13 +31,20 @@ type InvoiceRow = {
   periodEnd: string;
   consumptionKwh: string | null;
   grossAmount: number;
-  status: 'open' | 'paid' | 'canceled';
+  openAmount: number;
+  status: 'open' | 'partiallyPaid' | 'paid' | 'canceled';
 };
 
-const STATUS_LABEL: Record<InvoiceRow['status'], string> = { open: 'Offen', paid: 'Bezahlt', canceled: 'Storniert' };
-const STATUS_VARIANT: Record<InvoiceRow['status'], 'outline' | 'secondary' | 'destructive'> = {
+const STATUS_LABEL: Record<InvoiceRow['status'], string> = {
+  open: 'Offen',
+  partiallyPaid: 'Teilzahlung',
+  paid: 'Bezahlt',
+  canceled: 'Storniert',
+};
+const STATUS_VARIANT: Record<InvoiceRow['status'], 'outline' | 'secondary' | 'default' | 'destructive'> = {
   open: 'outline',
-  paid: 'secondary',
+  partiallyPaid: 'secondary',
+  paid: 'default',
   canceled: 'destructive',
 };
 const TYPE_LABEL: Record<InvoiceRow['type'], string> = {
@@ -239,6 +246,7 @@ export function InvoiceList({
           <SelectContent>
             <SelectGroup>
               <SelectItem value="open">Offen</SelectItem>
+              <SelectItem value="partiallyPaid">Teilzahlung</SelectItem>
               <SelectItem value="paid">Bezahlt</SelectItem>
               <SelectItem value="canceled">Storniert</SelectItem>
               <SelectItem value="all">Alle</SelectItem>
@@ -442,6 +450,7 @@ export function InvoiceList({
             <TableHead>Zeitraum</TableHead>
             <TableHead>Verbrauch</TableHead>
             <TableHead>Betrag</TableHead>
+            <TableHead>Offener Betrag</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
@@ -449,7 +458,7 @@ export function InvoiceList({
         <TableBody>
           {filtered.length === 0 && (
             <TableRow>
-              <TableCell colSpan={9} className="text-center text-muted-foreground">
+              <TableCell colSpan={10} className="text-center text-muted-foreground">
                 Keine Rechnungen gefunden.
               </TableCell>
             </TableRow>
@@ -465,6 +474,7 @@ export function InvoiceList({
               </TableCell>
               <TableCell>{invoice.consumptionKwh ? `${invoice.consumptionKwh} kWh` : '–'}</TableCell>
               <TableCell>{formatCents(invoice.grossAmount)}</TableCell>
+              <TableCell>{invoice.status === 'canceled' ? '–' : formatCents(invoice.openAmount)}</TableCell>
               <TableCell>
                 <Badge variant={STATUS_VARIANT[invoice.status]}>{STATUS_LABEL[invoice.status]}</Badge>
               </TableCell>

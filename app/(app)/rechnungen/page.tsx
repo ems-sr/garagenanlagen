@@ -51,7 +51,7 @@ export default async function RechnungenPage() {
   // facility, per Stage 5's shared open-item tracking.
   const invoices = allInvoices.filter((invoice) => !invoice.facilityId || invoice.facilityId === facilityId);
 
-  const [members, garages, customTemplates, customTemplateLineItems] = await Promise.all([
+  const [members, garages, customTemplates, customTemplateLineItems, allPayments] = await Promise.all([
     db.orm.public.ClubMember.where({ organizationId }).all(),
     // Org-wide, not scoped to the selected facility: membershipFee invoices
     // are club-wide (see the invoices filter above) and can reference a
@@ -60,9 +60,18 @@ export default async function RechnungenPage() {
     db.orm.public.Garage.where({ organizationId }).all(),
     db.orm.public.InvoiceTemplate.where({ organizationId, invoiceType: 'custom', autoGenerate: false }).all(),
     db.orm.public.InvoiceTemplateLineItem.where({ organizationId }).orderBy((li) => li.sortOrder.asc()).all(),
+    db.orm.public.Payment.where({ organizationId }).all(),
   ]);
   const memberById = new Map(members.map((member) => [member.id, member]));
   const garageById = new Map(garages.map((garage) => [garage.id, garage]));
+
+  // Same "derived, not stored" convention as PaymentManager's own
+  // remaining = grossAmount - totalPaid — summed once here per invoice so
+  // the list can show an "Offener Betrag" column without a client-side join.
+  const paidTotalByInvoiceId = new Map<string, number>();
+  for (const payment of allPayments) {
+    paidTotalByInvoiceId.set(payment.invoiceId, (paidTotalByInvoiceId.get(payment.invoiceId) ?? 0) + payment.amount);
+  }
 
   const lineItemTypeIds = [...new Set(customTemplateLineItems.map((li) => li.lineItemTypeId))];
   const lineItemTypes =
@@ -109,6 +118,7 @@ export default async function RechnungenPage() {
               periodEnd: invoice.periodEnd.toISOString(),
               consumptionKwh: invoice.consumptionKwh,
               grossAmount: invoice.grossAmount,
+              openAmount: invoice.grossAmount - (paidTotalByInvoiceId.get(invoice.id) ?? 0),
               status: invoice.status,
             };
           })}

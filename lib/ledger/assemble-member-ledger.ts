@@ -9,7 +9,7 @@ export type LedgerEntry =
       invoiceId: string;
       invoiceType: LedgerInvoiceType;
       invoiceNumber: string;
-      invoiceStatus: 'open' | 'paid' | 'canceled';
+      invoiceStatus: 'open' | 'partiallyPaid' | 'paid' | 'canceled';
       description: string;
       amount: number;
       runningBalance: number;

@@ -26,7 +26,7 @@ export type MemberLedgerEntry =
       invoiceId: string;
       invoiceType: LedgerInvoiceType;
       invoiceNumber: string;
-      invoiceStatus: 'open' | 'paid' | 'canceled';
+      invoiceStatus: 'open' | 'partiallyPaid' | 'paid' | 'canceled';
       description: string;
       amount: number;
       runningBalance: number;
@@ -94,7 +94,9 @@ export function MemberLedger({
           {entries.map((entry) => {
             const key = entry.kind === 'invoice' ? entry.invoiceId : entry.paymentId;
             const isRepayableCreditNote =
-              entry.kind === 'invoice' && entry.invoiceType === 'creditNote' && entry.invoiceStatus === 'open';
+              entry.kind === 'invoice' &&
+              entry.invoiceType === 'creditNote' &&
+              (entry.invoiceStatus === 'open' || entry.invoiceStatus === 'partiallyPaid');
             const isExpanded = isRepayableCreditNote && expandedInvoiceId.value === entry.invoiceId;
 
             return (

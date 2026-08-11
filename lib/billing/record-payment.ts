@@ -6,11 +6,14 @@ type Tx = { orm: typeof db.orm };
 type Payment = Awaited<ReturnType<typeof db.orm.public.Payment.create>>;
 
 // Records a payment and flips the invoice to 'paid' once payments cover
-// grossAmount — partial payments are supported and leave the invoice 'open',
-// with the remaining balance derived as grossAmount - sum(payments) rather
-// than stored. Overpayment is not guarded, same as before — this function
-// has never capped totalPaid against grossAmount, and that permissiveness is
-// kept for creditNote invoices too rather than tightened asymmetrically.
+// grossAmount, or to 'partiallyPaid' once some but not all of it has been
+// paid — the remaining balance itself is still derived as
+// grossAmount - sum(payments) rather than stored; only the coarse
+// open/partiallyPaid/paid status is persisted, so /rechnungen can show it in
+// the list without an extra per-invoice Payment fetch. Overpayment is not
+// guarded, same as before — this function has never capped totalPaid against
+// grossAmount, and that permissiveness is kept for creditNote invoices too
+// rather than tightened asymmetrically.
 export async function recordPayment(
   tx: Tx,
   organizationId: string,
@@ -58,8 +61,9 @@ export async function recordPayment(
       ? totalPaid === 0
       : Math.sign(totalPaid) === Math.sign(invoice.grossAmount) && Math.abs(totalPaid) >= Math.abs(invoice.grossAmount);
 
-  if (isSettled && invoice.status !== 'paid') {
-    await tx.orm.public.Invoice.where({ id: invoiceId, organizationId }).update({ status: 'paid' });
+  const nextStatus = isSettled ? 'paid' : totalPaid !== 0 ? 'partiallyPaid' : invoice.status;
+  if (nextStatus !== invoice.status) {
+    await tx.orm.public.Invoice.where({ id: invoiceId, organizationId }).update({ status: nextStatus });
   }
 
   return { success: true, data: payment };

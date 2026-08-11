@@ -264,6 +264,10 @@
                 "value": "open"
               },
               {
+                "name": "partiallyPaid",
+                "value": "partiallyPaid"
+              },
+              {
                 "name": "paid",
                 "value": "paid"
               },
@@ -8053,6 +8057,7 @@
               "kind": "valueSet",
               "values": [
                 "open",
+                "partiallyPaid",
                 "paid",
                 "canceled"
               ]
@@ -8087,7 +8092,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "310b7eabe17d3849afb4d2bb52bd4ccd647f8bacadeafb57a00cb1a95ab403e7"
+    "storageHash": "78ce6fbd83e6115e405815bbf1298bd741394d03fcc7e0ec4b382c706b214edd"
   },
   "execution": {
     "executionHash": "076e49df17defd26b060373ef265d05350ad6fe72995866b537f45b43995bc30",

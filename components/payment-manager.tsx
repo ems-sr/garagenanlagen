@@ -42,13 +42,15 @@ export function PaymentManager({
 }: {
   invoiceId: string;
   grossAmount: number;
-  status: 'open' | 'paid' | 'canceled';
+  status: 'open' | 'partiallyPaid' | 'paid' | 'canceled';
   initialItems: Payment[];
   canRecordPayment: boolean;
   invoiceType?: InvoiceType;
 }) {
   useSignals();
   const isCreditNote = invoiceType === 'creditNote';
+  const isSettled = status === 'paid';
+  const canAddPayment = status === 'open' || status === 'partiallyPaid';
   const router = useRouter();
   const open = useSignal(false);
   const amountEuro = useSignal('');
@@ -124,7 +126,7 @@ export function PaymentManager({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          {status === 'open'
+          {!isSettled
             ? `${isCreditNote ? 'Noch zu erstattender Betrag' : 'Offener Betrag'}: ${formatCents(Math.abs(remaining))}`
             : `${isCreditNote ? 'Erstattet' : 'Bezahlt'}: ${formatCents(Math.abs(totalPaid))}`}
         </p>
@@ -143,7 +145,7 @@ export function PaymentManager({
               </AlertDialogContent>
             </AlertDialog>
           )}
-          {canRecordPayment && status === 'open' && (
+          {canRecordPayment && canAddPayment && (
             <Dialog open={open.value} onOpenChange={(next) => (open.value = next)}>
               <DialogTrigger
                 render={

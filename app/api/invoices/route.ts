@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
 
   let query = db.orm.public.Invoice.where({ organizationId });
   if (facilityId) query = query.where({ facilityId });
-  if (status) query = query.where({ status: status as 'open' | 'paid' | 'canceled' });
+  if (status) query = query.where({ status: status as 'open' | 'partiallyPaid' | 'paid' | 'canceled' });
   if (clubMemberId) query = query.where({ clubMemberId });
-  if (type) query = query.where({ type: type as 'consumption' | 'membershipFee' | 'custom' });
+  if (type) query = query.where({ type: type as 'consumption' | 'membershipFee' | 'custom' | 'creditNote' });
 
   const items = await query.orderBy((i) => i.issueDate.desc()).all();
   return NextResponse.json({ items });

@@ -369,11 +369,17 @@ model MeterReading {
   @@index([invoiceId])
 }
 
+// partiallyPaid: some but not all of grossAmount has been paid (or, for a
+// creditNote, repaid) — set by lib/billing/record-payment.ts alongside the
+// existing open->paid transition, so /rechnungen can distinguish "nothing
+// paid yet" from "partially settled" without an extra per-invoice Payment
+// fetch in the list view.
 enum InvoiceStatus {
   @@type("pg/text@1")
-  open     = "open"
-  paid     = "paid"
-  canceled = "canceled"
+  open          = "open"
+  partiallyPaid = "partiallyPaid"
+  paid          = "paid"
+  canceled      = "canceled"
 }
 
 // Stage 5 generalizes Invoice beyond consumption billing: `consumption` keeps
