@@ -506,4 +506,98 @@ This is the living, multi-stage implementation plan requested by `docs/Projektbe
       dev database afterward, including the Better Auth rows via a
       one-off script per the Stage 5+ pattern, remembering Stage 7's
       `.deleteAll()`-not-`.delete()` lesson for the multi-row cleanup.
-- [ ] Stage 9–15 — not started
+- [x] Stage 9 — done: user-defined equipment attribute types + garage
+      usage-history log. Three new contract models: `GarageAttributeType`
+      (club-wide, like `MembershipFee`/`WorkShiftReimbursementRate`, not
+      per-`Facility` like `PricePerKwh` — equipment categories are a
+      club-wide concept — `name`/`dataType` enum (`text`/`number`/
+      `boolean`)/optional `unit`, not effective-dated unlike the rate
+      models), `GarageAttributeAssignment` (one value per
+      (garage, attributeType) via `@@unique([garageId, attributeTypeId])`,
+      same shape as `ShiftParticipant`'s uniqueness rule; `value` stored as
+      raw `String` regardless of `dataType`, with `onDelete: Cascade` on
+      both FKs — unlike the `SetNull` pattern on `Document`/
+      `CorrespondenceLog`'s optional historical tags, an assignment value is
+      meaningless without its garage or a defined type to interpret it by),
+      and `GarageUsageEvent` (the roadmap-mandated "usage-history log" that
+      `GarageAssignment`'s Stage 2 doc comment explicitly deferred to this
+      stage — append-only, no `updatedAt`, same shape as
+      `CorrespondenceLog`; `eventType` enum `assignmentStarted`/
+      `assignmentEnded`/`note`, `clubMemberId` nullable with
+      `onDelete: SetNull`). `GarageAssignment` itself remains the raw
+      historical data (old rows keep `validTo` instead of being deleted,
+      per its existing doc comment); `GarageUsageEvent` is the derived,
+      human-readable event trail. New `garageAttribute` (create/read/
+      update/delete, one statement for both type definitions and
+      assignments — same rationale as Stage 6's `correspondence`) and
+      `garageUsageEvent` (create/read only, no update/delete — append-only,
+      matching `CorrespondenceLog`'s lack of an edit/delete API) Better Auth
+      AC statements, wired into `owner`/`orgAdmin`/`vorstand` (full) and
+      `orgMember` (read-only). `lib/garages/attribute-assignment.ts`'s
+      `upsertAttributeAssignment` does dataType-specific value validation
+      via a DB lookup of the attribute type (number must parse, boolean
+      must be `'true'`/`'false'`) — same "business rule enforced outside
+      the zod schema" split Stage 2 used for `GarageAssignment`'s
+      cross-row rules, since the check needs the attribute type's row
+      first. `lib/garages/usage-events.ts`'s `logGarageUsageEvent` is
+      called directly from `app/(app)/_actions/garage-assignments.ts`'s
+      existing `createGarageAssignment`/`endGarageAssignment` (not wrapped
+      in the same transaction — a logged event is a side note on an
+      already-committed fact, same "never wrapped in a transaction"
+      reasoning Stage 6 used for `CorrespondenceLog`); `endGarageAssignment`
+      only logs `assignmentEnded` when `validTo` actually transitions from
+      null, not on every PATCH. REST API: `app/api/garage-attribute-types`
+      (+`[id]`, full CRUD, mirrors `work-shift-rates`), nested
+      `app/api/garages/[id]/attributes` (GET list, POST upsert) +
+      `[attributeTypeId]` (DELETE, keyed by attribute type rather than
+      assignment id since the composite (garage, attributeType) key is
+      already the natural identifier), and
+      `app/api/garages/[id]/usage-history` (GET list newest-first, POST
+      manual note only — `assignmentStarted`/`assignmentEnded` are
+      system-written, not exposed for direct creation). Server Actions
+      mirror the full surface (`_actions/garage-attribute-types.ts`,
+      `_actions/garage-attributes.ts`, `_actions/garage-usage-events.ts`).
+      UI: garage detail page (`/garagen/[garageId]`) gained two tabs —
+      Attribute (`GarageAttributeAssignmentManager`: one input per
+      club-defined attribute type, rendered per `dataType` — text/number
+      input or a Ja/Nein `Select`, no new shadcn Checkbox component added,
+      matching Stage 7/8's precedent of reusing existing form primitives
+      over adding new ones — upsert-on-save, with a "Wert entfernen" action
+      once a value exists) and Nutzungsverlauf (`GarageUsageHistory`:
+      read-only timeline of `GarageUsageEvent` rows plus a "Notiz
+      hinzufügen" dialog gated by `garageUsageEvent: ['create']`). New
+      "Ausstattungsattribute" tab on `/verein`
+      (`GarageAttributeTypeManager`, copy of `BoardMemberManager`'s
+      full CRUD-dialog shape) for club-wide type definitions — same
+      precedent as Stage 5/8 putting club-wide rate/config management under
+      `/verein` rather than a standalone nav entry; no new top-level nav
+      entry needed. Verified end-to-end via `pnpm run lint`, `tsc --noEmit`,
+      and a `pnpm dev` + curl run against a throwaway org/user/facility/
+      garage (no interactive browser available in this session): attribute
+      type CRUD, duplicate name → 409; assignment upsert semantics (same
+      row id on a second save, not a duplicate), invalid boolean/number
+      values → clean 400s, not 500s; deleting an attribute type cascades
+      its assignments, deleting a garage cascades both assignments and
+      usage events; usage-history GET/POST for manual notes; RBAC (401
+      unauthenticated on every new route; a second throwaway user added via
+      `auth.api.addMember` with the read-only `member` role got 200 on
+      every read and 403 on every mutation, including `garageUsageEvent`
+      create, which `orgMember` deliberately doesn't have); `/garagen/[id]`
+      SSR HTML confirmed to render both new tab triggers, `/verein`
+      confirmed to render the Ausstattungsattribute tab trigger and its
+      default-tab-inactive content only via the REST/data checks above
+      (Base UI's `Tabs` only server-renders the active panel, per Stage 8's
+      same testing-methodology note). The `createGarageAssignment`/
+      `endGarageAssignment` auto-logging hook itself was verified by a
+      one-off script replicating the exact call sequence added to
+      `app/(app)/_actions/garage-assignments.ts` against a real DB (`type`
+      Server Actions can't be invoked directly over HTTP the way REST
+      routes can — same limitation Stage 2's `member`/`garage-assignment`
+      Server-Actions-only drift already implied), confirming both events
+      land with the correct `eventType`/`description`/`clubMemberId` and
+      that ending an already-ended assignment would not double-log. All
+      test data (org, both throwaway users, facility, garage, attribute
+      types/assignments, usage events) cleaned up from the dev database
+      afterward, including the Better Auth rows via a one-off script per
+      the Stage 5+ pattern.
+- [ ] Stage 10–15 — not started

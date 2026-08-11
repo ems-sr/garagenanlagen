@@ -48,6 +48,18 @@
       "model": "GarageAssignment",
       "namespace": "public"
     },
+    "garageAttributeAssignment": {
+      "model": "GarageAttributeAssignment",
+      "namespace": "public"
+    },
+    "garageAttributeType": {
+      "model": "GarageAttributeType",
+      "namespace": "public"
+    },
+    "garageUsageEvent": {
+      "model": "GarageUsageEvent",
+      "namespace": "public"
+    },
     "garageUser": {
       "model": "GarageUser",
       "namespace": "public"
@@ -181,6 +193,23 @@
               }
             ]
           },
+          "GarageAttributeDataType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "text",
+                "value": "text"
+              },
+              {
+                "name": "number",
+                "value": "number"
+              },
+              {
+                "name": "boolean",
+                "value": "boolean"
+              }
+            ]
+          },
           "GarageType": {
             "codecId": "pg/text@1",
             "members": [
@@ -191,6 +220,23 @@
               {
                 "name": "double",
                 "value": "double"
+              }
+            ]
+          },
+          "GarageUsageEventType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "assignmentStarted",
+                "value": "assignmentStarted"
+              },
+              {
+                "name": "assignmentEnded",
+                "value": "assignmentEnded"
+              },
+              {
+                "name": "note",
+                "value": "note"
               }
             ]
           },
@@ -1725,6 +1771,333 @@
               },
               "namespaceId": "public",
               "table": "garageAssignment"
+            }
+          },
+          "GarageAttributeAssignment": {
+            "fields": {
+              "attributeTypeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "garageId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "value": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "attributeType": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "attributeTypeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "GarageAttributeType",
+                  "namespace": "public"
+                }
+              },
+              "garage": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "garageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Garage",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "attributeTypeId": {
+                  "column": "attributeTypeId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "garageId": {
+                  "column": "garageId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "value": {
+                  "column": "value"
+                }
+              },
+              "namespaceId": "public",
+              "table": "garageAttributeAssignment"
+            }
+          },
+          "GarageAttributeType": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "dataType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "GarageAttributeDataType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "unit": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dataType": {
+                  "column": "dataType"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "unit": {
+                  "column": "unit"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "garageAttributeType"
+            }
+          },
+          "GarageUsageEvent": {
+            "fields": {
+              "clubMemberId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "eventType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "GarageUsageEventType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "garageId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "occurredAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "clubMember": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "clubMemberId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ClubMember",
+                  "namespace": "public"
+                }
+              },
+              "garage": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "garageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Garage",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "clubMemberId": {
+                  "column": "clubMemberId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "eventType": {
+                  "column": "eventType"
+                },
+                "garageId": {
+                  "column": "garageId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "occurredAt": {
+                  "column": "occurredAt"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "garageUsageEvent"
             }
           },
           "GarageUser": {
@@ -4846,6 +5219,347 @@
               },
               "uniques": []
             },
+            "garageAttributeAssignment": {
+              "columns": {
+                "attributeTypeId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "garageId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "value": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "garageId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garageAttributeAssignment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garage"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "attributeTypeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garageAttributeAssignment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garageAttributeType"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "attributeTypeId"
+                  ],
+                  "name": "garageAttributeAssignment_attributeTypeId_idx_03c18f36",
+                  "prefix": "garageAttributeAssignment_attributeTypeId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "garageId"
+                  ],
+                  "name": "garageAttributeAssignment_garageId_idx_3676c979",
+                  "prefix": "garageAttributeAssignment_garageId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "garageAttributeAssignment_organizationId_idx_2e17ef41",
+                  "prefix": "garageAttributeAssignment_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "garageId",
+                    "attributeTypeId"
+                  ]
+                }
+              ]
+            },
+            "garageAttributeType": {
+              "checks": [
+                {
+                  "column": "dataType",
+                  "name": "garageAttributeType_dataType_check",
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "GarageAttributeDataType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              ],
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "dataType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "GarageAttributeDataType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "unit": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "garageAttributeType_organizationId_idx_2e17ef41",
+                  "prefix": "garageAttributeType_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "organizationId",
+                    "name"
+                  ]
+                }
+              ]
+            },
+            "garageUsageEvent": {
+              "checks": [
+                {
+                  "column": "eventType",
+                  "name": "garageUsageEvent_eventType_check",
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "GarageUsageEventType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              ],
+              "columns": {
+                "clubMemberId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "eventType": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "GarageUsageEventType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "garageId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "occurredAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "garageId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garageUsageEvent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garage"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "clubMemberId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "garageUsageEvent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "clubMember"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "clubMemberId"
+                  ],
+                  "name": "garageUsageEvent_clubMemberId_idx_363aef22",
+                  "prefix": "garageUsageEvent_clubMemberId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "garageId"
+                  ],
+                  "name": "garageUsageEvent_garageId_idx_3676c979",
+                  "prefix": "garageUsageEvent_garageId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "garageUsageEvent_organizationId_idx_2e17ef41",
+                  "prefix": "garageUsageEvent_organizationId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "garageUser": {
               "columns": {
                 "city": {
@@ -6434,11 +7148,27 @@
                 "tenant"
               ]
             },
+            "GarageAttributeDataType": {
+              "kind": "valueSet",
+              "values": [
+                "text",
+                "number",
+                "boolean"
+              ]
+            },
             "GarageType": {
               "kind": "valueSet",
               "values": [
                 "single",
                 "double"
+              ]
+            },
+            "GarageUsageEventType": {
+              "kind": "valueSet",
+              "values": [
+                "assignmentStarted",
+                "assignmentEnded",
+                "note"
               ]
             },
             "InvoiceStatus": {
@@ -6463,10 +7193,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5456f7df4f020b3d92d1d91a7c1340eb9d734e63effe37e7b9d1580a46e4702d"
+    "storageHash": "16aa3fbb6f48da7046ac15949467613bf2aa24bfa5a0090bdf32388ab0420c8d"
   },
   "execution": {
-    "executionHash": "251e982917308c629902c20e2cf9d2efb9f28c8da5adcbbbf4a868ba7db8f411",
+    "executionHash": "1088b71ae66ea01be5c58e754628e85c164893856a85a3118e2014515daff48a",
     "mutations": {
       "defaults": [
         {
@@ -6738,6 +7468,69 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "garageAssignment"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "garageAttributeAssignment"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "garageAttributeAssignment"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "garageAttributeType"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "garageAttributeType"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "garageUsageEvent"
           }
         },
         {

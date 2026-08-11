@@ -646,3 +646,88 @@ model ShiftParticipant {
   @@index([workShiftId])
   @@index([clubMemberId])
 }
+
+enum GarageAttributeDataType {
+  @@type("pg/text@1")
+  text    = "text"
+  number  = "number"
+  boolean = "boolean"
+}
+
+// Stage 9: user-defined equipment attribute type (e.g. "Rolltorantrieb",
+// "Stromzähler-Typ"), club-wide like MembershipFee/WorkShiftReimbursementRate
+// (not per-Facility like PricePerKwh) — equipment categories are a club-wide
+// concept, not tied to one Garagenanlage. Not effective-dated: a type
+// definition is edited in place, unlike the rate models above.
+model GarageAttributeType {
+  id             String                   @id @default(uuid())
+  organizationId String
+  name           String
+  dataType       GarageAttributeDataType
+  unit           String?
+  createdAt      DateTime                 @default(now())
+  updatedAt      temporal.updatedAt()
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+// One value per (garage, attribute type) — value is stored as raw text
+// regardless of dataType; dataType-specific validation happens in the
+// API/action layer via a DB lookup of the attribute type (same
+// "business rule enforced in the route handler" pattern Stage 2 used for
+// GarageAssignment, since Prisma Next has no declarative validation).
+// onDelete: Cascade on both FKs (unlike the SetNull pattern used for
+// Document/CorrespondenceLog's optional historical tags): an assignment
+// value is meaningless without its garage, and equally meaningless without
+// a defined type/dataType to interpret it by.
+model GarageAttributeAssignment {
+  id              String              @id @default(uuid())
+  organizationId  String
+  garageId        String
+  garage          Garage              @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  attributeTypeId String
+  attributeType   GarageAttributeType @relation(fields: [attributeTypeId], references: [id], onDelete: Cascade)
+  value           String
+  createdAt       DateTime            @default(now())
+  updatedAt       temporal.updatedAt()
+
+  @@unique([garageId, attributeTypeId])
+  @@index([organizationId])
+  @@index([garageId])
+  @@index([attributeTypeId])
+}
+
+enum GarageUsageEventType {
+  @@type("pg/text@1")
+  assignmentStarted = "assignmentStarted"
+  assignmentEnded   = "assignmentEnded"
+  note              = "note"
+}
+
+// Stage 9's "garage usage-history log" — append-only, one row per event,
+// never mutated, same shape as CorrespondenceLog (no updatedAt).
+// GarageAssignment (Stage 2) remains the raw historical data (old rows keep
+// validTo instead of being deleted); this log is the human-readable event
+// trail derived from it: assignmentStarted/assignmentEnded rows are written
+// automatically by the garage-assignment create/end actions
+// (lib/garages/usage-events.ts), note rows are free-text entries added
+// directly by staff. clubMemberId is nullable with onDelete: SetNull — same
+// rationale as CorrespondenceLog.templateId, a deleted member must not
+// destroy or block deletion of past history.
+model GarageUsageEvent {
+  id             String               @id @default(uuid())
+  organizationId String
+  garageId       String
+  garage         Garage               @relation(fields: [garageId], references: [id], onDelete: Cascade)
+  eventType      GarageUsageEventType
+  clubMemberId   String?
+  clubMember     ClubMember?          @relation(fields: [clubMemberId], references: [id], onDelete: SetNull)
+  description    String
+  occurredAt     DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+
+  @@index([organizationId])
+  @@index([garageId])
+  @@index([clubMemberId])
+}

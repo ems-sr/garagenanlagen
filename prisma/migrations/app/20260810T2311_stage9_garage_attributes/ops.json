@@ -1,0 +1,728 @@
+[
+  {
+    "id": "table.garageAttributeAssignment",
+    "label": "Create table \"garageAttributeAssignment\"",
+    "summary": "Creates table \"garageAttributeAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garageAttributeAssignment\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garageAttributeAssignment\"",
+        "sql": "CREATE TABLE \"public\".\"garageAttributeAssignment\" (\n  \"attributeTypeId\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"garageId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"value\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garageAttributeAssignment\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.garageAttributeType",
+    "label": "Create table \"garageAttributeType\"",
+    "summary": "Creates table \"garageAttributeType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garageAttributeType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garageAttributeType\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeType\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garageAttributeType\"",
+        "sql": "CREATE TABLE \"public\".\"garageAttributeType\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"dataType\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"unit\" text,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garageAttributeType\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeType\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.garageUsageEvent",
+    "label": "Create table \"garageUsageEvent\"",
+    "summary": "Creates table \"garageUsageEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"garageUsageEvent\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"garageUsageEvent\"",
+        "sql": "CREATE TABLE \"public\".\"garageUsageEvent\" (\n  \"clubMemberId\" text,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"eventType\" text NOT NULL,\n  \"garageId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"occurredAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"organizationId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"garageUsageEvent\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.garageAttributeAssignment.garageAttributeAssignment_garageId_attributeTypeId_key",
+    "label": "Add unique constraint on \"garageAttributeAssignment\" (garageId, attributeTypeId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "garageAttributeAssignment_garageId_attributeTypeId_key",
+        "table": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garageAttributeAssignment_garageId_attributeTypeId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeAssignment_garageId_attributeTypeId_key",
+          "public",
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"garageAttributeAssignment_garageId_attributeTypeId_key\"",
+        "sql": "ALTER TABLE \"public\".\"garageAttributeAssignment\" ADD CONSTRAINT \"garageAttributeAssignment_garageId_attributeTypeId_key\" UNIQUE (\"garageId\", \"attributeTypeId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garageAttributeAssignment_garageId_attributeTypeId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeAssignment_garageId_attributeTypeId_key",
+          "public",
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.garageAttributeType.garageAttributeType_organizationId_name_key",
+    "label": "Add unique constraint on \"garageAttributeType\" (organizationId, name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "garageAttributeType_organizationId_name_key",
+        "table": "garageAttributeType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garageAttributeType_organizationId_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeType_organizationId_name_key",
+          "public",
+          "\"public\".\"garageAttributeType\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"garageAttributeType_organizationId_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"garageAttributeType\" ADD CONSTRAINT \"garageAttributeType_organizationId_name_key\" UNIQUE (\"organizationId\", \"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garageAttributeType_organizationId_name_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeType_organizationId_name_key",
+          "public",
+          "\"public\".\"garageAttributeType\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.garageAttributeType.garageAttributeType_dataType_check",
+    "label": "Add check constraint \"garageAttributeType_dataType_check\" on \"garageAttributeType\".\"dataType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "garageAttributeType_dataType_check",
+        "table": "garageAttributeType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garageAttributeType_dataType_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeType_dataType_check",
+          "public",
+          "\"public\".\"garageAttributeType\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"garageAttributeType_dataType_check\"",
+        "sql": "ALTER TABLE \"public\".\"garageAttributeType\" ADD CONSTRAINT \"garageAttributeType_dataType_check\" CHECK (\"dataType\" IN ('text', 'number', 'boolean'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garageAttributeType_dataType_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeType_dataType_check",
+          "public",
+          "\"public\".\"garageAttributeType\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.garageUsageEvent.garageUsageEvent_eventType_check",
+    "label": "Add check constraint \"garageUsageEvent_eventType_check\" on \"garageUsageEvent\".\"eventType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "garageUsageEvent_eventType_check",
+        "table": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"garageUsageEvent_eventType_check\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageUsageEvent_eventType_check",
+          "public",
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"garageUsageEvent_eventType_check\"",
+        "sql": "ALTER TABLE \"public\".\"garageUsageEvent\" ADD CONSTRAINT \"garageUsageEvent_eventType_check\" CHECK (\"eventType\" IN ('assignmentStarted', 'assignmentEnded', 'note'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"garageUsageEvent_eventType_check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageUsageEvent_eventType_check",
+          "public",
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAttributeAssignment.garageAttributeAssignment_attributeTypeId_idx_03c18f36",
+    "label": "Create index \"garageAttributeAssignment_attributeTypeId_idx_03c18f36\" on \"garageAttributeAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAttributeAssignment_attributeTypeId_idx_03c18f36",
+        "table": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAttributeAssignment_attributeTypeId_idx_03c18f36\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment_attributeTypeId_idx_03c18f36\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAttributeAssignment_attributeTypeId_idx_03c18f36\"",
+        "sql": "CREATE INDEX \"garageAttributeAssignment_attributeTypeId_idx_03c18f36\" ON \"public\".\"garageAttributeAssignment\" (\"attributeTypeId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAttributeAssignment_attributeTypeId_idx_03c18f36\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment_attributeTypeId_idx_03c18f36\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAttributeAssignment.garageAttributeAssignment_garageId_idx_3676c979",
+    "label": "Create index \"garageAttributeAssignment_garageId_idx_3676c979\" on \"garageAttributeAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAttributeAssignment_garageId_idx_3676c979",
+        "table": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAttributeAssignment_garageId_idx_3676c979\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment_garageId_idx_3676c979\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAttributeAssignment_garageId_idx_3676c979\"",
+        "sql": "CREATE INDEX \"garageAttributeAssignment_garageId_idx_3676c979\" ON \"public\".\"garageAttributeAssignment\" (\"garageId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAttributeAssignment_garageId_idx_3676c979\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment_garageId_idx_3676c979\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAttributeAssignment.garageAttributeAssignment_organizationId_idx_2e17ef41",
+    "label": "Create index \"garageAttributeAssignment_organizationId_idx_2e17ef41\" on \"garageAttributeAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAttributeAssignment_organizationId_idx_2e17ef41",
+        "table": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAttributeAssignment_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAttributeAssignment_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garageAttributeAssignment_organizationId_idx_2e17ef41\" ON \"public\".\"garageAttributeAssignment\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAttributeAssignment_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeAssignment_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageAttributeType.garageAttributeType_organizationId_idx_2e17ef41",
+    "label": "Create index \"garageAttributeType_organizationId_idx_2e17ef41\" on \"garageAttributeType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageAttributeType_organizationId_idx_2e17ef41",
+        "table": "garageAttributeType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageAttributeType_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeType_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageAttributeType_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garageAttributeType_organizationId_idx_2e17ef41\" ON \"public\".\"garageAttributeType\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageAttributeType_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageAttributeType_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageUsageEvent.garageUsageEvent_clubMemberId_idx_363aef22",
+    "label": "Create index \"garageUsageEvent_clubMemberId_idx_363aef22\" on \"garageUsageEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageUsageEvent_clubMemberId_idx_363aef22",
+        "table": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageUsageEvent_clubMemberId_idx_363aef22\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageUsageEvent_clubMemberId_idx_363aef22\"",
+        "sql": "CREATE INDEX \"garageUsageEvent_clubMemberId_idx_363aef22\" ON \"public\".\"garageUsageEvent\" (\"clubMemberId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageUsageEvent_clubMemberId_idx_363aef22\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent_clubMemberId_idx_363aef22\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageUsageEvent.garageUsageEvent_garageId_idx_3676c979",
+    "label": "Create index \"garageUsageEvent_garageId_idx_3676c979\" on \"garageUsageEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageUsageEvent_garageId_idx_3676c979",
+        "table": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageUsageEvent_garageId_idx_3676c979\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent_garageId_idx_3676c979\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageUsageEvent_garageId_idx_3676c979\"",
+        "sql": "CREATE INDEX \"garageUsageEvent_garageId_idx_3676c979\" ON \"public\".\"garageUsageEvent\" (\"garageId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageUsageEvent_garageId_idx_3676c979\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent_garageId_idx_3676c979\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.garageUsageEvent.garageUsageEvent_organizationId_idx_2e17ef41",
+    "label": "Create index \"garageUsageEvent_organizationId_idx_2e17ef41\" on \"garageUsageEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "garageUsageEvent_organizationId_idx_2e17ef41",
+        "table": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"garageUsageEvent_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"garageUsageEvent_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"garageUsageEvent_organizationId_idx_2e17ef41\" ON \"public\".\"garageUsageEvent\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"garageUsageEvent_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"garageUsageEvent_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageAttributeAssignment.garageAttributeAssignment_garageId_fkey",
+    "label": "Add foreign key \"garageAttributeAssignment_garageId_fkey\" on \"garageAttributeAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageAttributeAssignment_garageId_fkey",
+        "table": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageAttributeAssignment_garageId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeAssignment_garageId_fkey",
+          "public",
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageAttributeAssignment_garageId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageAttributeAssignment\"\nADD CONSTRAINT \"garageAttributeAssignment_garageId_fkey\"\nFOREIGN KEY (\"garageId\")\nREFERENCES \"public\".\"garage\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageAttributeAssignment_garageId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeAssignment_garageId_fkey",
+          "public",
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageAttributeAssignment.garageAttributeAssignment_attributeTypeId_fkey",
+    "label": "Add foreign key \"garageAttributeAssignment_attributeTypeId_fkey\" on \"garageAttributeAssignment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageAttributeAssignment_attributeTypeId_fkey",
+        "table": "garageAttributeAssignment"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageAttributeAssignment_attributeTypeId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeAssignment_attributeTypeId_fkey",
+          "public",
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageAttributeAssignment_attributeTypeId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageAttributeAssignment\"\nADD CONSTRAINT \"garageAttributeAssignment_attributeTypeId_fkey\"\nFOREIGN KEY (\"attributeTypeId\")\nREFERENCES \"public\".\"garageAttributeType\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageAttributeAssignment_attributeTypeId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageAttributeAssignment_attributeTypeId_fkey",
+          "public",
+          "\"public\".\"garageAttributeAssignment\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageUsageEvent.garageUsageEvent_garageId_fkey",
+    "label": "Add foreign key \"garageUsageEvent_garageId_fkey\" on \"garageUsageEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageUsageEvent_garageId_fkey",
+        "table": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageUsageEvent_garageId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageUsageEvent_garageId_fkey",
+          "public",
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageUsageEvent_garageId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageUsageEvent\"\nADD CONSTRAINT \"garageUsageEvent_garageId_fkey\"\nFOREIGN KEY (\"garageId\")\nREFERENCES \"public\".\"garage\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageUsageEvent_garageId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageUsageEvent_garageId_fkey",
+          "public",
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.garageUsageEvent.garageUsageEvent_clubMemberId_fkey",
+    "label": "Add foreign key \"garageUsageEvent_clubMemberId_fkey\" on \"garageUsageEvent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "garageUsageEvent_clubMemberId_fkey",
+        "table": "garageUsageEvent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"garageUsageEvent_clubMemberId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageUsageEvent_clubMemberId_fkey",
+          "public",
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"garageUsageEvent_clubMemberId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"garageUsageEvent\"\nADD CONSTRAINT \"garageUsageEvent_clubMemberId_fkey\"\nFOREIGN KEY (\"clubMemberId\")\nREFERENCES \"public\".\"clubMember\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"garageUsageEvent_clubMemberId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "garageUsageEvent_clubMemberId_fkey",
+          "public",
+          "\"public\".\"garageUsageEvent\""
+        ]
+      }
+    ]
+  }
+]

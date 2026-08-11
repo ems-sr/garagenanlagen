@@ -6,9 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GarageForm } from '@/components/garage-form';
 import { MeterReadingManager } from '@/components/meter-reading-manager';
+import { GarageAttributeAssignmentManager } from '@/components/garage-attribute-assignment-manager';
+import { GarageUsageHistory } from '@/components/garage-usage-history';
 import { neighborOptionsFor, sectionIdForGarage } from '@/lib/garage-derived';
 
-const TABS = ['stammdaten', 'zaehlerstaende'] as const;
+const TABS = ['stammdaten', 'zaehlerstaende', 'attribute', 'verlauf'] as const;
 
 export default async function GaragePage({
   params,
@@ -35,16 +37,37 @@ export default async function GaragePage({
   const facility = await db.orm.public.Facility.where({ id: garage.facilityId, organizationId }).first();
   if (!facility) notFound();
 
-  const [constructionSections, blocks, garages, readings, canEditReadings, canInvoice] = await Promise.all([
+  const [
+    constructionSections,
+    blocks,
+    garages,
+    readings,
+    attributeTypes,
+    attributeAssignments,
+    usageEvents,
+    canEditReadings,
+    canInvoice,
+    canEditAttributes,
+    canAddUsageNote,
+  ] = await Promise.all([
     db.orm.public.ConstructionSection.where({ facilityId: facility.id, organizationId }).all(),
     db.orm.public.Block.where({ facilityId: facility.id, organizationId }).all(),
     db.orm.public.Garage.where({ facilityId: facility.id, organizationId }).all(),
     db.orm.public.MeterReading.where({ garageId: garage.id, organizationId }).orderBy((r) => r.readingDate.desc()).all(),
+    db.orm.public.GarageAttributeType.where({ organizationId }).orderBy((t) => t.name.asc()).all(),
+    db.orm.public.GarageAttributeAssignment.where({ garageId: garage.id, organizationId }).all(),
+    db.orm.public.GarageUsageEvent.where({ garageId: garage.id, organizationId }).orderBy((e) => e.occurredAt.desc()).all(),
     auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { meterReading: ['update'] } } })
       .then((result) => result.success),
     auth.api
       .hasPermission({ headers: await headers(), body: { organizationId, permissions: { invoice: ['create'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { garageAttribute: ['create'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { garageUsageEvent: ['create'] } } })
       .then((result) => result.success),
   ]);
 
@@ -55,12 +78,15 @@ export default async function GaragePage({
     constructionSectionId: block.constructionSectionId,
   }));
   const blockById = new Map(blocks.map((block) => [block.id, block]));
+  const attributeValues = Object.fromEntries(attributeAssignments.map((a) => [a.attributeTypeId, a.value]));
 
   return (
     <Tabs defaultValue={initialTab}>
       <TabsList>
         <TabsTrigger value="stammdaten">Stammdaten</TabsTrigger>
         <TabsTrigger value="zaehlerstaende">Zählerstände</TabsTrigger>
+        <TabsTrigger value="attribute">Attribute</TabsTrigger>
+        <TabsTrigger value="verlauf">Nutzungsverlauf</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -114,6 +140,44 @@ export default async function GaragePage({
               }))}
               canEdit={canEditReadings}
               canInvoice={canInvoice}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="attribute">
+        <Card>
+          <CardHeader>
+            <CardTitle>Attribute</CardTitle>
+            <CardDescription>Ausstattungsmerkmale von Garage {garage.number}.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <GarageAttributeAssignmentManager
+              garageId={garage.id}
+              attributeTypes={attributeTypes.map((t) => ({ id: t.id, name: t.name, dataType: t.dataType, unit: t.unit }))}
+              values={attributeValues}
+              canEdit={canEditAttributes}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="verlauf">
+        <Card>
+          <CardHeader>
+            <CardTitle>Nutzungsverlauf</CardTitle>
+            <CardDescription>Verlauf der Zuordnungen und Notizen für Garage {garage.number}.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <GarageUsageHistory
+              garageId={garage.id}
+              initialItems={usageEvents.map((event) => ({
+                id: event.id,
+                eventType: event.eventType,
+                description: event.description,
+                occurredAt: event.occurredAt.toISOString(),
+              }))}
+              canCreate={canAddUsageNote}
             />
           </CardContent>
         </Card>

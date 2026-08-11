@@ -9,6 +9,13 @@ import {
   type CreateGarageAssignmentInput,
   type UpdateGarageAssignmentInput,
 } from '@/lib/validation/garage-assignment';
+import { logGarageUsageEvent } from '@/lib/garages/usage-events';
+
+const ASSIGNMENT_TYPE_LABELS: Record<string, string> = {
+  member: 'Mitglied',
+  user: 'Nutzer',
+  tenant: 'Mieter',
+};
 
 type GarageAssignment = Awaited<ReturnType<typeof db.orm.public.GarageAssignment.create>>;
 
@@ -62,6 +69,16 @@ export async function createGarageAssignment(input: CreateGarageAssignmentInput)
   }
 
   const assignment = await db.orm.public.GarageAssignment.create({ ...data, organizationId });
+
+  await logGarageUsageEvent(
+    db,
+    organizationId,
+    data.garageId,
+    'assignmentStarted',
+    `Zuordnung gestartet (${ASSIGNMENT_TYPE_LABELS[data.type]}).`,
+    data.type === 'member' ? data.clubMemberId : null,
+  );
+
   return { success: true, data: assignment };
 }
 
@@ -86,5 +103,17 @@ export async function endGarageAssignment(
 
   const assignment = await db.orm.public.GarageAssignment.where({ id: assignmentId, organizationId }).update(parsed.data);
   if (!assignment) return actionError('NOT_FOUND', 'Zuordnung nicht gefunden.');
+
+  if (!existing.validTo && assignment.validTo) {
+    await logGarageUsageEvent(
+      db,
+      organizationId,
+      existing.garageId,
+      'assignmentEnded',
+      `Zuordnung beendet (${ASSIGNMENT_TYPE_LABELS[existing.type]}).`,
+      existing.type === 'member' ? existing.clubMemberId : null,
+    );
+  }
+
   return { success: true, data: assignment };
 }

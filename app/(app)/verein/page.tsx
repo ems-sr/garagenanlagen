@@ -7,6 +7,7 @@ import { ClubStammdatenForm, ClubBankForm } from '@/components/club-profile-form
 import { BoardMemberManager } from '@/components/board-member-manager';
 import { MembershipFeeManager } from '@/components/membership-fee-manager';
 import { WorkShiftRateManager } from '@/components/work-shift-rate-manager';
+import { GarageAttributeTypeManager } from '@/components/garage-attribute-type-manager';
 
 export default async function VereinPage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -23,26 +24,41 @@ export default async function VereinPage() {
     );
   }
 
-  const [organization, profile, boardMembers, membershipFees, workShiftRates, canEdit, canEditName, canEditFees, canEditWorkShiftRates] =
-    await Promise.all([
-      auth.api.getFullOrganization({ headers: await headers(), query: { organizationId } }),
-      db.orm.public.ClubProfile.where({ organizationId }).first(),
-      db.orm.public.BoardMember.where({ organizationId }).all(),
-      db.orm.public.MembershipFee.where({ organizationId }).orderBy((f) => f.validFrom.desc()).all(),
-      db.orm.public.WorkShiftReimbursementRate.where({ organizationId }).orderBy((r) => r.validFrom.desc()).all(),
-      auth.api
-        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { club: ['update'] } } })
-        .then((result) => result.success),
-      auth.api
-        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { organization: ['update'] } } })
-        .then((result) => result.success),
-      auth.api
-        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { membershipFee: ['update'] } } })
-        .then((result) => result.success),
-      auth.api
-        .hasPermission({ headers: await headers(), body: { organizationId, permissions: { workShiftRate: ['update'] } } })
-        .then((result) => result.success),
-    ]);
+  const [
+    organization,
+    profile,
+    boardMembers,
+    membershipFees,
+    workShiftRates,
+    attributeTypes,
+    canEdit,
+    canEditName,
+    canEditFees,
+    canEditWorkShiftRates,
+    canEditAttributeTypes,
+  ] = await Promise.all([
+    auth.api.getFullOrganization({ headers: await headers(), query: { organizationId } }),
+    db.orm.public.ClubProfile.where({ organizationId }).first(),
+    db.orm.public.BoardMember.where({ organizationId }).all(),
+    db.orm.public.MembershipFee.where({ organizationId }).orderBy((f) => f.validFrom.desc()).all(),
+    db.orm.public.WorkShiftReimbursementRate.where({ organizationId }).orderBy((r) => r.validFrom.desc()).all(),
+    db.orm.public.GarageAttributeType.where({ organizationId }).orderBy((t) => t.name.asc()).all(),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { club: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { organization: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { membershipFee: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { workShiftRate: ['update'] } } })
+      .then((result) => result.success),
+    auth.api
+      .hasPermission({ headers: await headers(), body: { organizationId, permissions: { garageAttribute: ['update'] } } })
+      .then((result) => result.success),
+  ]);
 
   return (
     <Tabs defaultValue="stammdaten">
@@ -52,6 +68,7 @@ export default async function VereinPage() {
         <TabsTrigger value="vorstand">Vorstand</TabsTrigger>
         <TabsTrigger value="beitraege">Mitgliedsbeiträge</TabsTrigger>
         <TabsTrigger value="arbeitseinsatz-verguetung">Arbeitseinsatz-Vergütung</TabsTrigger>
+        <TabsTrigger value="ausstattungsattribute">Ausstattungsattribute</TabsTrigger>
       </TabsList>
 
       <TabsContent value="stammdaten">
@@ -145,6 +162,21 @@ export default async function VereinPage() {
                 validTo: rate.validTo ? rate.validTo.toISOString() : null,
               }))}
               canEdit={canEditWorkShiftRates}
+            />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="ausstattungsattribute">
+        <Card>
+          <CardHeader>
+            <CardTitle>Ausstattungsattribute</CardTitle>
+            <CardDescription>Vereinsweit definierte Ausstattungsmerkmale für Garagen.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <GarageAttributeTypeManager
+              initialItems={attributeTypes.map((t) => ({ id: t.id, name: t.name, dataType: t.dataType, unit: t.unit }))}
+              canEdit={canEditAttributeTypes}
             />
           </CardContent>
         </Card>

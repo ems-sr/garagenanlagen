@@ -61,6 +61,15 @@ const statement = {
   workShift: ['create', 'read', 'update', 'delete'],
   // Stage 8: Aufwandsentschädigung (reimbursement) rate maintenance.
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  // Stage 9: user-defined equipment attribute type definitions and their
+  // per-garage value assignments — one statement for both, same rationale
+  // as `correspondence` (no scenario needing one without the other).
+  garageAttribute: ['create', 'read', 'update', 'delete'],
+  // Stage 9: garage usage-history log. Read-only plus create (staff can add
+  // a manual note; system-generated assignment events are written
+  // internally, not through a user-facing "update"/"delete" verb) — the log
+  // is append-only, mirroring CorrespondenceLog's lack of an edit/delete API.
+  garageUsageEvent: ['create', 'read'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -78,6 +87,8 @@ const owner = ac.newRole({
   document: ['create', 'read', 'update', 'delete'],
   workShift: ['create', 'read', 'update', 'delete'],
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  garageAttribute: ['create', 'read', 'update', 'delete'],
+  garageUsageEvent: ['create', 'read'],
 });
 
 const orgAdmin = ac.newRole({
@@ -93,6 +104,8 @@ const orgAdmin = ac.newRole({
   document: ['create', 'read', 'update', 'delete'],
   workShift: ['create', 'read', 'update', 'delete'],
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  garageAttribute: ['create', 'read', 'update', 'delete'],
+  garageUsageEvent: ['create', 'read'],
 });
 
 const orgMember = ac.newRole({
@@ -108,6 +121,8 @@ const orgMember = ac.newRole({
   document: ['read'],
   workShift: ['read'],
   workShiftRate: ['read'],
+  garageAttribute: ['read'],
+  garageUsageEvent: ['read'],
 });
 
 // Seed custom role proving the "Vorstand"/"Werkstatt-Team"-style functional
@@ -126,6 +141,8 @@ const vorstand = ac.newRole({
   document: ['create', 'read', 'update', 'delete'],
   workShift: ['create', 'read', 'update', 'delete'],
   workShiftRate: ['create', 'read', 'update', 'delete'],
+  garageAttribute: ['create', 'read', 'update', 'delete'],
+  garageUsageEvent: ['create', 'read'],
 });
 
 export const auth = betterAuth({
