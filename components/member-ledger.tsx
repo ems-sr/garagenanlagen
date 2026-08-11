@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import Link from 'next/link';
 import { useSignal } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
@@ -76,7 +77,8 @@ export function MemberLedger({
             <TableHead>Beleg</TableHead>
             <TableHead>Typ</TableHead>
             <TableHead>Beschreibung</TableHead>
-            <TableHead className="text-right">Betrag</TableHead>
+            <TableHead className="text-right">Belastung</TableHead>
+            <TableHead className="text-right">Gutschrift</TableHead>
             <TableHead className="text-right">Saldo</TableHead>
             <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
@@ -84,7 +86,7 @@ export function MemberLedger({
         <TableBody>
           {entries.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
                 Noch keine Buchungen erfasst.
               </TableCell>
             </TableRow>
@@ -96,8 +98,8 @@ export function MemberLedger({
             const isExpanded = isRepayableCreditNote && expandedInvoiceId.value === entry.invoiceId;
 
             return (
-              <>
-                <TableRow key={key}>
+              <Fragment key={key}>
+                <TableRow>
                   <TableCell>{formatDate(entry.date)}</TableCell>
                   <TableCell>
                     <Link href={`/rechnungen/${entry.invoiceId}`} className="underline underline-offset-2">
@@ -110,7 +112,8 @@ export function MemberLedger({
                     </Badge>
                   </TableCell>
                   <TableCell>{entry.description || '–'}</TableCell>
-                  <TableCell className={`text-right ${entry.amount < 0 ? 'text-emerald-600' : ''}`}>{formatCents(entry.amount)}</TableCell>
+                  <TableCell className="text-right">{entry.amount > 0 ? formatCents(entry.amount) : ''}</TableCell>
+                  <TableCell className="text-right text-emerald-600">{entry.amount < 0 ? formatCents(Math.abs(entry.amount)) : ''}</TableCell>
                   <TableCell className="text-right">{formatCents(entry.runningBalance)}</TableCell>
                   <TableCell className="text-right">
                     {canRecordRepayment && isRepayableCreditNote && (
@@ -125,8 +128,8 @@ export function MemberLedger({
                   </TableCell>
                 </TableRow>
                 {isExpanded && entry.kind === 'invoice' && (
-                  <TableRow key={`${key}-repayment`}>
-                    <TableCell colSpan={7} className="bg-muted/30">
+                  <TableRow>
+                    <TableCell colSpan={8} className="bg-muted/30">
                       <PaymentManager
                         invoiceId={entry.invoiceId}
                         grossAmount={entry.amount}
@@ -140,7 +143,7 @@ export function MemberLedger({
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </Fragment>
             );
           })}
         </TableBody>
