@@ -69,7 +69,7 @@ export async function assembleMemberLedger(organizationId: string, clubMemberId:
   const invoiceById = new Map(activeInvoices.map((invoice) => [invoice.id, invoice]));
   const payments = allPayments.filter((payment) => invoiceById.has(payment.invoiceId));
 
-  const rows: LedgerEntry[] = [];
+  const rows: (LedgerEntry & { createdAt: Date })[] = [];
 
   for (const invoice of activeInvoices) {
     rows.push({
@@ -82,6 +82,7 @@ export async function assembleMemberLedger(organizationId: string, clubMemberId:
       description: invoice.description ?? '',
       amount: invoice.grossAmount,
       runningBalance: 0,
+      createdAt: invoice.createdAt,
     });
   }
 
@@ -99,10 +100,19 @@ export async function assembleMemberLedger(organizationId: string, clubMemberId:
       rawAmount: payment.amount,
       method: payment.method,
       runningBalance: 0,
+      createdAt: payment.createdAt,
     });
   }
 
-  rows.sort((a, b) => a.date.getTime() - b.date.getTime());
+  // Primary sort key is the calendar day (UTC), not the raw timestamp:
+  // paidAt is often entered via a date-only picker and lands at UTC
+  // midnight, which would otherwise sort a same-day payment before the
+  // invoice it pays (issueDate carries a real time-of-day from `now()`).
+  // Same-day entries are tie-broken by createdAt — never user-editable, so
+  // a payment's createdAt is always after its invoice's — keeping the
+  // running balance correct on each line even for same-day activity.
+  const dayKey = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  rows.sort((a, b) => dayKey(a.date) - dayKey(b.date) || a.createdAt.getTime() - b.createdAt.getTime());
 
   let balance = 0;
   for (const row of rows) {
@@ -110,5 +120,6 @@ export async function assembleMemberLedger(organizationId: string, clubMemberId:
     row.runningBalance = balance;
   }
 
-  return { entries: rows, finalBalance: balance };
+  const entries: LedgerEntry[] = rows.map(({ createdAt: _createdAt, ...entry }) => entry);
+  return { entries, finalBalance: balance };
 }
