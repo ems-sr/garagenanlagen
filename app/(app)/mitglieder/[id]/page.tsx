@@ -27,7 +27,7 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
   const [
     periods,
     assignments,
-    activeAssignmentsOrgWide,
+    assignmentsOrgWide,
     garages,
     facilities,
     addresses,
@@ -41,7 +41,7 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
   ] = await Promise.all([
     db.orm.public.MembershipPeriod.where({ clubMemberId: id, organizationId }).all(),
     db.orm.public.GarageAssignment.where({ clubMemberId: id, organizationId, type: 'member' }).all(),
-    db.orm.public.GarageAssignment.where({ organizationId }).where((a) => a.validTo.isNull()).all(),
+    db.orm.public.GarageAssignment.where({ organizationId }).all(),
     db.orm.public.Garage.where({ organizationId }).all(),
     db.orm.public.Facility.where({ organizationId }).all(),
     db.orm.public.MemberAddress.where({ clubMemberId: id, organizationId }).all(),
@@ -63,17 +63,17 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
   const facilityNameById = new Map(facilities.map((facility) => [facility.id, facility.name]));
   const garageById = new Map(garages.map((garage) => [garage.id, garage]));
 
-  // A garage with any active assignment (member/user/tenant) isn't offered
-  // for a new member-assignment here — the API's cross-type business rules
-  // would reject it anyway; this just avoids an avoidable round-trip.
-  const assignedGarageIds = new Set(activeAssignmentsOrgWide.map((a) => a.garageId));
-  const availableGarages = garages
-    .filter((garage) => !assignedGarageIds.has(garage.id))
-    .map((garage) => ({
-      id: garage.id,
-      number: garage.number,
-      facilityName: facilityNameById.get(garage.facilityId) ?? '',
-    }));
+  const availableGarages = garages.map((garage) => ({
+    id: garage.id,
+    number: garage.number,
+    facilityId: garage.facilityId,
+    facilityName: facilityNameById.get(garage.facilityId) ?? '',
+  }));
+  const garageAssignments = assignmentsOrgWide.map((a) => ({
+    garageId: a.garageId,
+    validFrom: a.validFrom.toISOString(),
+    validTo: a.validTo ? a.validTo.toISOString() : null,
+  }));
 
   return (
     <Tabs defaultValue="stammdaten">
@@ -183,6 +183,8 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
                 };
               })}
               availableGarages={availableGarages}
+              garageAssignments={garageAssignments}
+              facilities={facilities.map((facility) => ({ id: facility.id, name: facility.name }))}
             />
           </CardContent>
         </Card>
