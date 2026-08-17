@@ -8,7 +8,7 @@ import { MembershipPeriodManager } from '@/components/membership-period-manager'
 import { GarageAssignmentManager } from '@/components/garage-assignment-manager';
 import { MemberAddressManager } from '@/components/member-address-manager';
 import { MemberContactManager } from '@/components/member-contact-manager';
-import { MemberNameEditor } from '@/components/member-name-editor';
+import { MemberStammdatenForm } from '@/components/member-stammdaten-form';
 import { SendCorrespondenceDialog } from '@/components/send-correspondence-dialog';
 import { CorrespondenceLogTable } from '@/components/correspondence-log-table';
 import { MemberLedger } from '@/components/member-ledger';
@@ -89,18 +89,18 @@ export default async function MitgliedDetailPage({ params }: { params: Promise<{
 
       <TabsContent value="stammdaten">
         <Card>
-          <CardHeader className="flex-row items-start justify-between">
-            <div>
-              <CardTitle>
-                {member.firstName} {member.lastName}
-              </CardTitle>
-              <CardDescription>Stammdaten des Mitglieds.</CardDescription>
-            </div>
-            <MemberNameEditor
+          <CardHeader>
+            <CardTitle>
+              {member.firstName} {member.lastName}
+            </CardTitle>
+            <CardDescription>Stammdaten des Mitglieds.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MemberStammdatenForm
               memberId={member.id}
               initialValues={{ firstName: member.firstName, lastName: member.lastName }}
             />
-          </CardHeader>
+          </CardContent>
         </Card>
       </TabsContent>
 
