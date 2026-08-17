@@ -53,7 +53,9 @@ export default async function GaragePage({
     db.orm.public.ConstructionSection.where({ facilityId: facility.id, organizationId }).all(),
     db.orm.public.Block.where({ facilityId: facility.id, organizationId }).all(),
     db.orm.public.Garage.where({ facilityId: facility.id, organizationId }).all(),
-    db.orm.public.MeterReading.where({ garageId: garage.id, organizationId }).orderBy((r) => r.readingDate.desc()).all(),
+    db.orm.public.MeterReading.where({ garageId: garage.id, organizationId })
+      .orderBy([(r) => r.readingDate.desc(), (r) => r.createdAt.desc()])
+      .all(),
     db.orm.public.GarageAttributeType.where({ organizationId }).orderBy((t) => t.name.asc()).all(),
     db.orm.public.GarageAttributeAssignment.where({ garageId: garage.id, organizationId }).all(),
     db.orm.public.GarageUsageEvent.where({ garageId: garage.id, organizationId }).orderBy((e) => e.occurredAt.desc()).all(),

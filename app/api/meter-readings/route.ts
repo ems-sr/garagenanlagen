@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   let query = db.orm.public.MeterReading.where({ organizationId });
   if (garageId) query = query.where({ garageId });
 
-  const items = await query.orderBy((r) => r.readingDate.desc()).all();
+  const items = await query.orderBy([(r) => r.readingDate.desc(), (r) => r.createdAt.desc()]).all();
   return NextResponse.json({ items });
 }
 
