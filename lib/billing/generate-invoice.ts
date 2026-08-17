@@ -35,7 +35,7 @@ export async function generateInvoiceForReading(
   // rather than silently dropping that consumption. A garage with no prior
   // invoice bills from a 0 kWh baseline instead of requiring a second
   // reading to diff against.
-  const lastInvoices = await tx.orm.public.Invoice.where({ garageId: garage.id, organizationId })
+  const lastInvoices = await tx.orm.public.Invoice.where({ garageId: garage.id, organizationId, type: 'consumption' })
     .orderBy((i) => i.periodEnd.desc())
     .take(1)
     .all();
@@ -48,7 +48,15 @@ export async function generateInvoiceForReading(
   if (lastInvoice) {
     const lastBilledReading = await tx.orm.public.MeterReading.where({ id: lastInvoice.currentReadingId, organizationId }).first();
     if (!lastBilledReading) return billingError('NOT_FOUND', 'Zuletzt abgerechneter Zählerstand nicht gefunden.');
-    if (lastBilledReading.readingDate >= currentReading.readingDate) {
+    // Same-day corrections/re-reads are common (a garage can get a second
+    // reading on the same calendar date), so ties must be broken by
+    // `createdAt` rather than treated as "not after" — otherwise a later,
+    // legitimate same-day reading is wrongly rejected.
+    const isAfterLastBilled =
+      currentReading.readingDate.getTime() > lastBilledReading.readingDate.getTime() ||
+      (currentReading.readingDate.getTime() === lastBilledReading.readingDate.getTime() &&
+        currentReading.createdAt.getTime() > lastBilledReading.createdAt.getTime());
+    if (!isAfterLastBilled) {
       return billingError(
         'INVALID_CONSUMPTION',
         'Der aktuelle Zählerstand liegt nicht nach dem zuletzt abgerechneten Zählerstand.',
@@ -124,15 +132,27 @@ export async function generateInvoiceForReading(
   // Mark every reading swept into this invoice's billed period as
   // "contained in invoice" — not just the exact endpoint — so readings that
   // were taken but skipped by a previous, narrower invoice generation are
-  // visibly accounted for too.
-  const containedReadingsQuery = previousReading
-    ? tx.orm.public.MeterReading.where({ garageId: garage.id, organizationId }).where((r) =>
-        r.readingDate.gt(previousReading.readingDate),
-      )
-    : tx.orm.public.MeterReading.where({ garageId: garage.id, organizationId });
+  // visibly accounted for too. Boundaries are (readingDate, createdAt)
+  // tuples, not readingDate alone, so same-day readings on either boundary
+  // (e.g. a same-day correction after `previousReading`, or an even later
+  // same-day reading that hasn't been billed yet) are swept correctly rather
+  // than by date-only granularity.
+  const candidateReadings = await tx.orm.public.MeterReading.where({ garageId: garage.id, organizationId }).all();
+  const containedReadingIds = candidateReadings
+    .filter((r) => {
+      const afterPrevious =
+        !previousReading ||
+        r.readingDate.getTime() > previousReading.readingDate.getTime() ||
+        (r.readingDate.getTime() === previousReading.readingDate.getTime() && r.createdAt.getTime() > previousReading.createdAt.getTime());
+      const upToCurrent =
+        r.readingDate.getTime() < currentReading.readingDate.getTime() ||
+        (r.readingDate.getTime() === currentReading.readingDate.getTime() && r.createdAt.getTime() <= currentReading.createdAt.getTime());
+      return afterPrevious && upToCurrent;
+    })
+    .map((r) => r.id);
   // `.update()` only touches the first matching row — this must sweep every
   // reading in the range, so `.updateAll()` is required here.
-  await containedReadingsQuery.where((r) => r.readingDate.lte(currentReading.readingDate)).updateAll({ invoiceId: invoice.id });
+  await tx.orm.public.MeterReading.where({ organizationId }).where((r) => r.id.in(containedReadingIds)).updateAll({ invoiceId: invoice.id });
 
   return { success: true, data: invoice };
 }

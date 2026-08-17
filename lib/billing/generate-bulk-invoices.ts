@@ -22,8 +22,8 @@ export async function generateBulkInvoicesForFacility(organizationId: string, fa
   const skipped: { garageId: string; error: BillingError }[] = [];
 
   for (const garage of garages) {
-    const latestReadings = await db.orm.public.MeterReading.where({ garageId: garage.id, organizationId })
-      .orderBy((r) => r.readingDate.desc())
+    const latestReadings = await db.orm.public.MeterReading.where({ garageId: garage.id, organizationId, invoiceId: null })
+      .orderBy([(r) => r.readingDate.desc(), (r) => r.createdAt.desc()])
       .take(1)
       .all();
     const latestReading = latestReadings[0];

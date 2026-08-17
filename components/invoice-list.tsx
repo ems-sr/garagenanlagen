@@ -121,9 +121,15 @@ export function InvoiceList({
     }
 
     const { created, skipped } = result.data;
+    const skipReasons = new Map<string, number>();
+    for (const { error } of skipped) {
+      skipReasons.set(error.message, (skipReasons.get(error.message) ?? 0) + 1);
+    }
+    const skipSummary = [...skipReasons.entries()].map(([message, count]) => `${count}× ${message}`).join(' ');
+
     toast.add({
       title: `${created.length} Rechnung(en) erstellt`,
-      description: skipped.length > 0 ? `${skipped.length} Garage(n) übersprungen.` : undefined,
+      description: skipped.length > 0 ? `${skipped.length} Garage(n) übersprungen: ${skipSummary}` : undefined,
       type: created.length > 0 ? 'success' : 'info',
     });
     router.refresh();
