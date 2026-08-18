@@ -21,8 +21,8 @@ export async function generateInvoiceForReading(
   const currentReading = await tx.orm.public.MeterReading.where({ id: currentReadingId, organizationId }).first();
   if (!currentReading) return billingError('NOT_FOUND', 'Zählerstand nicht gefunden.');
 
-  const existingInvoice = await tx.orm.public.Invoice.where({ currentReadingId, organizationId }).first();
-  if (existingInvoice) {
+  const existingMeterLineItem = await tx.orm.public.MeterLineItem.where({ currentReadingId, organizationId }).first();
+  if (existingMeterLineItem) {
     return billingError('ALREADY_INVOICED', 'Für diesen Zählerstand wurde bereits eine Rechnung erstellt.');
   }
 
@@ -46,7 +46,16 @@ export async function generateInvoiceForReading(
   let periodStart: Date;
 
   if (lastInvoice) {
-    const lastBilledReading = await tx.orm.public.MeterReading.where({ id: lastInvoice.currentReadingId, organizationId }).first();
+    // The meter charge (and its previous/current reading link) lives on the
+    // MeterLineItem linked to the invoice's one InvoiceLineItem row, not on
+    // Invoice itself — see the contract note above MeterLineItem.
+    const lastLineItems = await tx.orm.public.InvoiceLineItem.where({ invoiceId: lastInvoice.id, organizationId }).all();
+    const lastMeterLineItem = await tx.orm.public.MeterLineItem
+      .where({ organizationId })
+      .where((m) => m.lineItemId.in(lastLineItems.map((li) => li.id)))
+      .first();
+    if (!lastMeterLineItem) return billingError('NOT_FOUND', 'Zuletzt abgerechneter Zählerstand nicht gefunden.');
+    const lastBilledReading = await tx.orm.public.MeterReading.where({ id: lastMeterLineItem.currentReadingId, organizationId }).first();
     if (!lastBilledReading) return billingError('NOT_FOUND', 'Zuletzt abgerechneter Zählerstand nicht gefunden.');
     // Same-day corrections/re-reads are common (a garage can get a second
     // reading on the same calendar date), so ties must be broken by
@@ -118,15 +127,29 @@ export async function generateInvoiceForReading(
     invoiceNumber,
     periodStart,
     periodEnd: currentReading.readingDate,
-    previousReadingId: previousReading?.id,
-    currentReadingId: currentReading.id,
-    consumptionKwh: consumptionKwh.toString(),
-    pricePerKwh: price.pricePerKwh,
     netAmount,
     vatRate: VAT_RATE,
     vatAmount,
     grossAmount,
     status: 'open',
+  });
+
+  const lineItem = await tx.orm.public.InvoiceLineItem.create({
+    organizationId,
+    invoiceId: invoice.id,
+    description: 'Stromverbrauch',
+    quantity: consumptionKwh.toString(),
+    unitPrice: price.pricePerKwh,
+    netAmount,
+  });
+
+  await tx.orm.public.MeterLineItem.create({
+    organizationId,
+    lineItemId: lineItem.id,
+    previousReadingId: previousReading?.id,
+    currentReadingId: currentReading.id,
+    consumptionKwh: consumptionKwh.toString(),
+    pricePerKwh: price.pricePerKwh,
   });
 
   // Mark every reading swept into this invoice's billed period as

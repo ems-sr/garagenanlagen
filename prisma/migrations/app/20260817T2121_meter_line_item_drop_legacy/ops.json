@@ -1,0 +1,335 @@
+[
+  {
+    "id": "dropColumn.invoice.consumptionKwh",
+    "label": "Drop column \"consumptionKwh\" from \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "consumptionKwh",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"consumptionKwh\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "consumptionKwh"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"consumptionKwh\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP COLUMN \"consumptionKwh\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"consumptionKwh\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "consumptionKwh"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.invoice.pricePerKwh",
+    "label": "Drop column \"pricePerKwh\" from \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "pricePerKwh",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"pricePerKwh\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "pricePerKwh"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"pricePerKwh\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP COLUMN \"pricePerKwh\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"pricePerKwh\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "pricePerKwh"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.invoice.invoice_currentReadingId_fkey",
+    "label": "Drop constraint \"invoice_currentReadingId_fkey\" on \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_currentReadingId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_currentReadingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"invoice_currentReadingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP CONSTRAINT \"invoice_currentReadingId_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_currentReadingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.invoice.invoice_previousReadingId_fkey",
+    "label": "Drop constraint \"invoice_previousReadingId_fkey\" on \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "invoice_previousReadingId_fkey",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_previousReadingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_previousReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"invoice_previousReadingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP CONSTRAINT \"invoice_previousReadingId_fkey\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_previousReadingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_previousReadingId_fkey",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.invoice.invoice_previousReadingId_idx_cbaf49d5",
+    "label": "Drop index \"invoice_previousReadingId_idx_cbaf49d5\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "invoice_previousReadingId_idx_cbaf49d5",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"invoice_previousReadingId_idx_cbaf49d5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_previousReadingId_idx_cbaf49d5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"invoice_previousReadingId_idx_cbaf49d5\"",
+        "sql": "DROP INDEX \"public\".\"invoice_previousReadingId_idx_cbaf49d5\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"invoice_previousReadingId_idx_cbaf49d5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"invoice_previousReadingId_idx_cbaf49d5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.invoice.previousReadingId",
+    "label": "Drop column \"previousReadingId\" from \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "previousReadingId",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"previousReadingId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "previousReadingId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"previousReadingId\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP COLUMN \"previousReadingId\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"previousReadingId\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "previousReadingId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropConstraint.invoice.invoice_currentReadingId_key",
+    "label": "Drop constraint \"invoice_currentReadingId_key\" on \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "invoice_currentReadingId_key",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"invoice_currentReadingId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_key",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop constraint \"invoice_currentReadingId_key\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP CONSTRAINT \"invoice_currentReadingId_key\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"invoice_currentReadingId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "invoice_currentReadingId_key",
+          "public",
+          "\"public\".\"invoice\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropColumn.invoice.currentReadingId",
+    "label": "Drop column \"currentReadingId\" from \"invoice\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "currentReadingId",
+        "table": "invoice"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"currentReadingId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "currentReadingId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"currentReadingId\"",
+        "sql": "ALTER TABLE \"public\".\"invoice\" DROP COLUMN \"currentReadingId\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"currentReadingId\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "invoice",
+          "currentReadingId"
+        ]
+      }
+    ]
+  }
+]

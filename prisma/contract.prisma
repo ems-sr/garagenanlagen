@@ -382,12 +382,13 @@ enum InvoiceStatus {
   canceled      = "canceled"
 }
 
-// Stage 5 generalizes Invoice beyond consumption billing: `consumption` keeps
-// the Stage 4 shape (garage/reading/kWh fields below, no InvoiceLineItem
-// rows); `membershipFee` and `custom` are club-level (no garage/facility),
-// carry their totals as InvoiceLineItem rows instead of consumptionKwh/
-// pricePerKwh, and share the same status/payment/open-item machinery.
-// `creditNote` is club-level like membershipFee/custom, but its
+// `consumption` invoices are garage/facility-scoped and carry their meter
+// charge as one InvoiceLineItem row with a linked MeterLineItem detail (see
+// below), plus optionally further InvoiceLineItem rows for extra charges;
+// `membershipFee` and `custom` are club-level (no garage/facility) and carry
+// their totals purely as InvoiceLineItem rows, sharing the same status/
+// payment/open-item machinery. `creditNote` is club-level like
+// membershipFee/custom, but its
 // netAmount/vatAmount/grossAmount and every InvoiceLineItem.unitPrice/
 // netAmount are NEGATIVE — a credit note is literally "a negative invoice",
 // so it reuses the exact same Invoice/InvoiceLineItem/Payment machinery
@@ -404,47 +405,39 @@ enum InvoiceType {
 
 // Bills the ClubMember holding the active `member`-type GarageAssignment for
 // the garage at generation time — Tenant/renter invoicing is Stage 10 scope.
-// currentReadingId is @unique so a reading can be billed at most once (the
-// billing engine also checks this up front for a clean error message rather
-// than relying solely on the constraint). previousReadingId is nullable: a
-// garage's first-ever invoice has no prior billed reading and bills from a
-// 0 kWh baseline instead of pinning a MeterReading row.
+// netAmount/vatAmount/grossAmount are aggregated from this invoice's
+// InvoiceLineItem rows for every type, including consumption — the meter
+// reading/kWh/price detail behind a consumption invoice's charge lives on
+// MeterLineItem (see below), not on Invoice itself.
 //
-// facilityId/garageId/currentReadingId/consumptionKwh/pricePerKwh are only
-// populated for type=consumption; type=membershipFee/custom/creditNote
-// invoices are club-level (no facility/garage) and carry their amount as
-// InvoiceLineItem rows instead, with `description` as the invoice's
-// free-text title.
+// facilityId/garageId are only populated for type=consumption; type=
+// membershipFee/custom/creditNote invoices are club-level (no facility/
+// garage) and carry their amount as InvoiceLineItem rows, with
+// `description` as the invoice's free-text title.
 model Invoice {
-  id                String            @id @default(uuid())
-  organizationId    String
-  type              InvoiceType       @default(consumption)
-  facilityId        String?
-  facility          Facility?         @relation(fields: [facilityId], references: [id])
-  garageId          String?
-  garage            Garage?           @relation(fields: [garageId], references: [id])
-  clubMemberId      String
-  clubMember        ClubMember        @relation(fields: [clubMemberId], references: [id])
-  invoiceNumber     String
-  description       String?
-  periodStart       DateTime
-  periodEnd         DateTime
-  previousReadingId String?
-  previousReading   MeterReading?     @relation("InvoicePreviousReading", fields: [previousReadingId], references: [id])
-  currentReadingId  String?           @unique
-  currentReading    MeterReading?     @relation("InvoiceCurrentReading", fields: [currentReadingId], references: [id])
-  consumptionKwh    Decimal?
-  pricePerKwh       Int?
-  netAmount         Int
-  vatRate           Int               @default(19)
-  vatAmount         Int
-  grossAmount       Int
-  status            InvoiceStatus     @default(open)
-  issueDate         DateTime          @default(now())
-  dueDate           DateTime?
-  lineItems         InvoiceLineItem[]
-  createdAt         DateTime          @default(now())
-  updatedAt         temporal.updatedAt()
+  id             String            @id @default(uuid())
+  organizationId String
+  type           InvoiceType       @default(consumption)
+  facilityId     String?
+  facility       Facility?         @relation(fields: [facilityId], references: [id])
+  garageId       String?
+  garage         Garage?           @relation(fields: [garageId], references: [id])
+  clubMemberId   String
+  clubMember     ClubMember        @relation(fields: [clubMemberId], references: [id])
+  invoiceNumber  String
+  description    String?
+  periodStart    DateTime
+  periodEnd      DateTime
+  netAmount      Int
+  vatRate        Int               @default(19)
+  vatAmount      Int
+  grossAmount    Int
+  status         InvoiceStatus     @default(open)
+  issueDate      DateTime          @default(now())
+  dueDate        DateTime?
+  lineItems      InvoiceLineItem[]
+  createdAt      DateTime          @default(now())
+  updatedAt      temporal.updatedAt()
 
   @@unique([organizationId, invoiceNumber])
   @@index([organizationId])
@@ -454,25 +447,54 @@ model Invoice {
   @@index([status])
 }
 
-// Only populated for type=membershipFee/custom invoices — type=consumption
-// invoices keep their single amount directly on Invoice (netAmount/
-// pricePerKwh/consumptionKwh), unchanged from Stage 4, since retrofitting
-// line items onto every past consumption invoice isn't needed by any Stage 5
-// requirement.
+// Populated for every invoice type as its charge rows — including
+// consumption, whose single meter charge is one InvoiceLineItem row (see
+// MeterLineItem below) instead of scalar fields on Invoice, so a consumption
+// invoice can carry additional charges (e.g. a base fee) alongside it the
+// same way membershipFee/custom/creditNote invoices already can.
 model InvoiceLineItem {
-  id             String   @id @default(uuid())
+  id             String         @id @default(uuid())
   organizationId String
   invoiceId      String
-  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice        Invoice        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   description    String
   quantity       Decimal
   unitPrice      Int
   netAmount      Int
-  createdAt      DateTime @default(now())
+  meterLineItem  MeterLineItem?
+  createdAt      DateTime       @default(now())
   updatedAt      temporal.updatedAt()
 
   @@index([organizationId])
   @@index([invoiceId])
+}
+
+// 1:1 structured detail for the single InvoiceLineItem that represents a
+// meter (type=consumption) charge — every other InvoiceLineItem row (extra
+// fees on a consumption invoice, or any membershipFee/custom/creditNote line
+// item) has no MeterLineItem row. currentReadingId is @unique so a reading
+// can be billed at most once (the billing engine also checks this up front
+// for a clean error message rather than relying solely on the constraint).
+// previousReadingId is nullable: a garage's first-ever invoice has no prior
+// billed reading and bills from a 0 kWh baseline instead of pinning a
+// MeterReading row. Moved off Invoice (Stage 4/5 shape) so a consumption
+// invoice can carry the meter charge plus arbitrary additional line items
+// without meter-only nullable columns living on the shared Invoice table.
+model MeterLineItem {
+  id                String          @id @default(uuid())
+  organizationId    String
+  lineItemId        String          @unique
+  lineItem          InvoiceLineItem @relation(fields: [lineItemId], references: [id], onDelete: Cascade)
+  previousReadingId String?
+  previousReading   MeterReading?   @relation("MeterLineItemPreviousReading", fields: [previousReadingId], references: [id])
+  currentReadingId  String          @unique
+  currentReading    MeterReading    @relation("MeterLineItemCurrentReading", fields: [currentReadingId], references: [id])
+  consumptionKwh    Decimal
+  pricePerKwh       Int
+  createdAt         DateTime        @default(now())
+  updatedAt         temporal.updatedAt()
+
+  @@index([organizationId])
 }
 
 // Named, reusable line-item definition (e.g. "Mitgliedsbeitrag", "Kaution

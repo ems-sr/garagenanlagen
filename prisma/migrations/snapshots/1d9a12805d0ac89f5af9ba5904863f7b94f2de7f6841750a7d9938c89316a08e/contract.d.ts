@@ -30,7 +30,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'0a83ccac1e1fd5749bbe39f2c63ee85373479ea05e74c956679be80925cdf902'>;
+  StorageHashBase<'1d9a12805d0ac89f5af9ba5904863f7b94f2de7f6841750a7d9938c89316a08e'>;
 export type ExecutionHash =
   ExecutionHashBase<'de13d449113ec9f61bbb7e9c303ebdd45d2bdb30b7a55f3a527e87ab4e6398e2'>;
 export type ProfileHash =
@@ -328,6 +328,10 @@ export type FieldOutputTypes = {
       readonly description: CodecTypes['pg/text@1']['output'] | null;
       readonly periodStart: CodecTypes['pg/timestamptz@1']['output'];
       readonly periodEnd: CodecTypes['pg/timestamptz@1']['output'];
+      readonly previousReadingId: CodecTypes['pg/text@1']['output'] | null;
+      readonly currentReadingId: CodecTypes['pg/text@1']['output'] | null;
+      readonly consumptionKwh: CodecTypes['pg/numeric@1']['output'] | null;
+      readonly pricePerKwh: CodecTypes['pg/int4@1']['output'] | null;
       readonly netAmount: CodecTypes['pg/int4@1']['output'];
       readonly vatRate: CodecTypes['pg/int4@1']['output'];
       readonly vatAmount: CodecTypes['pg/int4@1']['output'];
@@ -703,6 +707,10 @@ export type FieldInputTypes = {
       readonly description: CodecTypes['pg/text@1']['input'] | null;
       readonly periodStart: CodecTypes['pg/timestamptz@1']['input'];
       readonly periodEnd: CodecTypes['pg/timestamptz@1']['input'];
+      readonly previousReadingId: CodecTypes['pg/text@1']['input'] | null;
+      readonly currentReadingId: CodecTypes['pg/text@1']['input'] | null;
+      readonly consumptionKwh: CodecTypes['pg/numeric@1']['input'] | null;
+      readonly pricePerKwh: CodecTypes['pg/int4@1']['input'] | null;
       readonly netAmount: CodecTypes['pg/int4@1']['input'];
       readonly vatRate: CodecTypes['pg/int4@1']['input'];
       readonly vatAmount: CodecTypes['pg/int4@1']['input'];
@@ -1069,7 +1077,9 @@ export type StorageColumnTypes = {
     };
     readonly invoice: {
       readonly clubMemberId: CodecTypes['pg/text@1']['output'];
+      readonly consumptionKwh: CodecTypes['pg/numeric@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz@1']['output'];
+      readonly currentReadingId: CodecTypes['pg/text@1']['output'] | null;
       readonly description: CodecTypes['pg/text@1']['output'] | null;
       readonly dueDate: CodecTypes['pg/timestamptz@1']['output'] | null;
       readonly facilityId: CodecTypes['pg/text@1']['output'] | null;
@@ -1082,6 +1092,8 @@ export type StorageColumnTypes = {
       readonly organizationId: CodecTypes['pg/text@1']['output'];
       readonly periodEnd: CodecTypes['pg/timestamptz@1']['output'];
       readonly periodStart: CodecTypes['pg/timestamptz@1']['output'];
+      readonly previousReadingId: CodecTypes['pg/text@1']['output'] | null;
+      readonly pricePerKwh: CodecTypes['pg/int4@1']['output'] | null;
       readonly status: 'open' | 'partiallyPaid' | 'paid' | 'canceled';
       readonly type: 'consumption' | 'membershipFee' | 'custom' | 'creditNote';
       readonly updatedAt: CodecTypes['pg/timestamptz@1']['output'];
@@ -1444,7 +1456,9 @@ export type StorageColumnInputTypes = {
     };
     readonly invoice: {
       readonly clubMemberId: CodecTypes['pg/text@1']['input'];
+      readonly consumptionKwh: CodecTypes['pg/numeric@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz@1']['input'];
+      readonly currentReadingId: CodecTypes['pg/text@1']['input'] | null;
       readonly description: CodecTypes['pg/text@1']['input'] | null;
       readonly dueDate: CodecTypes['pg/timestamptz@1']['input'] | null;
       readonly facilityId: CodecTypes['pg/text@1']['input'] | null;
@@ -1457,6 +1471,8 @@ export type StorageColumnInputTypes = {
       readonly organizationId: CodecTypes['pg/text@1']['input'];
       readonly periodEnd: CodecTypes['pg/timestamptz@1']['input'];
       readonly periodStart: CodecTypes['pg/timestamptz@1']['input'];
+      readonly previousReadingId: CodecTypes['pg/text@1']['input'] | null;
+      readonly pricePerKwh: CodecTypes['pg/int4@1']['input'] | null;
       readonly status: 'open' | 'partiallyPaid' | 'paid' | 'canceled';
       readonly type: 'consumption' | 'membershipFee' | 'custom' | 'creditNote';
       readonly updatedAt: CodecTypes['pg/timestamptz@1']['input'];
@@ -3024,6 +3040,26 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz@1';
                   readonly nullable: false;
                 };
+                readonly previousReadingId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly currentReadingId: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly consumptionKwh: {
+                  readonly nativeType: 'numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: true;
+                };
+                readonly pricePerKwh: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                };
                 readonly netAmount: {
                   readonly nativeType: 'int4';
                   readonly codecId: 'pg/int4@1';
@@ -3082,6 +3118,7 @@ type ContractBase = Omit<
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [
+                { readonly columns: readonly ['currentReadingId'] },
                 { readonly columns: readonly ['organizationId', 'invoiceNumber'] },
               ];
               indexes: readonly [
@@ -3113,6 +3150,12 @@ type ContractBase = Omit<
                   readonly name: 'invoice_status_idx_e98638ab';
                   readonly prefix: 'invoice_status_idx';
                   readonly columns: readonly ['status'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'invoice_previousReadingId_idx_cbaf49d5';
+                  readonly prefix: 'invoice_previousReadingId_idx';
+                  readonly columns: readonly ['previousReadingId'];
                   readonly unique: false;
                 },
               ];
@@ -3150,6 +3193,30 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'clubMember';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'invoice';
+                    readonly columns: readonly ['previousReadingId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'meterReading';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'invoice';
+                    readonly columns: readonly ['currentReadingId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'meterReading';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -5809,6 +5876,22 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/timestamptz@1' };
               };
+              readonly previousReadingId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly currentReadingId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly consumptionKwh: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+              };
+              readonly pricePerKwh: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly netAmount: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -5858,6 +5941,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly currentReading: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'MeterReading';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['currentReadingId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly facility: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -5891,6 +5985,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['invoiceId'];
                 };
               };
+              readonly previousReading: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'MeterReading';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['previousReadingId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'invoice';
@@ -5906,6 +6011,10 @@ type ContractBase = Omit<
                 readonly description: { readonly column: 'description' };
                 readonly periodStart: { readonly column: 'periodStart' };
                 readonly periodEnd: { readonly column: 'periodEnd' };
+                readonly previousReadingId: { readonly column: 'previousReadingId' };
+                readonly currentReadingId: { readonly column: 'currentReadingId' };
+                readonly consumptionKwh: { readonly column: 'consumptionKwh' };
+                readonly pricePerKwh: { readonly column: 'pricePerKwh' };
                 readonly netAmount: { readonly column: 'netAmount' };
                 readonly vatRate: { readonly column: 'vatRate' };
                 readonly vatAmount: { readonly column: 'vatAmount' };

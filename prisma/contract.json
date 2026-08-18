@@ -100,6 +100,10 @@
       "model": "MembershipPeriod",
       "namespace": "public"
     },
+    "meterLineItem": {
+      "model": "MeterLineItem",
+      "namespace": "public"
+    },
     "meterReading": {
       "model": "MeterReading",
       "namespace": "public"
@@ -2284,24 +2288,10 @@
                   "kind": "scalar"
                 }
               },
-              "consumptionKwh": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar"
-                }
-              },
               "createdAt": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/timestamptz@1",
-                  "kind": "scalar"
-                }
-              },
-              "currentReadingId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -2389,20 +2379,6 @@
                   "kind": "scalar"
                 }
               },
-              "previousReadingId": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
-              "pricePerKwh": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
               "status": {
                 "nullable": false,
                 "type": {
@@ -2467,21 +2443,6 @@
                   "namespace": "public"
                 }
               },
-              "currentReading": {
-                "cardinality": "N:1",
-                "on": {
-                  "localFields": [
-                    "currentReadingId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "MeterReading",
-                  "namespace": "public"
-                }
-              },
               "facility": {
                 "cardinality": "N:1",
                 "on": {
@@ -2526,21 +2487,6 @@
                   "model": "InvoiceLineItem",
                   "namespace": "public"
                 }
-              },
-              "previousReading": {
-                "cardinality": "N:1",
-                "on": {
-                  "localFields": [
-                    "previousReadingId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "MeterReading",
-                  "namespace": "public"
-                }
               }
             },
             "storage": {
@@ -2548,14 +2494,8 @@
                 "clubMemberId": {
                   "column": "clubMemberId"
                 },
-                "consumptionKwh": {
-                  "column": "consumptionKwh"
-                },
                 "createdAt": {
                   "column": "createdAt"
-                },
-                "currentReadingId": {
-                  "column": "currentReadingId"
                 },
                 "description": {
                   "column": "description"
@@ -2592,12 +2532,6 @@
                 },
                 "periodStart": {
                   "column": "periodStart"
-                },
-                "previousReadingId": {
-                  "column": "previousReadingId"
-                },
-                "pricePerKwh": {
-                  "column": "pricePerKwh"
                 },
                 "status": {
                   "column": "status"
@@ -2698,6 +2632,21 @@
                 },
                 "to": {
                   "model": "Invoice",
+                  "namespace": "public"
+                }
+              },
+              "meterLineItem": {
+                "cardinality": "1:1",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lineItemId"
+                  ]
+                },
+                "to": {
+                  "model": "MeterLineItem",
                   "namespace": "public"
                 }
               }
@@ -3490,6 +3439,153 @@
               },
               "namespaceId": "public",
               "table": "membershipPeriod"
+            }
+          },
+          "MeterLineItem": {
+            "fields": {
+              "consumptionKwh": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              },
+              "currentReadingId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lineItemId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "previousReadingId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "pricePerKwh": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "currentReading": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "currentReadingId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "MeterReading",
+                  "namespace": "public"
+                }
+              },
+              "lineItem": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "lineItemId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "InvoiceLineItem",
+                  "namespace": "public"
+                }
+              },
+              "previousReading": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "previousReadingId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "MeterReading",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "consumptionKwh": {
+                  "column": "consumptionKwh"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "currentReadingId": {
+                  "column": "currentReadingId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lineItemId": {
+                  "column": "lineItemId"
+                },
+                "organizationId": {
+                  "column": "organizationId"
+                },
+                "previousReadingId": {
+                  "column": "previousReadingId"
+                },
+                "pricePerKwh": {
+                  "column": "pricePerKwh"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "meterLineItem"
             }
           },
           "MeterReading": {
@@ -6152,11 +6248,6 @@
                   "nativeType": "text",
                   "nullable": false
                 },
-                "consumptionKwh": {
-                  "codecId": "pg/numeric@1",
-                  "nativeType": "numeric",
-                  "nullable": true
-                },
                 "createdAt": {
                   "codecId": "pg/timestamptz@1",
                   "default": {
@@ -6165,11 +6256,6 @@
                   },
                   "nativeType": "timestamptz",
                   "nullable": false
-                },
-                "currentReadingId": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
                 },
                 "description": {
                   "codecId": "pg/text@1",
@@ -6234,16 +6320,6 @@
                   "codecId": "pg/timestamptz@1",
                   "nativeType": "timestamptz",
                   "nullable": false
-                },
-                "previousReadingId": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": true
-                },
-                "pricePerKwh": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": true
                 },
                 "status": {
                   "codecId": "pg/text@1",
@@ -6343,38 +6419,6 @@
                     "namespaceId": "public",
                     "tableName": "clubMember"
                   }
-                },
-                {
-                  "source": {
-                    "columns": [
-                      "previousReadingId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "invoice"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "meterReading"
-                  }
-                },
-                {
-                  "source": {
-                    "columns": [
-                      "currentReadingId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "invoice"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "meterReading"
-                  }
                 }
               ],
               "indexes": [
@@ -6412,14 +6456,6 @@
                 },
                 {
                   "columns": [
-                    "previousReadingId"
-                  ],
-                  "name": "invoice_previousReadingId_idx_cbaf49d5",
-                  "prefix": "invoice_previousReadingId_idx",
-                  "unique": false
-                },
-                {
-                  "columns": [
                     "status"
                   ],
                   "name": "invoice_status_idx_e98638ab",
@@ -6433,11 +6469,6 @@
                 ]
               },
               "uniques": [
-                {
-                  "columns": [
-                    "currentReadingId"
-                  ]
-                },
                 {
                   "columns": [
                     "organizationId",
@@ -7227,6 +7258,145 @@
                 ]
               },
               "uniques": []
+            },
+            "meterLineItem": {
+              "columns": {
+                "consumptionKwh": {
+                  "codecId": "pg/numeric@1",
+                  "nativeType": "numeric",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "currentReadingId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "lineItemId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "organizationId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "previousReadingId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "pricePerKwh": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "lineItemId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "meterLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "invoiceLineItem"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "previousReadingId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "meterLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "meterReading"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "currentReadingId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "meterLineItem"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "meterReading"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "organizationId"
+                  ],
+                  "name": "meterLineItem_organizationId_idx_2e17ef41",
+                  "prefix": "meterLineItem_organizationId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "previousReadingId"
+                  ],
+                  "name": "meterLineItem_previousReadingId_idx_cbaf49d5",
+                  "prefix": "meterLineItem_previousReadingId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "lineItemId"
+                  ]
+                },
+                {
+                  "columns": [
+                    "currentReadingId"
+                  ]
+                }
+              ]
             },
             "meterReading": {
               "columns": {
@@ -8092,10 +8262,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "78ce6fbd83e6115e405815bbf1298bd741394d03fcc7e0ec4b382c706b214edd"
+    "storageHash": "0a83ccac1e1fd5749bbe39f2c63ee85373479ea05e74c956679be80925cdf902"
   },
   "execution": {
-    "executionHash": "076e49df17defd26b060373ef265d05350ad6fe72995866b537f45b43995bc30",
+    "executionHash": "de13d449113ec9f61bbb7e9c303ebdd45d2bdb30b7a55f3a527e87ab4e6398e2",
     "mutations": {
       "defaults": [
         {
@@ -8690,6 +8860,32 @@
             "column": "updatedAt",
             "namespace": "public",
             "table": "membershipPeriod"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "meterLineItem"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updatedAt",
+            "namespace": "public",
+            "table": "meterLineItem"
           }
         },
         {

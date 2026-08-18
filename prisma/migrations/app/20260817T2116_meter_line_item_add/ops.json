@@ -1,0 +1,329 @@
+[
+  {
+    "id": "table.meterLineItem",
+    "label": "Create table \"meterLineItem\"",
+    "summary": "Creates table \"meterLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"meterLineItem\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"meterLineItem\"",
+        "sql": "CREATE TABLE \"public\".\"meterLineItem\" (\n  \"consumptionKwh\" numeric NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"currentReadingId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"lineItemId\" text NOT NULL,\n  \"organizationId\" text NOT NULL,\n  \"previousReadingId\" text,\n  \"pricePerKwh\" int4 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"meterLineItem\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.meterLineItem.meterLineItem_lineItemId_key",
+    "label": "Add unique constraint on \"meterLineItem\" (lineItemId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "meterLineItem_lineItemId_key",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"meterLineItem_lineItemId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_lineItemId_key",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"meterLineItem_lineItemId_key\"",
+        "sql": "ALTER TABLE \"public\".\"meterLineItem\" ADD CONSTRAINT \"meterLineItem_lineItemId_key\" UNIQUE (\"lineItemId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"meterLineItem_lineItemId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_lineItemId_key",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.meterLineItem.meterLineItem_currentReadingId_key",
+    "label": "Add unique constraint on \"meterLineItem\" (currentReadingId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "meterLineItem_currentReadingId_key",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"meterLineItem_currentReadingId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_currentReadingId_key",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"meterLineItem_currentReadingId_key\"",
+        "sql": "ALTER TABLE \"public\".\"meterLineItem\" ADD CONSTRAINT \"meterLineItem_currentReadingId_key\" UNIQUE (\"currentReadingId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"meterLineItem_currentReadingId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_currentReadingId_key",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.meterLineItem.meterLineItem_organizationId_idx_2e17ef41",
+    "label": "Create index \"meterLineItem_organizationId_idx_2e17ef41\" on \"meterLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "meterLineItem_organizationId_idx_2e17ef41",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"meterLineItem_organizationId_idx_2e17ef41\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterLineItem_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"meterLineItem_organizationId_idx_2e17ef41\"",
+        "sql": "CREATE INDEX \"meterLineItem_organizationId_idx_2e17ef41\" ON \"public\".\"meterLineItem\" (\"organizationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"meterLineItem_organizationId_idx_2e17ef41\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterLineItem_organizationId_idx_2e17ef41\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.meterLineItem.meterLineItem_previousReadingId_idx_cbaf49d5",
+    "label": "Create index \"meterLineItem_previousReadingId_idx_cbaf49d5\" on \"meterLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "meterLineItem_previousReadingId_idx_cbaf49d5",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"meterLineItem_previousReadingId_idx_cbaf49d5\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterLineItem_previousReadingId_idx_cbaf49d5\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"meterLineItem_previousReadingId_idx_cbaf49d5\"",
+        "sql": "CREATE INDEX \"meterLineItem_previousReadingId_idx_cbaf49d5\" ON \"public\".\"meterLineItem\" (\"previousReadingId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"meterLineItem_previousReadingId_idx_cbaf49d5\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"meterLineItem_previousReadingId_idx_cbaf49d5\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.meterLineItem.meterLineItem_lineItemId_fkey",
+    "label": "Add foreign key \"meterLineItem_lineItemId_fkey\" on \"meterLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "meterLineItem_lineItemId_fkey",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"meterLineItem_lineItemId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_lineItemId_fkey",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"meterLineItem_lineItemId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"meterLineItem\"\nADD CONSTRAINT \"meterLineItem_lineItemId_fkey\"\nFOREIGN KEY (\"lineItemId\")\nREFERENCES \"public\".\"invoiceLineItem\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"meterLineItem_lineItemId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_lineItemId_fkey",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.meterLineItem.meterLineItem_previousReadingId_fkey",
+    "label": "Add foreign key \"meterLineItem_previousReadingId_fkey\" on \"meterLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "meterLineItem_previousReadingId_fkey",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"meterLineItem_previousReadingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_previousReadingId_fkey",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"meterLineItem_previousReadingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"meterLineItem\"\nADD CONSTRAINT \"meterLineItem_previousReadingId_fkey\"\nFOREIGN KEY (\"previousReadingId\")\nREFERENCES \"public\".\"meterReading\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"meterLineItem_previousReadingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_previousReadingId_fkey",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.meterLineItem.meterLineItem_currentReadingId_fkey",
+    "label": "Add foreign key \"meterLineItem_currentReadingId_fkey\" on \"meterLineItem\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "meterLineItem_currentReadingId_fkey",
+        "table": "meterLineItem"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"meterLineItem_currentReadingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_currentReadingId_fkey",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"meterLineItem_currentReadingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"meterLineItem\"\nADD CONSTRAINT \"meterLineItem_currentReadingId_fkey\"\nFOREIGN KEY (\"currentReadingId\")\nREFERENCES \"public\".\"meterReading\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"meterLineItem_currentReadingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "meterLineItem_currentReadingId_fkey",
+          "public",
+          "\"public\".\"meterLineItem\""
+        ]
+      }
+    ]
+  }
+]

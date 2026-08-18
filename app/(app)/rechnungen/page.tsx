@@ -79,6 +79,28 @@ export default async function RechnungenPage() {
   const lineItemTypeById = new Map(lineItemTypes.map((type) => [type.id, type]));
   const customTemplateIds = new Set(customTemplates.map((t) => t.id));
 
+  // consumptionKwh lives on the MeterLineItem linked to a consumption
+  // invoice's InvoiceLineItem, not on Invoice itself — batch-join both to
+  // build an invoiceId -> kWh lookup for the list column below.
+  const consumptionInvoiceIds = invoices.filter((invoice) => invoice.type === 'consumption').map((invoice) => invoice.id);
+  const consumptionLineItems =
+    consumptionInvoiceIds.length > 0
+      ? await db.orm.public.InvoiceLineItem.where({ organizationId }).where((li) => li.invoiceId.in(consumptionInvoiceIds)).all()
+      : [];
+  const meterLineItems =
+    consumptionLineItems.length > 0
+      ? await db.orm.public.MeterLineItem
+          .where({ organizationId })
+          .where((m) => m.lineItemId.in(consumptionLineItems.map((li) => li.id)))
+          .all()
+      : [];
+  const meterLineItemByLineItemId = new Map(meterLineItems.map((m) => [m.lineItemId, m]));
+  const consumptionKwhByInvoiceId = new Map(
+    consumptionLineItems
+      .map((li) => [li.invoiceId, meterLineItemByLineItemId.get(li.id)?.consumptionKwh ?? null] as const)
+      .filter(([, kwh]) => kwh != null),
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -116,7 +138,7 @@ export default async function RechnungenPage() {
               garageNumber: garage?.number ?? '–',
               periodStart: invoice.periodStart.toISOString(),
               periodEnd: invoice.periodEnd.toISOString(),
-              consumptionKwh: invoice.consumptionKwh,
+              consumptionKwh: consumptionKwhByInvoiceId.get(invoice.id) ?? null,
               grossAmount: invoice.grossAmount,
               openAmount: invoice.grossAmount - (paidTotalByInvoiceId.get(invoice.id) ?? 0),
               status: invoice.status,
